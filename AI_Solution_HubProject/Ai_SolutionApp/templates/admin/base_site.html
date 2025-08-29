@@ -1,0 +1,435 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | AI Solution Hub Admin{% endblock %}
+
+{% block extrastyle %}
+<style>
+    /* Custom Admin CSS Variables */
+    :root {
+        --admin-primary: #1e40af;
+        --admin-secondary: #3b82f6;
+        --admin-accent: #06b6d4;
+        --admin-success: #10b981;
+        --admin-warning: #f59e0b;
+        --admin-danger: #ef4444;
+        --admin-dark: #1f2937;
+        --admin-light: #f8fafc;
+        --admin-border: #e2e8f0;
+        --admin-text: #374151;
+        --admin-text-light: #6b7280;
+    }
+
+    /* Global Admin Styles */
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin: 0;
+        padding: 0;
+        color: var(--admin-text);
+        line-height: 1.6;
+    }
+
+    /* Header Styling */
+    #header {
+        background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
+        color: white;
+        padding: 1rem 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    #header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+
+    #branding h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        position: relative;
+        z-index: 1;
+    }
+
+    #branding h1::before {
+        content: '🤖 ';
+        margin-right: 0.5rem;
+    }
+
+    /* Navigation Styling */
+    #nav-sidebar {
+        background: white;
+        border-right: 1px solid var(--admin-border);
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        padding: 1rem 0;
+        min-height: calc(100vh - 80px);
+    }
+
+    #nav-sidebar ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    #nav-sidebar li {
+        margin: 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    #nav-sidebar a {
+        display: block;
+        padding: 1rem 1.5rem;
+        color: var(--admin-text);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+        font-weight: 500;
+    }
+
+    #nav-sidebar a:hover {
+        background: linear-gradient(90deg, #f0f9ff 0%, #e0f2fe 100%);
+        color: var(--admin-primary);
+        border-left-color: var(--admin-primary);
+        transform: translateX(5px);
+    }
+
+    #nav-sidebar .selected {
+        background: linear-gradient(90deg, #dbeafe 0%, #bfdbfe 100%);
+        color: var(--admin-primary);
+        border-left-color: var(--admin-primary);
+        font-weight: 600;
+    }
+
+    /* Main Content Styling */
+    #content {
+        background: var(--admin-light);
+        padding: 2rem;
+        min-height: calc(100vh - 80px);
+    }
+
+    .module {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--admin-border);
+        overflow: hidden;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .module:hover {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        transform: translateY(-2px);
+    }
+
+    .module h2 {
+        background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
+        color: white;
+        padding: 1.5rem;
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .module h2::before {
+        content: '📊 ';
+        margin-right: 0.5rem;
+    }
+
+    /* Table Styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+    }
+
+    th {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        color: var(--admin-text);
+        font-weight: 600;
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 2px solid var(--admin-border);
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    td {
+        padding: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+    }
+
+    tr:hover {
+        background: #f8fafc;
+    }
+
+    /* Button Styling */
+    .button, input[type="submit"], input[type="button"], .btn {
+        background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-block;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 10px rgba(30, 64, 175, 0.3);
+        font-size: 0.875rem;
+    }
+
+    .button:hover, input[type="submit"]:hover, input[type="button"]:hover, .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(30, 64, 175, 0.4);
+    }
+
+    .button.default {
+        background: linear-gradient(135deg, var(--admin-success) 0%, #059669 100%);
+        box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+    }
+
+    .button.default:hover {
+        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .deletelink {
+        background: linear-gradient(135deg, var(--admin-danger) 0%, #dc2626 100%);
+        box-shadow: 0 2px 10px rgba(239, 68, 68, 0.3);
+    }
+
+    .deletelink:hover {
+        box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+    }
+
+    /* Form Styling */
+    .form-row {
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid var(--admin-border);
+    }
+
+    .form-row label {
+        display: block;
+        font-weight: 600;
+        color: var(--admin-text);
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .form-row input[type="text"], .form-row input[type="email"], .form-row input[type="password"], 
+    .form-row textarea, .form-row select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid var(--admin-border);
+        border-radius: 6px;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .form-row input[type="text"]:focus, .form-row input[type="email"]:focus, .form-row input[type="password"]:focus,
+    .form-row textarea:focus, .form-row select:focus {
+        outline: none;
+        border-color: var(--admin-primary);
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+
+    /* Breadcrumb Styling */
+    .breadcrumbs {
+        background: white;
+        padding: 1rem 2rem;
+        border-bottom: 1px solid var(--admin-border);
+        font-size: 0.875rem;
+        color: var(--admin-text-light);
+    }
+
+    .breadcrumbs a {
+        color: var(--admin-primary);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .breadcrumbs a:hover {
+        text-decoration: underline;
+    }
+
+    /* Object Tools Styling */
+    .object-tools {
+        margin: 1rem 0;
+        text-align: right;
+    }
+
+    .object-tools a {
+        margin-left: 0.5rem;
+    }
+
+    /* Pagination Styling */
+    .paginator {
+        text-align: center;
+        margin: 2rem 0;
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .paginator a, .paginator .this-page {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        margin: 0 0.25rem;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .paginator a {
+        background: var(--admin-light);
+        color: var(--admin-text);
+        border: 1px solid var(--admin-border);
+    }
+
+    .paginator a:hover {
+        background: var(--admin-primary);
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .paginator .this-page {
+        background: var(--admin-primary);
+        color: white;
+        font-weight: 600;
+    }
+
+    /* Status Messages */
+    .messagelist {
+        margin: 1rem 0;
+    }
+
+    .messagelist li {
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+        list-style: none;
+        border-left: 4px solid;
+    }
+
+    .messagelist .success {
+        background: #f0fdf4;
+        color: #166534;
+        border-left-color: var(--admin-success);
+    }
+
+    .messagelist .warning {
+        background: #fffbeb;
+        color: #92400e;
+        border-left-color: var(--admin-warning);
+    }
+
+    .messagelist .error {
+        background: #fef2f2;
+        color: #991b1b;
+        border-left-color: var(--admin-danger);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        #header {
+            padding: 1rem;
+        }
+
+        #branding h1 {
+            font-size: 1.5rem;
+        }
+
+        #content {
+            padding: 1rem;
+        }
+
+        .module h2 {
+            padding: 1rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+        }
+
+        .button, input[type="submit"], input[type="button"], .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+    }
+
+    /* Custom Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .module {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--admin-primary);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--admin-secondary);
+    }
+</style>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        AI Solution Hub - Command Center
+    </a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block footer %}
+<div id="footer" style="text-align: center; padding: 2rem; color: var(--admin-text-light); background: white; border-top: 1px solid var(--admin-border); margin-top: 2rem;">
+    <p>🤖 AI Solution Hub Admin Portal | Powered by Django & Custom Styling</p>
+    <p style="font-size: 0.875rem; margin-top: 0.5rem;">Secure • Fast • Professional</p>
+</div>
+{% endblock %}

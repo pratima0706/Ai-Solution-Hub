@@ -1,0 +1,390 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    /* Custom Form Styles */
+    .form-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .form-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="form-grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23form-grain)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .form-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        position: relative;
+        z-index: 1;
+    }
+
+    .form-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .form-content {
+        padding: 2rem;
+    }
+
+    .form-row {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .form-row::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        border-radius: 0 2px 2px 0;
+    }
+
+    .form-row:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);
+        transform: translateX(5px);
+    }
+
+    .form-row label {
+        display: block;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.75rem;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        position: relative;
+    }
+
+    .form-row label::after {
+        content: ' *';
+        color: #ef4444;
+        font-weight: 600;
+    }
+
+    .form-row label.optional::after {
+        content: ' (Optional)';
+        color: #6b7280;
+        font-weight: 400;
+        font-size: 0.8rem;
+        text-transform: none;
+    }
+
+    .form-row input[type="text"], 
+    .form-row input[type="email"], 
+    .form-row input[type="password"], 
+    .form-row input[type="number"],
+    .form-row input[type="url"],
+    .form-row input[type="date"],
+    .form-row textarea, 
+    .form-row select {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+        font-family: inherit;
+        box-sizing: border-box;
+    }
+
+    .form-row input[type="text"]:focus, 
+    .form-row input[type="email"]:focus, 
+    .form-row input[type="password"]:focus,
+    .form-row input[type="number"]:focus,
+    .form-row input[type="url"]:focus,
+    .form-row input[type="date"]:focus,
+    .form-row textarea:focus, 
+    .form-row select:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .form-row textarea {
+        min-height: 120px;
+        resize: vertical;
+        line-height: 1.6;
+    }
+
+    .form-row select {
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.75rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+        appearance: none;
+    }
+
+    .form-row input[type="checkbox"],
+    .form-row input[type="radio"] {
+        width: auto;
+        margin-right: 0.5rem;
+        transform: scale(1.2);
+    }
+
+    .checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .checkbox-row label {
+        margin-bottom: 0;
+        text-transform: none;
+        letter-spacing: normal;
+        font-size: 1rem;
+    }
+
+    .checkbox-row label::after {
+        content: '';
+    }
+
+    /* Fieldset Styling */
+    fieldset {
+        border: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    fieldset .module {
+        background: transparent;
+        box-shadow: none;
+        border: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    fieldset .module h2 {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 1.5rem;
+        margin: 0 0 1.5rem 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    fieldset .module h2::before {
+        font-size: 1.5rem;
+    }
+
+    /* Submit Row Styling */
+    .submit-row {
+        background: white;
+        padding: 2rem;
+        border-top: 1px solid #e2e8f0;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .submit-row input[type="submit"] {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+        font-size: 1rem;
+        min-width: 150px;
+    }
+
+    .submit-row input[type="submit"]:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(16, 185, 129, 0.4);
+    }
+
+    .submit-row input[type="submit"].default {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        box-shadow: 0 4px 20px rgba(30, 64, 175, 0.3);
+    }
+
+    .submit-row input[type="submit"].default:hover {
+        box-shadow: 0 8px 30px rgba(30, 64, 175, 0.4);
+    }
+
+    .submit-row .deletelink {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+        font-size: 1rem;
+        min-width: 150px;
+    }
+
+    .submit-row .deletelink:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(239, 68, 68, 0.4);
+        color: white;
+    }
+
+    /* Help Text Styling */
+    .help {
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+        font-style: italic;
+        padding: 0.75rem;
+        background: #f0f9ff;
+        border-radius: 6px;
+        border-left: 3px solid #3b82f6;
+    }
+
+    /* Error Styling */
+    .errors {
+        background: #fef2f2;
+        color: #991b1b;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid #fecaca;
+        margin-bottom: 1rem;
+        border-left: 4px solid #ef4444;
+    }
+
+    .errors ul {
+        margin: 0;
+        padding-left: 1.5rem;
+    }
+
+    .errors li {
+        margin-bottom: 0.5rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .form-header {
+            padding: 1.5rem;
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+        }
+
+        .form-content {
+            padding: 1rem;
+        }
+
+        .form-row {
+            padding: 1rem;
+        }
+
+        .submit-row {
+            padding: 1rem;
+            flex-direction: column;
+        }
+
+        .submit-row input[type="submit"],
+        .submit-row .deletelink {
+            width: 100%;
+            min-width: auto;
+        }
+    }
+
+    /* Animations */
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .form-row {
+        animation: slideInLeft 0.6s ease-out;
+    }
+
+    .form-row:nth-child(1) { animation-delay: 0.1s; }
+    .form-row:nth-child(2) { animation-delay: 0.2s; }
+    .form-row:nth-child(3) { animation-delay: 0.3s; }
+    .form-row:nth-child(4) { animation-delay: 0.4s; }
+    .form-row:nth-child(5) { animation-delay: 0.5s; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h1 class="form-title">
+            {% if add %}
+                ✨ Add New {{ opts.verbose_name }}
+            {% else %}
+                ✏️ Edit {{ opts.verbose_name }}
+            {% endif %}
+        </h1>
+        <p class="form-subtitle">
+            {% if add %}
+                Create a new {{ opts.verbose_name|lower }} for your AI Solution Hub
+            {% else %}
+                Update the details for this {{ opts.verbose_name|lower }}
+            {% endif %}
+        </p>
+    </div>
+    
+    <div class="form-content">
+        {{ block.super }}
+    </div>
+</div>
+{% endblock %}

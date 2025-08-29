@@ -1,0 +1,300 @@
+{% extends 'ai_solution_app/base.html' %}
+
+{% block title %}Past Solutions & Case Studies - AI Solution Hub{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 text-white py-16">
+    <div class="absolute inset-0 bg-black opacity-20"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 class="text-4xl md:text-6xl font-bold mb-6">
+            Success <span class="gradient-text">Stories</span>
+        </h1>
+        <p class="text-xl text-green-100 max-w-3xl mx-auto">
+            Real-world AI implementations that delivered measurable results and transformed businesses across various industries.
+        </p>
+    </div>
+</section>
+
+<!-- Featured Solutions Section -->
+{% if featured_solutions %}
+<section class="py-20 bg-gray-50 dark:bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                Featured <span class="gradient-text">Case Studies</span>
+            </h2>
+            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                Our most impactful AI solutions that showcase the transformative power of artificial intelligence in real business scenarios.
+            </p>
+        </div>
+        
+        {% for solution in featured_solutions|slice:":1" %}
+        <div class="bg-white dark:bg-gray-700 rounded-3xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-600">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-0">
+                <div class="bg-gradient-to-br from-green-500 to-blue-600 p-12 flex items-center justify-center">
+                    <div class="text-center text-white">
+                        <i class="fas fa-trophy text-6xl mb-6 opacity-80"></i>
+                        <h3 class="text-2xl font-bold mb-4">Featured Success Story</h3>
+                        <p class="text-green-100">Exceptional results achieved</p>
+                    </div>
+                </div>
+                <div class="p-12">
+                    <div class="flex items-center mb-6">
+                        <span class="inline-block bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm font-medium px-3 py-1 rounded-full">
+                            {{ solution.industry }}
+                        </span>
+                        <span class="ml-4 text-sm text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-calendar mr-2"></i>{{ solution.completion_date|date:"M d, Y" }}
+                        </span>
+                    </div>
+                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">{{ solution.title }}</h3>
+                    <p class="text-lg text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">{{ solution.description|truncatewords:30 }}</p>
+                    <div class="mb-8">
+                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Key Results:</h4>
+                        <p class="text-gray-600 dark:text-gray-300">{{ solution.results|truncatewords:20 }}</p>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-building text-white"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-900 dark:text-white">{{ solution.client_name }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ solution.industry }} Industry</p>
+                            </div>
+                        </div>
+                        <a href="{% url 'ai_solution_app:solution_detail' solution.id %}" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full font-semibold hover:from-green-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                            View Full Case Study
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- All Solutions Section -->
+<section class="py-20 bg-white dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                All <span class="gradient-text">Solutions</span>
+            </h2>
+            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                Explore our comprehensive portfolio of AI implementations that have delivered measurable business value and competitive advantages.
+            </p>
+        </div>
+        
+        <!-- Industry Filter -->
+        <div class="flex flex-wrap justify-center gap-4 mb-12">
+            <button class="px-6 py-3 bg-green-500 text-white rounded-full font-semibold hover:bg-green-600 transition-colors duration-200">
+                All Industries
+            </button>
+            <button class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
+                Healthcare
+            </button>
+            <button class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
+                Finance
+            </button>
+            <button class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
+                E-commerce
+            </button>
+            <button class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
+                Manufacturing
+            </button>
+        </div>
+        
+        <!-- Solutions Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for solution in solutions %}
+            <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-200 dark:border-gray-600 overflow-hidden">
+                <div class="p-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="inline-block bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm font-medium px-3 py-1 rounded-full">
+                            {{ solution.industry }}
+                        </span>
+                        {% if solution.is_featured %}
+                        <span class="inline-block bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-sm font-medium px-3 py-1 rounded-full">
+                            Featured
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">{{ solution.title }}</h3>
+                    <p class="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">{{ solution.description|truncatewords:20 }}</p>
+                    
+                    <!-- Challenge Summary -->
+                    <div class="mb-6">
+                        <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Challenge:</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">{{ solution.challenge|truncatewords:15 }}</p>
+                    </div>
+                    
+                    <!-- Results Summary -->
+                    <div class="mb-6">
+                        <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Results:</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">{{ solution.results|truncatewords:12 }}</p>
+                    </div>
+                    
+                    <!-- Technologies Used -->
+                    {% if solution.technologies_used %}
+                    <div class="mb-6">
+                        <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Technologies:</h4>
+                        <div class="flex flex-wrap gap-2">
+                            {% for tech in solution.technologies_used|slice:":3" %}
+                            <span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded-full">
+                                {{ tech }}
+                            </span>
+                            {% endfor %}
+                            {% if solution.technologies_used|length > 3 %}
+                            <span class="inline-block bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 text-xs px-2 py-1 rounded-full">
+                                +{{ solution.technologies_used|length|add:"-3" }} more
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Client Info -->
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-building text-white text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-900 dark:text-white text-sm">{{ solution.client_name }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ solution.completion_date|date:"M Y" }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex gap-3">
+                        <a href="{% url 'ai_solution_app:solution_detail' solution.id %}" class="flex-1 bg-gradient-to-r from-green-500 to-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:from-green-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 text-center">
+                            Learn More
+                        </a>
+                        <a href="{% url 'ai_solution_app:contact_us' %}" class="flex-1 border-2 border-green-500 text-green-600 dark:text-green-400 px-6 py-3 rounded-full font-semibold hover:bg-green-500 hover:text-white dark:hover:bg-green-500 dark:hover:text-white transition-all duration-300 transform hover:scale-105 text-center">
+                            Get Similar Solution
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-12">
+                <div class="w-24 h-24 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-trophy text-3xl text-gray-400 dark:text-gray-500"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">No Solutions Available</h3>
+                <p class="text-gray-500 dark:text-gray-500">We're gathering our success stories. Check back soon!</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Load More Button -->
+        {% if solutions|length > 6 %}
+        <div class="text-center mt-12">
+            <button class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-green-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                Load More Solutions
+                <i class="fas fa-chevron-down ml-2"></i>
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Success Metrics Section -->
+<section class="py-20 bg-gray-50 dark:bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                Our <span class="gradient-text">Success Metrics</span>
+            </h2>
+            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                Quantifiable results that demonstrate the real business value our AI solutions deliver.
+            </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="text-center">
+                <div class="w-20 h-20 bg-gradient-to-r from-green-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-chart-line text-3xl text-white"></i>
+                </div>
+                <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">95%</h3>
+                <p class="text-gray-600 dark:text-gray-300">Client Satisfaction Rate</p>
+            </div>
+            <div class="text-center">
+                <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-rocket text-3xl text-white"></i>
+                </div>
+                <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">40%</h3>
+                <p class="text-gray-600 dark:text-gray-300">Average Efficiency Gain</p>
+            </div>
+            <div class="text-center">
+                <div class="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-dollar-sign text-3xl text-white"></i>
+                </div>
+                <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">3.2x</h3>
+                <p class="text-gray-600 dark:text-gray-300">Average ROI</p>
+            </div>
+            <div class="text-center">
+                <div class="w-20 h-20 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-users text-3xl text-white"></i>
+                </div>
+                <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">150+</h3>
+                <p class="text-gray-600 dark:text-gray-300">Successful Projects</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="py-20 bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-4xl md:text-5xl font-bold mb-6">
+            Ready to Create Your Success Story?
+        </h2>
+        <p class="text-xl mb-8 text-green-100 max-w-3xl mx-auto">
+            Let's discuss how our AI solutions can transform your business operations and deliver measurable results like the ones you've seen here.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'ai_solution_app:contact_us' %}" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                Start Your Project
+            </a>
+            <a href="{% url 'ai_solution_app:services' %}" class="border-2 border-white text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white hover:text-green-900 transition-all duration-300 transform hover:scale-105">
+                Explore Services
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- JavaScript for Industry Filter -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Industry filter functionality
+    const filterButtons = document.querySelectorAll('.flex.flex-wrap.justify-center button');
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active state from all filter buttons
+            filterButtons.forEach(btn => {
+                btn.classList.remove('bg-green-500', 'text-white');
+                btn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            });
+            
+            // Add active state to clicked button
+            this.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            this.classList.add('bg-green-500', 'text-white');
+            
+            // Here you would typically filter solutions by industry
+            // For now, we'll just show a simple animation
+            const solutionsGrid = document.querySelector('.grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3');
+            solutionsGrid.style.opacity = '0.5';
+            setTimeout(() => {
+                solutionsGrid.style.opacity = '1';
+            }, 200);
+        });
+    });
+});
+</script>
+{% endblock %}

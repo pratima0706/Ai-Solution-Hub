@@ -1,0 +1,329 @@
+{% extends 'ai_solution_app/base.html' %}
+
+{% block title %}Contact Us - AI Solution Hub{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 text-white py-16">
+    <div class="absolute inset-0 bg-black opacity-20"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 class="text-4xl md:text-6xl font-bold mb-6">
+            Get in <span class="gradient-text">Touch</span>
+        </h1>
+        <p class="text-xl text-indigo-100 max-w-3xl mx-auto">
+            Ready to transform your business with AI? Let's discuss your project requirements and explore how we can help you achieve your goals.
+        </p>
+    </div>
+</section>
+
+<!-- Contact Form Section -->
+<section class="py-20 bg-gray-50 dark:bg-gray-800">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Contact Form -->
+            <div class="bg-white dark:bg-gray-700 rounded-3xl shadow-2xl p-8 border border-gray-200 dark:border-gray-600">
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+                    Send Us a <span class="gradient-text">Message</span>
+                </h2>
+                
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.name.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                Full Name <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" 
+                                   name="{{ form.name.name }}" 
+                                   id="{{ form.name.id_for_label }}" 
+                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-800 dark:text-white transition-all duration-200"
+                                   placeholder="Enter your full name"
+                                   required>
+                            {% if form.name.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ form.name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.email.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                Email Address <span class="text-red-500">*</span>
+                            </label>
+                            <input type="email" 
+                                   name="{{ form.email.name }}" 
+                                   id="{{ form.email.id_for_label }}" 
+                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-800 dark:text-white transition-all duration-200"
+                                   placeholder="Enter your email address"
+                                   required>
+                            {% if form.email.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ form.email.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.phone.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                Phone Number
+                            </label>
+                            <input type="tel" 
+                                   name="{{ form.phone.name }}" 
+                                   id="{{ form.phone.id_for_label }}" 
+                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-800 dark:text-white transition-all duration-200"
+                                   placeholder="Enter your phone number">
+                            {% if form.phone.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ form.phone.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.company.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                Company Name
+                            </label>
+                            <input type="text" 
+                                   name="{{ form.company.name }}" 
+                                   id="{{ form.company.id_for_label }}" 
+                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-800 dark:text-white transition-all duration-200"
+                                   placeholder="Enter your company name">
+                            {% if form.company.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ form.company.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.subject.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                            Subject <span class="text-red-500">*</span>
+                        </label>
+                        <select name="{{ form.subject.name }}" 
+                                id="{{ form.subject.id_for_label }}" 
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-800 dark:text-white transition-all duration-200"
+                                required>
+                            <option value="">Select a subject</option>
+                            <option value="general">General Inquiry</option>
+                            <option value="services">AI Services</option>
+                            <option value="consultation">Free Consultation</option>
+                            <option value="partnership">Partnership Opportunity</option>
+                            <option value="support">Technical Support</option>
+                            <option value="other">Other</option>
+                        </select>
+                        {% if form.subject.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.subject.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.message.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                            Message <span class="text-red-500">*</span>
+                        </label>
+                        <textarea name="{{ form.message.name }}" 
+                                  id="{{ form.message.id_for_label }}" 
+                                  rows="6"
+                                  class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-800 dark:text-white transition-all duration-200 resize-none"
+                                  placeholder="Tell us about your project, requirements, or any questions you have..."
+                                  required></textarea>
+                        {% if form.message.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.message.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Honeypot field (hidden) -->
+                    <div class="hidden">
+                        {{ form.honeypot }}
+                    </div>
+                    
+                    <div class="text-center">
+                        <button type="submit" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-12 py-4 rounded-full text-lg font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Contact Information -->
+            <div class="space-y-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+                        Let's <span class="gradient-text">Connect</span>
+                    </h2>
+                    <p class="text-lg text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
+                        We're here to help you navigate the world of AI and find the perfect solutions for your business needs. Reach out to us through any of the channels below.
+                    </p>
+                </div>
+                
+                <!-- Contact Methods -->
+                <div class="space-y-6">
+                    <div class="flex items-start">
+                        <div class="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
+                            <i class="fas fa-envelope text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Email Us</h3>
+                            <p class="text-gray-600 dark:text-gray-300 mb-2">info@aisolutionhub.com</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">We typically respond within 24 hours</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
+                            <i class="fas fa-phone text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Call Us</h3>
+                            <p class="text-gray-600 dark:text-gray-300 mb-2">+1 (555) 123-4567</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Mon-Fri: 9:00 AM - 6:00 PM EST</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
+                            <i class="fas fa-map-marker-alt text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Visit Us</h3>
+                            <p class="text-gray-600 dark:text-gray-300 mb-2">123 AI Street, Tech City, TC 12345</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">United States</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
+                            <i class="fas fa-clock text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Business Hours</h3>
+                            <p class="text-gray-600 dark:text-gray-300 mb-2">Monday - Friday: 9:00 AM - 6:00 PM EST</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Weekend consultations available by appointment</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Social Media -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Follow Us</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white hover:scale-110 transition-transform duration-200">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center text-white hover:scale-110 transition-transform duration-200">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-12 h-12 bg-gradient-to-r from-pink-500 to-pink-600 rounded-xl flex items-center justify-center text-white hover:scale-110 transition-transform duration-200">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center text-white hover:scale-110 transition-transform duration-200">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-20 bg-white dark:bg-gray-900">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                Frequently Asked <span class="gradient-text">Questions</span>
+            </h2>
+            <p class="text-xl text-gray-600 dark:text-gray-300">
+                Get quick answers to common questions about working with us.
+            </p>
+        </div>
+        
+        <div class="space-y-6">
+            <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">How quickly can you start working on my project?</h3>
+                <p class="text-gray-600 dark:text-gray-300">We can typically begin project planning within 1-2 weeks of initial contact. The actual start date depends on project complexity and our current capacity.</p>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Do you offer free consultations?</h3>
+                <p class="text-gray-600 dark:text-gray-300">Yes! We offer a complimentary 30-minute consultation to discuss your project requirements and explore potential AI solutions for your business.</p>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">What industries do you specialize in?</h3>
+                <p class="text-gray-600 dark:text-gray-300">We have experience across multiple industries including healthcare, finance, e-commerce, manufacturing, and more. Our AI solutions are adaptable to any sector.</p>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">How do you ensure data security and privacy?</h3>
+                <p class="text-gray-600 dark:text-gray-300">We implement enterprise-grade security measures including encryption, secure data transmission, and compliance with industry standards like GDPR and HIPAA.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="py-20 bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 text-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-4xl md:text-5xl font-bold mb-6">
+            Ready to Get Started?
+        </h2>
+        <p class="text-xl mb-8 text-indigo-100 max-w-3xl mx-auto">
+            Don't wait to transform your business with AI. Contact us today and take the first step towards a more intelligent, efficient, and competitive future.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="#contact-form" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                Start Your Project
+            </a>
+            <a href="{% url 'ai_solution_app:services' %}" class="border-2 border-white text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white hover:text-indigo-900 transition-all duration-300 transform hover:scale-105">
+                Explore Services
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- JavaScript for Form Enhancement -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const submitButton = form.querySelector('button[type="submit"]');
+    
+    // Form validation and enhancement
+    form.addEventListener('submit', function(e) {
+        // Show loading state
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+        submitButton.disabled = true;
+        
+        // Simulate form submission (remove this in production)
+        setTimeout(() => {
+            submitButton.innerHTML = '<i class="fas fa-check mr-2"></i>Message Sent!';
+            submitButton.classList.remove('from-indigo-500', 'to-purple-600');
+            submitButton.classList.add('from-green-500', 'to-green-600');
+            
+            // Reset form after 3 seconds
+            setTimeout(() => {
+                form.reset();
+                submitButton.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Send Message';
+                submitButton.disabled = false;
+                submitButton.classList.remove('from-green-500', 'to-green-600');
+                submitButton.classList.add('from-indigo-500', 'to-purple-600');
+            }, 3000);
+        }, 2000);
+    });
+    
+    // Real-time form validation
+    const inputs = form.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.hasAttribute('required') && !this.value.trim()) {
+                this.classList.add('border-red-500');
+                this.classList.remove('border-gray-300', 'dark:border-gray-600');
+            } else {
+                this.classList.remove('border-red-500');
+                this.classList.add('border-gray-300', 'dark:border-gray-600');
+            }
+        });
+        
+        input.addEventListener('input', function() {
+            if (this.classList.contains('border-red-500') && this.value.trim()) {
+                this.classList.remove('border-red-500');
+                this.classList.add('border-gray-300', 'dark:border-gray-600');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'ai_solution_app/base.html' %}
+
+{% block title %}Events & Gallery - AI Solution Hub{% endblock %}
+
+{% block content %}
+<section class="bg-gradient-to-r from-blue-600 to-purple-700 text-white py-16">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+        <h1 class="text-4xl font-bold mb-4">Events & Gallery</h1>
+        <p class="text-xl">Join our events and explore our gallery</p>
+    </div>
+</section>
+
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4">
+        <h2 class="text-3xl font-bold mb-8">Upcoming Events</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            {% for event in upcoming_events %}
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-semibold mb-2">{{ event.title }}</h3>
+                <p class="text-gray-600 mb-4">{{ event.description|truncatewords:20 }}</p>
+                <div class="text-sm text-gray-500 mb-4">
+                    <i class="fas fa-calendar mr-2"></i>{{ event.start_date|date:"M d, Y" }}
+                </div>
+                {% if event.registration_link %}
+                <a href="{{ event.registration_link }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    Register Now
+                </a>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-12">
+                <h3 class="text-xl font-semibold mb-2">Events Coming Soon</h3>
+                <p class="text-gray-500">We're planning exciting events.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <h2 class="text-3xl font-bold mb-8">Gallery</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {% for image in gallery_images %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <img src="{{ image.image.url }}" alt="{{ image.title }}" class="w-full h-32 object-cover">
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-12">
+                <h3 class="text-xl font-semibold mb-2">Gallery Coming Soon</h3>
+                <p class="text-gray-500">We're adding photos to our gallery.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

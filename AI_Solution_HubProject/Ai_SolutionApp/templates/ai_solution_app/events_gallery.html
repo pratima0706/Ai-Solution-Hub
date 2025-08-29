@@ -1,0 +1,243 @@
+{% extends 'ai_solution_app/base.html' %}
+
+{% block title %}Events & Gallery - AI Solution Hub{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 text-white py-16">
+    <div class="absolute inset-0 bg-black opacity-20"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 class="text-4xl md:text-6xl font-bold mb-6">
+            Events & <span class="gradient-text">Gallery</span>
+        </h1>
+        <p class="text-xl text-blue-100 max-w-3xl mx-auto">
+            Join our exclusive AI events and explore our gallery showcasing the latest innovations and achievements.
+        </p>
+    </div>
+</section>
+
+<!-- Events Section -->
+<section class="py-20 bg-gray-50 dark:bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                Upcoming <span class="gradient-text">Events</span>
+            </h2>
+            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                Join us for exclusive AI insights, workshops, and networking opportunities with industry leaders.
+            </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for event in events %}
+            <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-200 dark:border-gray-600 overflow-hidden">
+                <div class="p-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm font-medium px-3 py-1 rounded-full">
+                            {{ event.event_type|title }}
+                        </span>
+                        {% if event.is_featured %}
+                        <span class="inline-block bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-sm font-medium px-3 py-1 rounded-full">
+                            Featured
+                        </span>
+                        {% endif %}
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">{{ event.title }}</h3>
+                    <p class="text-gray-600 dark:text-gray-300 mb-6">{{ event.description|truncatewords:25 }}</p>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-map-marker-alt mr-3 w-5"></i>
+                            <span>{{ event.location }}</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-calendar mr-3 w-5"></i>
+                            <span>{{ event.start_date|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-clock mr-3 w-5"></i>
+                            <span>{{ event.start_date|date:"g:i A" }} - {{ event.end_date|date:"g:i A" }}</span>
+                        </div>
+                        {% if event.max_participants %}
+                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-users mr-3 w-5"></i>
+                            <span>{{ event.current_participants }}/{{ event.max_participants }} participants</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="flex gap-3">
+                        <a href="{% url 'ai_solution_app:event_detail' event.id %}" class="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-full font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 text-center">
+                            View Details
+                        </a>
+                        {% if event.registration_open %}
+                        <a href="{% url 'ai_solution_app:event_detail' event.id %}" class="flex-1 bg-gradient-to-r from-green-500 to-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:from-green-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 text-center">
+                            Register Now
+                        </a>
+                        {% else %}
+                        <button disabled class="flex-1 bg-gray-400 text-white px-6 py-3 rounded-full font-semibold cursor-not-allowed">
+                            Full
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-12">
+                <div class="w-24 h-24 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-calendar text-3xl text-gray-400 dark:text-gray-500"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">No Events Scheduled</h3>
+                <p class="text-gray-500 dark:text-gray-500">Check back soon for upcoming AI events and workshops!</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-12">
+            <a href="{% url 'ai_solution_app:contact_us' %}" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                Request Custom Event
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Gallery Section -->
+<section class="py-20 bg-white dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                Our <span class="gradient-text">Gallery</span>
+            </h2>
+            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                Explore our collection of AI innovations, team events, and breakthrough moments that define our journey.
+            </p>
+        </div>
+        
+        <!-- Gallery Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+            {% for i in "1234567890123456" %}
+            <div class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer">
+                <div class="aspect-square bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
+                    <i class="fas fa-image text-4xl text-white opacity-50 group-hover:opacity-75 transition-opacity duration-300"></i>
+                </div>
+                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-300 flex items-center justify-center">
+                    <div class="text-white text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <h3 class="text-lg font-semibold mb-2">AI Innovation {{ forloop.counter }}</h3>
+                        <p class="text-sm">Click to view details</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Gallery Pagination -->
+        <div class="flex justify-center items-center space-x-2">
+            <button class="px-4 py-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            
+            <button class="px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold">1</button>
+            <button class="px-4 py-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200">2</button>
+            <button class="px-4 py-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200">3</button>
+            <button class="px-4 py-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200">4</button>
+            
+            <button class="px-4 py-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        
+        <!-- Gallery Categories -->
+        <div class="mt-12 text-center">
+            <div class="flex flex-wrap justify-center gap-4 mb-8">
+                <button class="px-6 py-3 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transition-colors duration-200">
+                    All
+                </button>
+                <button class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
+                    AI Solutions
+                </button>
+                <button class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
+                    Team Events
+                </button>
+                <button class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
+                    Conferences
+                </button>
+                <button class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
+                    Workshops
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="py-20 bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-4xl md:text-5xl font-bold mb-6">
+            Join Our Next AI Event
+        </h2>
+        <p class="text-xl mb-8 text-blue-100 max-w-3xl mx-auto">
+            Don't miss out on the latest AI insights, networking opportunities, and hands-on workshops. Register today and be part of the AI revolution.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'ai_solution_app:contact_us' %}" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                Contact Us
+            </a>
+            <a href="{% url 'ai_solution_app:articles_blog' %}" class="border-2 border-white text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white hover:text-blue-900 transition-all duration-300 transform hover:scale-105">
+                Read Our Blog
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- JavaScript for Gallery Functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gallery pagination functionality
+    const paginationButtons = document.querySelectorAll('.flex.justify-center button');
+    const galleryGrid = document.querySelector('.grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-4');
+    
+    paginationButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active state from all buttons
+            paginationButtons.forEach(btn => {
+                btn.classList.remove('bg-blue-500', 'text-white');
+                btn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            });
+            
+            // Add active state to clicked button
+            this.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            this.classList.add('bg-blue-500', 'text-white');
+            
+            // Here you would typically load new gallery items
+            // For now, we'll just show a simple animation
+            galleryGrid.style.opacity = '0.5';
+            setTimeout(() => {
+                galleryGrid.style.opacity = '1';
+            }, 200);
+        });
+    });
+    
+    // Gallery category filter functionality
+    const categoryButtons = document.querySelectorAll('.flex.flex-wrap.justify-center button');
+    
+    categoryButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active state from all category buttons
+            categoryButtons.forEach(btn => {
+                btn.classList.remove('bg-blue-500', 'text-white');
+                btn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            });
+            
+            // Add active state to clicked button
+            this.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            this.classList.add('bg-blue-500', 'text-white');
+            
+            // Here you would typically filter gallery items by category
+            // For now, we'll just show a simple animation
+            galleryGrid.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                galleryGrid.style.transform = 'scale(1)';
+            }, 200);
+        });
+    });
+});
+</script>
+{% endblock %}

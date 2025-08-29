@@ -1,0 +1,259 @@
+{% extends 'ai_solution_app/base.html' %}
+
+{% block title %}Contact Us - AI Solution Hub{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-to-r from-blue-600 to-purple-700 text-white py-16">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">Get In Touch</h1>
+        <p class="text-xl max-w-2xl mx-auto">
+            Ready to transform your business with AI? Let's discuss your project requirements and how we can help.
+        </p>
+    </div>
+</section>
+
+<!-- Contact Form Section -->
+<section class="py-16 bg-white">
+    <div class="max-w-4xl mx-auto px-4">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Contact Form -->
+            <div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">Send Us a Message</h2>
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <!-- Name Field -->
+                    <div>
+                        <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Full Name *
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="mt-1 text-red-600 text-sm">
+                                {% for error in form.name.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Email Field -->
+                    <div>
+                        <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Email Address *
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="mt-1 text-red-600 text-sm">
+                                {% for error in form.email.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Phone Field -->
+                    <div>
+                        <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Phone Number *
+                        </label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                            <div class="mt-1 text-red-600 text-sm">
+                                {% for error in form.phone.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Company Field -->
+                    <div>
+                        <label for="{{ form.company.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Company Name *
+                        </label>
+                        {{ form.company }}
+                        {% if form.company.errors %}
+                            <div class="mt-1 text-red-600 text-sm">
+                                {% for error in form.company.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Country Field -->
+                    <div>
+                        <label for="{{ form.country.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Country *
+                        </label>
+                        {{ form.country }}
+                        {% if form.country.errors %}
+                            <div class="mt-1 text-red-600 text-sm">
+                                {% for error in form.country.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Job Title Field -->
+                    <div>
+                        <label for="{{ form.job_title.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Job Title *
+                        </label>
+                        {{ form.job_title }}
+                        {% if form.job_title.errors %}
+                            <div class="mt-1 text-red-600 text-sm">
+                                {% for error in form.job_title.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Job Details Field -->
+                    <div>
+                        <label for="{{ form.job_details.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Project Details *
+                        </label>
+                        {{ form.job_details }}
+                        <p class="mt-1 text-sm text-gray-500">
+                            Tell us about your project requirements, challenges, and goals. The more details, the better we can assist you.
+                        </p>
+                        {% if form.job_details.errors %}
+                            <div class="mt-1 text-red-600 text-sm">
+                                {% for error in form.job_details.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Honeypot field (hidden) -->
+                    {{ form.website }}
+                    
+                    <!-- Submit Button -->
+                    <div>
+                        <button type="submit" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Contact Information -->
+            <div class="lg:pl-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">Contact Information</h2>
+                
+                <div class="space-y-6">
+                    <!-- Address -->
+                    <div class="flex items-start">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-map-marker-alt text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Office Address</h3>
+                            <p class="text-gray-600 mt-1">
+                                123 AI Street<br>
+                                Tech City, TC 12345<br>
+                                United States
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="flex items-start">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-envelope text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Email Us</h3>
+                            <a href="mailto:info@aisolutionshub.com" class="text-blue-600 hover:text-blue-800 mt-1 block">
+                                info@aisolutionshub.com
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Phone -->
+                    <div class="flex items-start">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-phone text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Call Us</h3>
+                            <a href="tel:+15551234567" class="text-blue-600 hover:text-blue-800 mt-1 block">
+                                +1 (555) 123-4567
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Business Hours -->
+                    <div class="flex items-start">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-clock text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Business Hours</h3>
+                            <p class="text-gray-600 mt-1">
+                                Monday - Friday: 9:00 AM - 6:00 PM<br>
+                                Saturday: 10:00 AM - 2:00 PM<br>
+                                Sunday: Closed
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Response Time -->
+                <div class="mt-8 p-6 bg-blue-50 rounded-lg">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Response Time</h3>
+                    <p class="text-gray-600">
+                        We typically respond to all inquiries within <strong>24 hours</strong> during business days. 
+                        For urgent matters, please call us directly.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose Us Section -->
+<section class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Why Choose AI Solution Hub?</h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                We're committed to delivering exceptional AI solutions and outstanding customer service
+            </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-rocket text-2xl text-blue-600"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Fast Response</h3>
+                <p class="text-gray-600">Get a response within 24 hours and start your AI transformation journey quickly.</p>
+            </div>
+            
+            <div class="text-center">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-users text-2xl text-blue-600"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Expert Team</h3>
+                <p class="text-gray-600">Work with experienced AI professionals who understand your business needs.</p>
+            </div>
+            
+            <div class="text-center">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-shield-alt text-2xl text-blue-600"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Secure & Confidential</h3>
+                <p class="text-gray-600">Your information is protected with enterprise-grade security measures.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

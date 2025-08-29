@@ -1,0 +1,181 @@
+{% extends 'ai_solution_app/base.html' %}
+{% load static %}
+
+{% block title %}About Us - AI Solution Hub{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 text-white py-20 overflow-hidden">
+    <div class="absolute inset-0 bg-black opacity-10"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">
+            About <span class="gradient-text">AI Solution Hub</span>
+        </h1>
+        <p class="text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto">
+            Pioneering the future of artificial intelligence solutions for businesses worldwide
+        </p>
+    </div>
+</section>
+
+<!-- Company Story Section -->
+<section class="py-20 bg-gray-50 dark:bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-6">
+                    Our Story
+                </h2>
+                <p class="text-lg text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+                    Founded in 2020, AI Solution Hub emerged from a vision to democratize artificial intelligence for businesses of all sizes. We believe that every organization, regardless of its scale, should have access to cutting-edge AI solutions that drive growth and innovation.
+                </p>
+                <p class="text-lg text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+                    Our journey began with a simple mission: to bridge the gap between complex AI technologies and practical business applications. Today, we're proud to serve clients across 25+ countries, helping them transform their operations through intelligent automation and data-driven insights.
+                </p>
+                <div class="flex items-center space-x-4">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-blue-400 dark:text-white">25+</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-300">Countries Served</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-blue-400 dark:text-white">500+</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-300">Projects Completed</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-blue-400 dark:text-white">98%</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-300">Client Satisfaction</div>
+                    </div>
+                </div>
+            </div>
+            <div class="relative">
+                <div class="bg-gradient-to-br from-blue-200 to-blue-400 dark:from-gray-700 dark:to-gray-800 p-8 rounded-2xl shadow-2xl">
+                    <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">Our Mission</h3>
+                    <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
+                        To empower businesses with intelligent AI solutions that drive innovation, efficiency, and sustainable growth in an ever-evolving digital landscape.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Core Values Section -->
+    <section class="py-20 bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-4">
+                Our Core Values
+            </h2>
+            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                The principles that guide everything we do
+            </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="bg-[#cadeee] dark:bg-[#393E46] p-8 rounded-2xl border border-[#b5d9e5] dark:border-[#948979] hover:shadow-xl transition-all duration-300">
+                <div class="w-16 h-16 bg-gradient-to-br from-[#63cad1] to-[#647fcf] rounded-2xl flex items-center justify-center mb-6">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-[#716c89] dark:text-[#DFD0B8] mb-4">Innovation First</h3>
+                <p class="text-[#59648f] dark:text-[#948979]">
+                    We constantly push the boundaries of what's possible with AI, exploring new technologies and approaches to solve complex business challenges.
+                </p>
+            </div>
+            
+            <div class="bg-[#cadeee] dark:bg-[#393E46] p-8 rounded-2xl border border-[#b5d9e5] dark:border-[#948979] hover:shadow-xl transition-all duration-300">
+                <div class="w-16 h-16 bg-gradient-to-br from-[#63cad1] to-[#647fcf] rounded-2xl flex items-center justify-center mb-6">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-[#716c89] dark:text-[#DFD0B8] mb-4">Client Partnership</h3>
+                <p class="text-[#59648f] dark:text-[#948979]">
+                    We believe in building long-term relationships with our clients, working as an extension of their team to achieve shared success.
+                </p>
+            </div>
+            
+            <div class="bg-[#cadeee] dark:bg-[#393E46] p-8 rounded-2xl border border-[#b5d9e5] dark:border-[#948979] hover:shadow-xl transition-all duration-300">
+                <div class="w-16 h-16 bg-gradient-to-br from-[#63cad1] to-[#647fcf] rounded-2xl flex items-center justify-center mb-6">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-[#716c89] dark:text-[#DFD0B8] mb-4">Quality Excellence</h3>
+                <p class="text-[#59648f] dark:text-[#948979]">
+                    Every solution we deliver meets the highest standards of quality, reliability, and performance that our clients expect and deserve.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="py-20 bg-gray-50 dark:bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-[#716c89] dark:text-[#DFD0B8] mb-4">
+                Meet Our Leadership Team
+            </h2>
+            <p class="text-xl text-[#59648f] dark:text-[#948979] max-w-3xl mx-auto">
+                Experienced professionals passionate about AI innovation
+            </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="bg-white dark:bg-[#393E46] p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+                <div class="w-24 h-24 bg-gradient-to-br from-[#b5c5e5] to-[#63cad1] rounded-full mx-auto mb-6 flex items-center justify-center">
+                    <span class="text-3xl font-bold text-white">JD</span>
+                </div>
+                <h3 class="text-xl font-bold text-[#716c89] dark:text-[#DFD0B8] text-center mb-2">John Davis</h3>
+                <p class="text-[#63cad1] dark:text-[#DFD0B8] text-center mb-4 font-semibold">CEO & Founder</p>
+                <p class="text-[#59648f] dark:text-[#948979] text-center">
+                    15+ years in AI research and business development. Former AI researcher at leading tech companies.
+                </p>
+            </div>
+            
+            <div class="bg-white dark:bg-[#393E46] p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+                <div class="w-24 h-24 bg-gradient-to-br from-[#b5c5e5] to-[#63cad1] rounded-full mx-auto mb-6 flex items-center justify-center">
+                    <span class="text-3xl font-bold text-white">SM</span>
+                </div>
+                <h3 class="text-xl font-bold text-[#716c89] dark:text-[#DFD0B8] text-center mb-2">Sarah Mitchell</h3>
+                <p class="text-[#63cad1] dark:text-[#DFD0B8] text-center mb-4 font-semibold">CTO</p>
+                <p class="text-[#59648f] dark:text-[#948979] text-center">
+                    Expert in machine learning and software architecture. Led AI teams at Fortune 500 companies.
+                </p>
+            </div>
+            
+            <div class="bg-white dark:bg-[#393E46] p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+                <div class="w-24 h-24 bg-gradient-to-br from-[#b5c5e5] to-[#63cad1] rounded-full mx-auto mb-6 flex items-center justify-center">
+                    <span class="text-3xl font-bold text-white">MC</span>
+                </div>
+                <h3 class="text-xl font-bold text-[#716c89] dark:text-[#DFD0B8] text-center mb-2">Michael Chen</h3>
+                <p class="text-[#63cad1] dark:text-[#DFD0B8] text-center mb-4 font-semibold">Head of Solutions</p>
+                <p class="text-[#59648f] dark:text-[#948979] text-center">
+                    Specializes in enterprise AI solutions and digital transformation strategies.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact CTA Section -->
+<section class="py-20 bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
+            Ready to Transform Your Business?
+        </h2>
+        <p class="text-xl text-white mb-8 max-w-3xl mx-auto">
+            Let's discuss how AI can revolutionize your operations and drive unprecedented growth.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'ai_solution_app:contact_us' %}" class="bg-white text-blue-900 px-8 py-4 rounded-full text-lg font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105">
+                Get Started Today
+            </a>
+            <a href="{% url 'ai_solution_app:services' %}" class="border-2 border-white text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white hover:text-blue-900 transition-all duration-300">
+                Explore Our Services
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

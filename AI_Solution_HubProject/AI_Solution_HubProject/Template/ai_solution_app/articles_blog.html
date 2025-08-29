@@ -1,0 +1,45 @@
+{% extends 'ai_solution_app/base.html' %}
+
+{% block title %}Articles & Blog - AI Solution Hub{% endblock %}
+
+{% block content %}
+<section class="bg-gradient-to-r from-blue-600 to-purple-700 text-white py-16">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+        <h1 class="text-4xl font-bold mb-4">Articles & Blog</h1>
+        <p class="text-xl">Latest insights and industry updates</p>
+    </div>
+</section>
+
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {% for article in page_obj %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                {% if article.featured_image %}
+                <img src="{{ article.featured_image.url }}" alt="{{ article.title }}" class="w-full h-48 object-cover">
+                {% else %}
+                <div class="w-full h-48 bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
+                    <i class="fas fa-newspaper text-6xl text-white opacity-20"></i>
+                </div>
+                {% endif %}
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold mb-2">{{ article.title }}</h3>
+                    <p class="text-gray-600 mb-4">{{ article.excerpt }}</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-500">By {{ article.author.username }}</span>
+                        <a href="{% url 'ai_solution_app:article_detail' article.slug %}" class="text-blue-600 hover:text-blue-800">
+                            Read More →
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-12">
+                <h3 class="text-xl font-semibold mb-2">Articles Coming Soon</h3>
+                <p class="text-gray-500">We're writing insightful content.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
