@@ -1,0 +1,316 @@
+{% extends "admin/base_standalone.html" %}
+{% load static %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block extrastyle %}
+<style>
+/* Override Django admin styles */
+#content {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#content-main {
+  padding: 0 !important;
+}
+
+.module {
+  background: white !important;
+  border: none !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+  margin-bottom: 2rem !important;
+  overflow: hidden !important;
+}
+
+.module h2 {
+  background: linear-gradient(135deg, #8B5CF6, #7C3AED) !important;
+  color: white !important;
+  padding: 1.5rem 2rem !important;
+  margin: 0 !important;
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.module h2 a {
+  background: rgba(255,255,255,0.2) !important;
+  color: white !important;
+  border: 1px solid rgba(255,255,255,0.3) !important;
+  padding: 0.75rem 1.5rem !important;
+  border-radius: 8px !important;
+  text-decoration: none !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.module h2 a:hover {
+  background: rgba(255,255,255,0.3) !important;
+  color: white !important;
+}
+
+.module h3 {
+  background: #f8fafc !important;
+  color: #374151 !important;
+  padding: 1rem 2rem !important;
+  margin: 0 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+}
+
+.results {
+  margin: 0 !important;
+}
+
+#result_list {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  margin: 0 !important;
+}
+
+#result_list th {
+  background: #f8fafc !important;
+  color: #374151 !important;
+  padding: 1rem 2rem !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  font-weight: 600 !important;
+  text-align: left !important;
+  font-size: 0.9rem !important;
+}
+
+#result_list td {
+  padding: 1rem 2rem !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  color: #6b7280 !important;
+  font-size: 0.9rem !important;
+}
+
+#result_list tr:hover {
+  background: #f9fafb !important;
+}
+
+.actions {
+  background: #f8fafc !important;
+  padding: 1rem 2rem !important;
+  border-top: 1px solid #e2e8f0 !important;
+}
+
+.actions select {
+  padding: 0.5rem !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 6px !important;
+  background: white !important;
+  font-size: 0.9rem !important;
+}
+
+.actions button {
+  background: #8B5CF6 !important;
+  color: white !important;
+  border: none !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  margin-left: 0.5rem !important;
+  font-size: 0.9rem !important;
+}
+
+.actions button:hover {
+  background: #7C3AED !important;
+}
+
+.paginator {
+  text-align: center !important;
+  padding: 2rem !important;
+  background: white !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+  margin-bottom: 2rem !important;
+}
+
+.paginator a {
+  display: inline-block !important;
+  padding: 0.5rem 0.75rem !important;
+  margin: 0 0.25rem !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 6px !important;
+  text-decoration: none !important;
+  color: #374151 !important;
+  transition: all 0.3s ease !important;
+  font-size: 0.9rem !important;
+}
+
+.paginator a:hover {
+  background: #8B5CF6 !important;
+  color: white !important;
+  border-color: #8B5CF6 !important;
+}
+
+.paginator .this-page {
+  background: #8B5CF6 !important;
+  color: white !important;
+  border-color: #8B5CF6 !important;
+}
+
+.filtered {
+  background: #f8fafc !important;
+  padding: 1.5rem 2rem !important;
+  border-radius: 12px !important;
+  margin-bottom: 2rem !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+}
+
+.filtered h3 {
+  margin: 0 0 1rem 0 !important;
+  color: #374151 !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+}
+
+.filtered ul {
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.filtered li {
+  display: inline-block !important;
+  margin-right: 1rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.filtered a {
+  background: #8B5CF6 !important;
+  color: white !important;
+  padding: 0.25rem 0.75rem !important;
+  border-radius: 12px !important;
+  text-decoration: none !important;
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+}
+
+.filtered a:hover {
+  background: #7C3AED !important;
+}
+
+.empty-state {
+  text-align: center !important;
+  padding: 3rem !important;
+  background: white !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+  color: #6b7280 !important;
+}
+
+.empty-state-icon {
+  font-size: 3rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.empty-state h3 {
+  margin: 0 0 0.5rem 0 !important;
+  color: #374151 !important;
+}
+
+.empty-state p {
+  margin: 0 !important;
+}
+
+/* Hide default Django admin elements */
+#header, #user-tools, #nav-global, #nav-breadcrumbs, #nav-sidebar {
+  display: none !important;
+}
+
+body {
+  background: #f8fafc !important;
+}
+
+/* Custom styling for admin forms */
+.form-row {
+  margin-bottom: 1rem !important;
+}
+
+.form-row label {
+  font-weight: 600 !important;
+  color: #374151 !important;
+  margin-bottom: 0.5rem !important;
+  display: block !important;
+}
+
+.form-row input, .form-row select, .form-row textarea {
+  width: 100% !important;
+  padding: 0.75rem !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  font-size: 0.9rem !important;
+  transition: border-color 0.3s ease !important;
+}
+
+.form-row input:focus, .form-row select:focus, .form-row textarea:focus {
+  outline: none !important;
+  border-color: #8B5CF6 !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1) !important;
+}
+
+.submit-row {
+  background: #f8fafc !important;
+  padding: 1.5rem 2rem !important;
+  border-top: 1px solid #e2e8f0 !important;
+  border-radius: 0 0 12px 12px !important;
+  display: flex !important;
+  gap: 1rem !important;
+  justify-content: flex-end !important;
+}
+
+.submit-row input, .submit-row a {
+  padding: 0.75rem 1.5rem !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  border: none !important;
+  cursor: pointer !important;
+  font-size: 0.9rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.submit-row input[type="submit"] {
+  background: #8B5CF6 !important;
+  color: white !important;
+}
+
+.submit-row input[type="submit"]:hover {
+  background: #7C3AED !important;
+  transform: translateY(-1px) !important;
+}
+
+.submit-row a.default {
+  background: #6b7280 !important;
+  color: white !important;
+}
+
+.submit-row a.default:hover {
+  background: #4b5563 !important;
+}
+
+.submit-row a.deletelink {
+  background: #dc2626 !important;
+  color: white !important;
+}
+
+.submit-row a.deletelink:hover {
+  background: #b91c1c !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Use Django's default admin content but with our styling -->
+{% block content_main %}
+{{ block.super }}
+{% endblock %}
+{% endblock %}

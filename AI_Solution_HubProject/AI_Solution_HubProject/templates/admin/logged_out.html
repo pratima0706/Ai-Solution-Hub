@@ -1,0 +1,118 @@
+{% extends "admin/base_standalone.html" %}
+{% load static %}
+
+{% block extrastyle %}
+<link rel="stylesheet" href="{% static 'admin/css/admin.css' %}">
+<style>
+/* Custom Logout Page Styling */
+body {
+  background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%);
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logout-container {
+  background: white;
+  border-radius: 20px;
+  padding: 60px 50px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 90%;
+}
+
+.logout-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  color: #8B5CF6;
+}
+
+.logout-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.logout-message {
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.logout-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 12px 24px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.btn-primary {
+  background: #8B5CF6;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #7C3AED;
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: #E5E7EB;
+  color: #374151;
+}
+
+.btn-secondary:hover {
+  background: #D1D5DB;
+  transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .logout-container {
+    padding: 40px 30px;
+  }
+  
+  .logout-actions {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="logout-container">
+  <div class="logout-icon">👋</div>
+  <h1 class="logout-title">Successfully Logged Out</h1>
+  <p class="logout-message">
+    You have been successfully logged out of the AI Solution Hub Admin Portal. 
+    Thank you for using our system!
+  </p>
+  
+  <div class="logout-actions">
+    <a href="{% url 'admin:login' %}" class="btn btn-primary">Login Again</a>
+    <a href="/" class="btn btn-secondary">Visit Website</a>
+  </div>
+</div>
+{% endblock %}

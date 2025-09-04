@@ -1,0 +1,742 @@
+{% extends "admin/base_standalone.html" %}
+
+{% block page_title %}Gallery Management{% endblock %}
+
+{% block extrastyle %}
+<style>
+/* Enhanced File Upload Styles */
+.file-upload-container {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+}
+
+.file-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.file-upload-display {
+  border: 2px dashed #8B5CF6;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.file-upload-display:hover {
+  border-color: #7C3AED;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+}
+
+.file-upload-display.dragover {
+  border-color: #10b981;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  transform: scale(1.02);
+}
+
+.file-upload-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #8B5CF6;
+}
+
+.file-upload-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.file-upload-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.file-upload-hint {
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.file-preview {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.file-preview img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.file-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.file-info span:first-child {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.file-info span:last-child {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+/* Progress Bar */
+.upload-progress {
+  width: 100%;
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.upload-progress-bar {
+  height: 100%;
+  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+/* Error States */
+.file-upload-error {
+  border-color: #ef4444 !important;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%) !important;
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Success States */
+.file-upload-success {
+  border-color: #10b981 !important;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
+}
+
+.success-message {
+  color: #10b981;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .file-upload-display {
+    padding: 1.5rem;
+  }
+  
+  .file-upload-icon {
+    font-size: 2.5rem;
+  }
+  
+  .file-preview {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .file-preview img {
+    width: 120px;
+    height: 120px;
+  }
+}
+</style>
+<style>
+.gallery-management-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.management-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  border-left: 4px solid #8B5CF6;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.upload-section {
+  background: var(--card-bg);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+}
+
+.upload-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: end;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.upload-btn {
+  background: #8B5CF6;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: fit-content;
+}
+
+.upload-btn:hover {
+  background: #7c3aed;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.gallery-item {
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.gallery-item:hover {
+  transform: translateY(-2px);
+}
+
+.gallery-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.gallery-content {
+  padding: 1rem;
+}
+
+.gallery-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.gallery-description {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.gallery-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.gallery-category {
+  background: #e0e7ff;
+  color: #3730a3;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.featured-badge {
+  background: #fbbf24;
+  color: #92400e;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.gallery-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.edit-btn {
+  background: #10b981;
+  color: white;
+}
+
+.delete-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.feature-btn {
+  background: #8B5CF6;
+  color: white;
+}
+
+.unfeature-btn {
+  background: #6b7280;
+  color: white;
+}
+
+.action-btn:hover {
+  opacity: 0.9;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+}
+
+.empty-state h3 {
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .upload-form {
+    grid-template-columns: 1fr;
+  }
+  
+  .gallery-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .gallery-actions {
+    flex-direction: column;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="gallery-management-container">
+  <div class="management-header">
+    <h1>🖼️ Gallery Management</h1>
+  </div>
+
+  <!-- Gallery Statistics -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">{{ total_images }}</div>
+      <div class="stat-label">Total Images</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ featured_images }}</div>
+      <div class="stat-label">Featured Images</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ categories|length }}</div>
+      <div class="stat-label">Categories</div>
+    </div>
+  </div>
+
+  <!-- Upload Section -->
+  <div class="upload-section">
+    <h3>Upload New Image</h3>
+    <form method="post" enctype="multipart/form-data" class="upload-form">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="upload">
+      <div class="form-group">
+        <label for="title">Image Title *</label>
+        <input type="text" id="title" name="title" required>
+      </div>
+      <div class="form-group">
+        <label for="category">Category</label>
+        <select id="category" name="category">
+          <option value="general">General</option>
+          <option value="events">Events</option>
+          <option value="services">Services</option>
+          <option value="team">Team</option>
+          <option value="office">Office</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" placeholder="Optional description..."></textarea>
+      </div>
+      <div class="form-group">
+        <label for="image">Image File *</label>
+        <div class="file-upload-container">
+          <input type="file" id="image" name="image" accept="image/png,image/jpeg,image/jpg,image/webp" required class="file-input">
+          <div class="file-upload-display">
+            <div class="file-upload-icon">📷</div>
+            <div class="file-upload-text">
+              <span class="file-upload-label">Click to upload or drag and drop</span>
+              <span class="file-upload-hint">PNG, JPEG, JPG, WebP up to 10MB</span>
+            </div>
+          </div>
+          <div class="file-preview" id="file-preview" style="display: none;">
+            <img id="preview-image" src="" alt="Preview">
+            <div class="file-info">
+              <span id="file-name"></span>
+              <span id="file-size"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="is_featured" name="is_featured">
+          <label for="is_featured">Featured Image</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <button type="submit" class="upload-btn">📤 Upload Image</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Gallery Grid -->
+  <div class="gallery-grid">
+    {% for item in gallery_items %}
+    <div class="gallery-item">
+      <img src="{{ item.image.url }}" alt="{{ item.title }}" class="gallery-image">
+      <div class="gallery-content">
+        <h4 class="gallery-title">{{ item.title }}</h4>
+        {% if item.description %}
+        <p class="gallery-description">{{ item.description }}</p>
+        {% endif %}
+        <div class="gallery-meta">
+          <span class="gallery-category">{{ item.category|title }}</span>
+          {% if item.is_featured %}
+          <span class="featured-badge">⭐ Featured</span>
+          {% endif %}
+        </div>
+        <div class="gallery-actions">
+          <form method="post" style="display: inline;">
+            {% csrf_token %}
+            <input type="hidden" name="item_id" value="{{ item.id }}">
+            <input type="hidden" name="action" value="{% if item.is_featured %}unfeature{% else %}feature{% endif %}">
+            <button type="submit" class="action-btn {% if item.is_featured %}unfeature-btn{% else %}feature-btn{% endif %}">
+              {% if item.is_featured %}⭐ Unfeature{% else %}⭐ Feature{% endif %}
+            </button>
+          </form>
+          <form method="post" style="display: inline;">
+            {% csrf_token %}
+            <input type="hidden" name="item_id" value="{{ item.id }}">
+            <input type="hidden" name="action" value="delete">
+            <button type="submit" class="action-btn delete-btn" onclick="return confirm('Are you sure you want to delete this image?')">
+              🗑️ Delete
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+      <h3>No images uploaded yet</h3>
+      <p>Upload your first image using the form above.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+// Auto-hide success messages after 3 seconds
+document.addEventListener('DOMContentLoaded', function() {
+  const messages = document.querySelectorAll('.alert-success');
+  messages.forEach(function(message) {
+    setTimeout(function() {
+      message.style.opacity = '0';
+      setTimeout(function() {
+        message.remove();
+      }, 300);
+    }, 3000);
+  });
+  
+  // Enhanced File Upload Functionality
+  const fileInput = document.getElementById('image');
+  const fileUploadDisplay = document.querySelector('.file-upload-display');
+  const filePreview = document.getElementById('file-preview');
+  const previewImage = document.getElementById('preview-image');
+  const fileName = document.getElementById('file-name');
+  const fileSize = document.getElementById('file-size');
+  const uploadForm = document.querySelector('.upload-form');
+  
+  // File validation
+  const maxSize = 10 * 1024 * 1024; // 10MB
+  const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+  
+  // File input change handler
+  if (fileInput) {
+    fileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        validateAndPreviewFile(file);
+      }
+    });
+  }
+  
+  // Drag and drop functionality
+  if (fileUploadDisplay) {
+    fileUploadDisplay.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      fileUploadDisplay.classList.add('dragover');
+    });
+    
+    fileUploadDisplay.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      fileUploadDisplay.classList.remove('dragover');
+    });
+    
+    fileUploadDisplay.addEventListener('drop', function(e) {
+      e.preventDefault();
+      fileUploadDisplay.classList.remove('dragover');
+      
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        fileInput.files = files;
+        validateAndPreviewFile(files[0]);
+      }
+    });
+    
+    // Click to upload
+    fileUploadDisplay.addEventListener('click', function() {
+      fileInput.click();
+    });
+  }
+  
+  // Form submission with progress
+  if (uploadForm) {
+    uploadForm.addEventListener('submit', function(e) {
+      const file = fileInput.files[0];
+      if (file && !validateFile(file)) {
+        e.preventDefault();
+        return false;
+      }
+      
+      // Show progress bar
+      showProgressBar();
+    });
+  }
+  
+  function validateFile(file) {
+    // Check file type
+    if (!allowedTypes.includes(file.type)) {
+      showError('Please select a valid image file (PNG, JPEG, JPG, or WebP)');
+      return false;
+    }
+    
+    // Check file size
+    if (file.size > maxSize) {
+      showError('File size too large. Maximum size is 10MB');
+      return false;
+    }
+    
+    return true;
+  }
+  
+  function validateAndPreviewFile(file) {
+    // Clear previous errors
+    clearErrors();
+    
+    if (!validateFile(file)) {
+      return;
+    }
+    
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      if (previewImage) previewImage.src = e.target.result;
+      if (fileName) fileName.textContent = file.name;
+      if (fileSize) fileSize.textContent = formatFileSize(file.size);
+      
+      if (fileUploadDisplay) fileUploadDisplay.style.display = 'none';
+      if (filePreview) filePreview.style.display = 'flex';
+      
+      showSuccess('File selected successfully!');
+    };
+    reader.readAsDataURL(file);
+  }
+  
+  function showError(message) {
+    clearErrors();
+    if (fileUploadDisplay) fileUploadDisplay.classList.add('file-upload-error');
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.innerHTML = `❌ ${message}`;
+    if (fileUploadDisplay && fileUploadDisplay.parentNode) {
+      fileUploadDisplay.parentNode.appendChild(errorDiv);
+    }
+  }
+  
+  function showSuccess(message) {
+    clearErrors();
+    if (fileUploadDisplay) fileUploadDisplay.classList.add('file-upload-success');
+    
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-message';
+    successDiv.innerHTML = `✅ ${message}`;
+    if (fileUploadDisplay && fileUploadDisplay.parentNode) {
+      fileUploadDisplay.parentNode.appendChild(successDiv);
+    }
+  }
+  
+  function clearErrors() {
+    if (fileUploadDisplay) {
+      fileUploadDisplay.classList.remove('file-upload-error', 'file-upload-success');
+    }
+    
+    const errorMessages = document.querySelectorAll('.error-message, .success-message');
+    errorMessages.forEach(msg => msg.remove());
+  }
+  
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+  
+  function showProgressBar() {
+    const progressContainer = document.createElement('div');
+    progressContainer.className = 'upload-progress';
+    progressContainer.innerHTML = '<div class="upload-progress-bar"></div>';
+    
+    const submitButton = uploadForm.querySelector('button[type="submit"]');
+    if (submitButton && submitButton.parentNode) {
+      submitButton.parentNode.insertBefore(progressContainer, submitButton);
+      
+      // Animate progress bar
+      const progressBar = progressContainer.querySelector('.upload-progress-bar');
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 90) progress = 90;
+        progressBar.style.width = progress + '%';
+        
+        if (progress >= 90) {
+          clearInterval(interval);
+        }
+      }, 200);
+    }
+  }
+  
+  // Reset form after successful upload
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('success') === 'true') {
+    setTimeout(() => {
+      if (uploadForm) uploadForm.reset();
+      if (fileUploadDisplay) fileUploadDisplay.style.display = 'block';
+      if (filePreview) filePreview.style.display = 'none';
+      clearErrors();
+    }, 2000);
+  }
+});
+</script>
+{% endblock %}

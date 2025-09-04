@@ -229,20 +229,43 @@
         </div>
         
         <div class="bg-gray-50 dark:bg-gray-800 rounded-3xl p-8 border border-gray-200 dark:border-gray-600">
-            <form class="space-y-6">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                             Your Name <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200" placeholder="Enter your full name" required>
+                        <input type="text" name="customer_name" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200" placeholder="Enter your full name" required>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                             Company Name
                         </label>
-                        <input type="text" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200" placeholder="Enter your company name">
+                        <input type="text" name="company" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200" placeholder="Enter your company name">
                     </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                            Job Title
+                        </label>
+                        <input type="text" name="job_title" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200" placeholder="Enter your job title">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                            Industry
+                        </label>
+                        <input type="text" name="industry" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200" placeholder="Enter your industry">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        Project Name
+                    </label>
+                    <input type="text" name="project_name" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200" placeholder="Enter project name (if applicable)">
                 </div>
                 
                 <div>
@@ -256,13 +279,14 @@
                         <button type="button" class="text-3xl text-gray-300 hover:text-yellow-400 transition-colors duration-200" data-rating="4">★</button>
                         <button type="button" class="text-3xl text-gray-300 hover:text-yellow-400 transition-colors duration-200" data-rating="5">★</button>
                     </div>
+                    <input type="hidden" name="rating" id="rating-input" required>
                 </div>
                 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                         Your Review <span class="text-red-500">*</span>
                     </label>
-                    <textarea rows="4" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200 resize-none" placeholder="Share your experience working with us..." required></textarea>
+                    <textarea name="review" rows="4" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200 resize-none" placeholder="Share your experience working with us..." required></textarea>
                 </div>
                 
                 <div class="text-center">
@@ -307,6 +331,9 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function() {
             const rating = parseInt(this.getAttribute('data-rating'));
             selectedRating = rating;
+            
+            // Update hidden input
+            document.getElementById('rating-input').value = rating;
             
             // Update all stars
             ratingButtons.forEach((btn, index) => {
@@ -372,9 +399,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitButton = reviewForm.querySelector('button[type="submit"]');
     
     reviewForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
         if (selectedRating === 0) {
+            e.preventDefault();
             alert('Please select a rating before submitting your review.');
             return;
         }
@@ -383,26 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
         submitButton.disabled = true;
         
-        // Simulate form submission (remove this in production)
-        setTimeout(() => {
-            submitButton.innerHTML = '<i class="fas fa-check mr-2"></i>Review Submitted!';
-            submitButton.classList.remove('from-yellow-500', 'to-orange-600');
-            submitButton.classList.add('from-green-500', 'to-green-600');
-            
-            // Reset form after 3 seconds
-            setTimeout(() => {
-                reviewForm.reset();
-                selectedRating = 0;
-                ratingButtons.forEach(btn => {
-                    btn.classList.remove('text-yellow-400');
-                    btn.classList.add('text-gray-300');
-                });
-                submitButton.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Submit Review';
-                submitButton.disabled = false;
-                submitButton.classList.remove('from-green-500', 'to-green-600');
-                submitButton.classList.add('from-yellow-500', 'to-orange-600');
-            }, 3000);
-        }, 2000);
+        // Form will submit normally to the backend
     });
 });
 </script>

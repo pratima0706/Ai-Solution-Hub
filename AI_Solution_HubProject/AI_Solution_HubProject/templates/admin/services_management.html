@@ -1,0 +1,347 @@
+{% extends "admin/base_standalone.html" %}
+
+{% block page_title %}Services Management{% endblock %}
+
+{% block extrastyle %}
+<style>
+.services-management-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.management-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  border-left: 4px solid #8B5CF6;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.create-section {
+  background: var(--card-bg);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+}
+
+.create-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: end;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.create-btn {
+  background: #8B5CF6;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: fit-content;
+}
+
+.create-btn:hover {
+  background: #7c3aed;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.service-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  transition: transform 0.2s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-2px);
+}
+
+.service-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.service-description {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.service-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.service-tier {
+  background: #e0e7ff;
+  color: #3730a3;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-inactive {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.featured-badge {
+  background: #fbbf24;
+  color: #92400e;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.service-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.edit-btn {
+  background: #10b981;
+  color: white;
+}
+
+.delete-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.action-btn:hover {
+  opacity: 0.9;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+}
+
+.empty-state h3 {
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .create-form {
+    grid-template-columns: 1fr;
+  }
+  
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .service-actions {
+    flex-direction: column;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="services-management-container">
+  <div class="management-header">
+    <h1>⚙️ Services Management</h1>
+  </div>
+
+  <!-- Services Statistics -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">{{ total_services }}</div>
+      <div class="stat-label">Total Services</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ active_services }}</div>
+      <div class="stat-label">Active Services</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ featured_services }}</div>
+      <div class="stat-label">Featured Services</div>
+    </div>
+  </div>
+
+  <!-- Create Service Section -->
+  <div class="create-section">
+    <h3>Create New Service</h3>
+    <form method="post" class="create-form">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="create">
+      <div class="form-group">
+        <label for="title">Service Title *</label>
+        <input type="text" id="title" name="title" required>
+      </div>
+      <div class="form-group">
+        <label for="pricing_tier">Pricing Tier</label>
+        <select id="pricing_tier" name="pricing_tier">
+          <option value="basic">Basic</option>
+          <option value="premium">Premium</option>
+          <option value="enterprise">Enterprise</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" placeholder="Service description..."></textarea>
+      </div>
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="is_featured" name="is_featured">
+          <label for="is_featured">Featured Service</label>
+        </div>
+
+      </div>
+      <div class="form-group">
+        <button type="submit" class="create-btn">➕ Create Service</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Services Grid -->
+  <div class="services-grid">
+    {% for service in services %}
+    <div class="service-card">
+      <h4 class="service-title">{{ service.title }}</h4>
+      {% if service.description %}
+      <p class="service-description">{{ service.description }}</p>
+      {% endif %}
+      <div class="service-meta">
+        <span class="service-tier">{{ service.pricing_tier|title }}</span>
+        {% if service.is_featured %}
+        <span class="featured-badge">⭐ Featured</span>
+        {% endif %}
+      </div>
+      <div class="service-meta">
+        <span class="status-badge status-active">
+          Active
+        </span>
+      </div>
+      <div class="service-actions">
+        <form method="post" style="display: inline;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="delete">
+          <input type="hidden" name="service_id" value="{{ service.id }}">
+          <button type="submit" class="action-btn delete-btn" onclick="return confirm('Are you sure you want to delete this service?')">
+            🗑️ Delete
+          </button>
+        </form>
+      </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+      <h3>No services created yet</h3>
+      <p>Create your first service using the form above.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

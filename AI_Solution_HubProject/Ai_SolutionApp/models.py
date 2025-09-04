@@ -1,8 +1,89 @@
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator, FileExtensionValidator
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.contrib.auth.models import User
 import uuid
+import os
+from PIL import Image
+
+# Custom Image Field with validation
+class OptimizedImageField(models.ImageField):
+    """Custom ImageField with automatic optimization and format validation"""
+    
+    def __init__(self, *args, **kwargs):
+        # Set default validators for image formats
+        validators = kwargs.get('validators', [])
+        validators.append(FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'webp']))
+        kwargs['validators'] = validators
+        
+        # Set default help text
+        if 'help_text' not in kwargs:
+            kwargs['help_text'] = 'Upload PNG, JPEG, or WebP images. Max size: 10MB'
+            
+        super().__init__(*args, **kwargs)
+    
+    def clean(self, value, model_instance):
+        """Clean and validate the uploaded image"""
+        value = super().clean(value, model_instance)
+        
+        if value:
+            # Check file size (10MB limit)
+            if value.size > 10 * 1024 * 1024:  # 10MB
+                raise ValidationError('Image file too large. Maximum size is 10MB.')
+            
+            # Validate image format using PIL
+            try:
+                with Image.open(value) as img:
+                    if img.format.lower() not in ['jpeg', 'png', 'webp']:
+                        raise ValidationError('Only JPEG, PNG, and WebP images are allowed.')
+            except Exception as e:
+                raise ValidationError('Invalid image file. Please upload a valid image.')
+        
+        return value
+
+# User Roles
+class UserRole(models.Model):
+    """User roles for admin system"""
+    ROLE_CHOICES = [
+        ('superadmin', 'Super Admin'),
+        ('admin', 'Admin'),
+        ('content_manager', 'Content Manager'),
+        ('events_manager', 'Events Manager'),
+        ('support_agent', 'Support Agent'),
+        ('analyst', 'Analyst'),
+    ]
+    
+    name = models.CharField(max_length=50, choices=ROLE_CHOICES, unique=True)
+    description = models.TextField(blank=True)
+    permissions = models.ManyToManyField('auth.Permission', blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.get_name_display()
+    
+    class Meta:
+        verbose_name = "User Role"
+        verbose_name_plural = "User Roles"
+
+class UserProfile(models.Model):
+    """Extended user profile with role information"""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    role = models.ForeignKey(UserRole, on_delete=models.SET_NULL, null=True, blank=True)
+    phone = models.CharField(max_length=20, blank=True)
+    department = models.CharField(max_length=100, blank=True)
+    profile_picture = OptimizedImageField(upload_to='profiles/', blank=True, null=True)
+    bio = models.TextField(blank=True, help_text="Brief bio about the user")
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.role.name if self.role else 'No Role'}"
+    
+    class Meta:
+        verbose_name = "User Profile"
+        verbose_name_plural = "User Profiles"
 
 class Contact(models.Model):
     """Contact form submissions model"""
@@ -71,7 +152,7 @@ class PastSolution(models.Model):
     challenge = models.TextField()
     solution = models.TextField()
     results = models.TextField()
-    image = models.ImageField(upload_to='solutions/', blank=True, null=True)
+    image = OptimizedImageField(upload_to='solutions/', blank=True, null=True)
     technologies_used = models.JSONField(default=list)
     completion_date = models.DateField()
     is_featured = models.BooleanField(default=False)
@@ -127,7 +208,7 @@ class Gallery(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
-    image = models.ImageField(upload_to='gallery/')
+    image = OptimizedImageField(upload_to='gallery/')
     category = models.CharField(max_length=100, choices=[
         ('events', 'Events'),
         ('team', 'Team'),
@@ -156,7 +237,7 @@ class Testimonial(models.Model):
     job_title = models.CharField(max_length=100)
     rating = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     review = models.TextField()
-    image = models.ImageField(upload_to='testimonials/', blank=True, null=True)
+    image = OptimizedImageField(upload_to='testimonials/', blank=True, null=True)
     is_featured = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -179,7 +260,7 @@ class Article(models.Model):
     excerpt = models.TextField(max_length=300)
     content = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    featured_image = models.ImageField(upload_to='articles/', blank=True, null=True)
+    featured_image = OptimizedImageField(upload_to='articles/', blank=True, null=True)
     tags = models.JSONField(default=list)
     category = models.CharField(max_length=100, choices=[
         ('ai_insights', 'AI Insights'),

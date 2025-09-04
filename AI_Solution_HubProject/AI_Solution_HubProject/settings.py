@@ -55,7 +55,7 @@ ROOT_URLCONF = 'AI_Solution_HubProject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates', BASE_DIR / 'AI_Solution_HubProject' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -139,3 +139,9 @@ ADMIN_EMAIL = 'AiSolutionhubsupport@gmail.com'  # Admin notification email
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Authentication URLs
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/admin-dashboard/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
+

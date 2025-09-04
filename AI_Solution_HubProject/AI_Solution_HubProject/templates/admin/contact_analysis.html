@@ -1,0 +1,244 @@
+{% extends "admin/base_standalone.html" %}
+
+{% block page_title %}Contact Analytics{% endblock %}
+
+{% block extrastyle %}
+<style>
+.analytics-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.analytics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.date-filter {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.date-filter select {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-left: 4px solid #8B5CF6;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.chart-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.chart-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 1rem;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-new { background: #dbeafe; color: #1e40af; }
+.status-contacted { background: #dcfce7; color: #166534; }
+.status-in_progress { background: #fef3c7; color: #92400e; }
+.status-closed { background: #f3f4f6; color: #374151; }
+
+.table-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.data-table th {
+  background: #f8fafc;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.data-table tr:hover {
+  background: #f8fafc;
+}
+
+@media (max-width: 768px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .analytics-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analytics-container">
+  <div class="analytics-header">
+    <h1>📊 Contact Analytics</h1>
+    <div class="date-filter">
+      <label>Time Period:</label>
+      <select onchange="window.location.href='?days=' + this.value">
+        <option value="7" {% if days == 7 %}selected{% endif %}>Last 7 days</option>
+        <option value="30" {% if days == 30 %}selected{% endif %}>Last 30 days</option>
+        <option value="90" {% if days == 90 %}selected{% endif %}>Last 90 days</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Key Statistics -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">{{ total_contacts }}</div>
+      <div class="stat-label">Total Contacts</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ recent_contacts_count }}</div>
+      <div class="stat-label">Recent Contacts ({{ days }}d)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ response_times.avg_first_response }}</div>
+      <div class="stat-label">Avg First Response</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ response_times.sla_breaches }}</div>
+      <div class="stat-label">SLA Breaches</div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3 class="chart-title">Status Breakdown</h3>
+      <div class="status-breakdown">
+        {% for stat in status_stats %}
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <span class="status-badge status-{{ stat.status }}">{{ stat.status|title }}</span>
+          <span style="font-weight: 600;">{{ stat.count }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    
+    <div class="chart-card">
+      <h3 class="chart-title">Top Countries</h3>
+      <div class="country-breakdown">
+        {% for country in country_stats %}
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <span>{{ country.country|default:"Unknown" }}</span>
+          <span style="font-weight: 600;">{{ country.count }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Daily Trends Chart -->
+  <div class="chart-card">
+    <h3 class="chart-title">Daily Contact Trends</h3>
+    <div id="trends-chart" style="height: 300px; background: #f8fafc; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #64748b;">
+      📈 Chart visualization would go here
+      <br><small>Daily trends for {{ days }} days</small>
+    </div>
+  </div>
+
+  <!-- Top Companies -->
+  <div class="table-container">
+    <div style="padding: 1.5rem; border-bottom: 1px solid #f1f5f9;">
+      <h3 class="chart-title">Top Companies by Inquiries</h3>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Inquiries</th>
+          <th>Latest Inquiry</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for company in company_stats %}
+        <tr>
+          <td>{{ company.company|default:"Unknown" }}</td>
+          <td>{{ company.count }}</td>
+          <td>{{ "2024-01-15" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// Simple chart visualization (in a real app, you'd use Chart.js or similar)
+document.addEventListener('DOMContentLoaded', function() {
+  const trendsData = {{ daily_trends|safe }};
+  console.log('Daily trends data:', trendsData);
+  
+  // Here you would implement actual chart rendering
+  // For now, we'll just show the data structure
+});
+</script>
+{% endblock %}

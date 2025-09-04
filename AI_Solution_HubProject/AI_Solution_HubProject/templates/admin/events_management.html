@@ -1,0 +1,342 @@
+{% extends "admin/base_standalone.html" %}
+
+{% block page_title %}Events Management{% endblock %}
+
+{% block extrastyle %}
+<style>
+.events-management-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.management-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  border-left: 4px solid #8B5CF6;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.create-section {
+  background: var(--card-bg);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+}
+
+.create-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: end;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.create-btn {
+  background: #8B5CF6;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: fit-content;
+}
+
+.create-btn:hover {
+  background: #7c3aed;
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.event-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  transition: transform 0.2s ease;
+}
+
+.event-card:hover {
+  transform: translateY(-2px);
+}
+
+.event-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.event-description {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.event-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.event-date {
+  background: #e0e7ff;
+  color: #3730a3;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-upcoming {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-past {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.featured-badge {
+  background: #fbbf24;
+  color: #92400e;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.event-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.edit-btn {
+  background: #10b981;
+  color: white;
+}
+
+.delete-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.action-btn:hover {
+  opacity: 0.9;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+}
+
+.empty-state h3 {
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .create-form {
+    grid-template-columns: 1fr;
+  }
+  
+  .events-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .event-actions {
+    flex-direction: column;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="events-management-container">
+  <div class="management-header">
+    <h1>📅 Events Management</h1>
+  </div>
+
+  <!-- Events Statistics -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">{{ total_events }}</div>
+      <div class="stat-label">Total Events</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ upcoming_count }}</div>
+      <div class="stat-label">Upcoming Events</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ featured_events }}</div>
+      <div class="stat-label">Featured Events</div>
+    </div>
+  </div>
+
+  <!-- Create Event Section -->
+  <div class="create-section">
+    <h3>Create New Event</h3>
+    <form method="post" class="create-form">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="create">
+      <div class="form-group">
+        <label for="title">Event Title *</label>
+        <input type="text" id="title" name="title" required>
+      </div>
+      <div class="form-group">
+        <label for="event_date">Event Date</label>
+        <input type="date" id="event_date" name="event_date">
+      </div>
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" placeholder="Event description..."></textarea>
+      </div>
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="is_featured" name="is_featured">
+          <label for="is_featured">Featured Event</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <button type="submit" class="create-btn">➕ Create Event</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Events Grid -->
+  <div class="events-grid">
+    {% for event in events %}
+    <div class="event-card">
+      <h4 class="event-title">{{ event.title }}</h4>
+      {% if event.description %}
+      <p class="event-description">{{ event.description }}</p>
+      {% endif %}
+      <div class="event-meta">
+        <span class="event-date">{{ event.event_date|date:"M d, Y" }}</span>
+        {% if event.is_featured %}
+        <span class="featured-badge">⭐ Featured</span>
+        {% endif %}
+      </div>
+      <div class="event-meta">
+        <span class="status-badge {% if event.event_date >= today %}status-upcoming{% else %}status-past{% endif %}">
+          {% if event.event_date >= today %}Upcoming{% else %}Past{% endif %}
+        </span>
+      </div>
+      <div class="event-actions">
+        <form method="post" style="display: inline;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="delete">
+          <input type="hidden" name="event_id" value="{{ event.id }}">
+          <button type="submit" class="action-btn delete-btn" onclick="return confirm('Are you sure you want to delete this event?')">
+            🗑️ Delete
+          </button>
+        </form>
+      </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+      <h3>No events created yet</h3>
+      <p>Create your first event using the form above.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

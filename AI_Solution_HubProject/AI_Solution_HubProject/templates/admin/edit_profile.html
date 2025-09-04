@@ -1,0 +1,363 @@
+{% extends "admin/base_standalone.html" %}
+{% load static %}
+
+{% block page_title %}Edit Profile{% endblock %}
+
+{% block extrastyle %}
+<style>
+/* Edit Profile Page Specific Styles - Scoped to avoid conflicts with base template */
+.edit-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.edit-container .edit-header {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+  color: white;
+  padding: 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.edit-container .edit-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: float 20s infinite linear;
+  pointer-events: none;
+}
+
+@keyframes float {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.edit-container .edit-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.edit-container .edit-subtitle {
+  opacity: 0.9;
+  font-size: 1rem;
+  position: relative;
+  z-index: 2;
+}
+
+.edit-container .edit-content {
+  padding: 2rem;
+}
+
+.edit-container .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .edit-container .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.edit-container .form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-container .form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.edit-container .form-label {
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.edit-container .form-input {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.edit-container .form-input:focus {
+  outline: none;
+  border-color: #8B5CF6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.edit-container .form-textarea {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+.edit-container .form-textarea:focus {
+  outline: none;
+  border-color: #8B5CF6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.edit-container .form-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+/* Edit Profile Action Buttons - Scoped to avoid navigation conflicts */
+.edit-container .edit-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.edit-container .edit-btn-primary {
+  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+  color: white;
+}
+
+.edit-container .edit-btn-primary:hover {
+  background: linear-gradient(135deg, #7C3AED, #6D28D9);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.edit-container .edit-btn-secondary {
+  background: linear-gradient(135deg, #64748b, #475569);
+  color: white;
+}
+
+.edit-container .edit-btn-secondary:hover {
+  background: linear-gradient(135deg, #475569, #334155);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
+}
+
+.edit-container .error-message {
+  background: #fef2f2;
+  color: #dc2626;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #dc2626;
+  font-weight: 500;
+}
+
+.edit-container .success-message {
+  background: #f0fdf4;
+  color: #16a34a;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #16a34a;
+  font-weight: 500;
+}
+
+/* Responsive Design - Scoped to edit profile page only */
+@media (max-width: 768px) {
+  .edit-container .edit-content {
+    padding: 1.5rem;
+  }
+  
+  .edit-container .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .edit-container .form-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .edit-container .edit-btn {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .edit-container .edit-header {
+    padding: 1.5rem 1rem;
+  }
+  
+  .edit-container .edit-content {
+    padding: 1rem;
+  }
+  
+  .edit-container .edit-title {
+    font-size: 1.5rem;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-container">
+  
+  <!-- Edit Header -->
+  <div class="edit-header">
+    <h1 class="edit-title">Edit Profile</h1>
+    <p class="edit-subtitle">Update your personal information</p>
+  </div>
+
+  <!-- Edit Content -->
+  <div class="edit-content">
+    <form method="post" id="edit-form">
+      {% csrf_token %}
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="first_name" class="form-label">First Name *</label>
+          <input type="text" id="first_name" name="first_name" class="form-input" 
+                 value="{{ user.first_name|default:'' }}" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="last_name" class="form-label">Last Name *</label>
+          <input type="text" id="last_name" name="last_name" class="form-input" 
+                 value="{{ user.last_name|default:'' }}" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address *</label>
+          <input type="email" id="email" name="email" class="form-input" 
+                 value="{{ user.email|default:'' }}" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="phone" class="form-label">Phone Number</label>
+          <input type="tel" id="phone" name="phone" class="form-input" 
+                 value="{{ profile.phone|default:'' }}">
+        </div>
+        
+        <div class="form-group">
+          <label for="department" class="form-label">Department</label>
+          <input type="text" id="department" name="department" class="form-input" 
+                 value="{{ profile.department|default:'' }}">
+        </div>
+        
+        <div class="form-group full-width">
+          <label for="bio" class="form-label">Bio</label>
+          <textarea id="bio" name="bio" class="form-textarea" 
+                    placeholder="Tell us about yourself...">{{ profile.bio|default:'' }}</textarea>
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="edit-btn edit-btn-primary">
+          💾 Save Changes
+        </button>
+        <a href="/admin-dashboard/profile/" class="edit-btn edit-btn-secondary">
+          ❌ Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Form validation
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('edit-form');
+  const inputs = document.querySelectorAll('.form-input');
+  
+  // Real-time validation
+  inputs.forEach(input => {
+    input.addEventListener('blur', function() {
+      if (this.value.trim() === '') {
+        this.style.borderColor = '#ef4444';
+        this.style.backgroundColor = '#fef2f2';
+      } else {
+        this.style.borderColor = '#16a34a';
+        this.style.backgroundColor = '#f0fdf4';
+      }
+    });
+    
+    input.addEventListener('focus', function() {
+      this.style.borderColor = '#8B5CF6';
+      this.style.backgroundColor = 'white';
+    });
+  });
+  
+  // Form submission
+  form.addEventListener('submit', function(e) {
+    const requiredFields = ['first_name', 'last_name', 'email'];
+    let isValid = true;
+    
+    requiredFields.forEach(fieldName => {
+      const field = document.querySelector(`[name="${fieldName}"]`);
+      if (!field.value.trim()) {
+        field.style.borderColor = '#ef4444';
+        field.style.backgroundColor = '#fef2f2';
+        isValid = false;
+      }
+    });
+    
+    if (!isValid) {
+      e.preventDefault();
+      showMessage('Please fill in all required fields', 'error');
+    }
+  });
+  
+  function showMessage(message, type) {
+    // Remove existing messages
+    const existingMessages = document.querySelectorAll('.error-message, .success-message');
+    existingMessages.forEach(msg => msg.remove());
+    
+    // Create new message
+    const messageDiv = document.createElement('div');
+    messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
+    messageDiv.textContent = message;
+    
+    // Insert before form
+    form.parentNode.insertBefore(messageDiv, form);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      if (messageDiv.parentNode) {
+        messageDiv.style.opacity = '0';
+        setTimeout(() => {
+          if (messageDiv.parentNode) {
+            messageDiv.remove();
+          }
+        }, 300);
+      }
+    }, 5000);
+  }
+});
+</script>
+{% endblock %}

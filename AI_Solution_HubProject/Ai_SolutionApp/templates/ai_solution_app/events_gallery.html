@@ -29,7 +29,7 @@
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {% for event in events %}
+            {% for event in upcoming_events %}
             <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-200 dark:border-gray-600 overflow-hidden">
                 <div class="p-8">
                     <div class="flex items-center justify-between mb-4">
@@ -45,10 +45,12 @@
                     <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">{{ event.title }}</h3>
                     <p class="text-gray-600 dark:text-gray-300 mb-6">{{ event.description|truncatewords:25 }}</p>
                     <div class="space-y-3 mb-6">
+                        {% if event.location %}
                         <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
                             <i class="fas fa-map-marker-alt mr-3 w-5"></i>
                             <span>{{ event.location }}</span>
                         </div>
+                        {% endif %}
                         <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
                             <i class="fas fa-calendar mr-3 w-5"></i>
                             <span>{{ event.start_date|date:"M d, Y" }}</span>
@@ -68,14 +70,18 @@
                         <a href="{% url 'ai_solution_app:event_detail' event.id %}" class="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-full font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 text-center">
                             View Details
                         </a>
-                        {% if event.registration_open %}
-                        <a href="{% url 'ai_solution_app:event_detail' event.id %}" class="flex-1 bg-gradient-to-r from-green-500 to-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:from-green-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 text-center">
+                        {% if event.registration_link %}
+                        <a href="{{ event.registration_link }}" class="flex-1 bg-gradient-to-r from-green-500 to-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:from-green-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 text-center">
                             Register Now
                         </a>
-                        {% else %}
+                        {% elif event.max_participants and event.current_participants >= event.max_participants %}
                         <button disabled class="flex-1 bg-gray-400 text-white px-6 py-3 rounded-full font-semibold cursor-not-allowed">
                             Full
                         </button>
+                        {% else %}
+                        <a href="{% url 'ai_solution_app:event_detail' event.id %}" class="flex-1 bg-gradient-to-r from-green-500 to-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:from-green-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 text-center">
+                            Learn More
+                        </a>
                         {% endif %}
                     </div>
                 </div>
@@ -113,17 +119,40 @@
         
         <!-- Gallery Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-            {% for i in "1234567890123456" %}
+            {% for image in gallery_images %}
             <div class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer">
+                {% if image.image %}
+                <img src="{{ image.image.url }}" alt="{{ image.title|default:'Gallery Image' }}" class="w-full h-full object-cover aspect-square">
+                {% else %}
                 <div class="aspect-square bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
                     <i class="fas fa-image text-4xl text-white opacity-50 group-hover:opacity-75 transition-opacity duration-300"></i>
                 </div>
+                {% endif %}
                 <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-300 flex items-center justify-center">
                     <div class="text-white text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <h3 class="text-lg font-semibold mb-2">AI Innovation {{ forloop.counter }}</h3>
+                        <h3 class="text-lg font-semibold mb-2">{{ image.title|default:"Gallery Image" }}</h3>
+                        {% if image.description %}
+                        <p class="text-sm">{{ image.description|truncatewords:8 }}</p>
+                        {% else %}
                         <p class="text-sm">Click to view details</p>
+                        {% endif %}
                     </div>
                 </div>
+                {% if image.is_featured %}
+                <div class="absolute top-2 right-2">
+                    <span class="bg-yellow-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
+                        ⭐ Featured
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-12">
+                <div class="w-24 h-24 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-images text-3xl text-gray-400 dark:text-gray-500"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">No Gallery Images Yet</h3>
+                <p class="text-gray-500 dark:text-gray-500">Check back soon for our latest gallery updates!</p>
             </div>
             {% endfor %}
         </div>
