@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Admin Login • AI-Solutions Hub{% endblock %}
+{% block content %}
+<section class="min-h-[70vh] py-16 flex items-center">
+  <div class="w-full max-w-md mx-auto px-4">
+    <div class="text-center mb-6">
+      <div class="mx-auto h-14 w-14 rounded-2xl flex items-center justify-center bg-gradient-to-br from-primary-600 to-secondary-600 text-white shadow-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c1.657 0 3-1.343 3-3V6a3 3 0 10-6 0v2c0 1.657 1.343 3 3 3z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11h14a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2z"/></svg>
+      </div>
+      <h1 class="mt-3 text-2xl font-bold">Admin Login</h1>
+      <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Secure access to dashboard</p>
+    </div>
+    <div class="rounded-2xl p-6 bg-white/70 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 shadow-glass">
+      <meta name="robots" content="noindex, nofollow">
+      <div id="loginAlert" class="hidden mb-4 rounded-lg border border-red-200 bg-red-50 text-red-700 px-3 py-2 text-sm dark:border-red-800 dark:bg-red-900/30 dark:text-red-200" role="alert">
+        Invalid credentials. Please try again.
+      </div>
+      <form class="space-y-4" novalidate>
+        <div>
+          <label for="adminEmail" class="block text-sm font-medium">Email</label>
+          <input id="adminEmail" type="email" autocomplete="username" required class="mt-1 w-full px-3 py-2 rounded-md border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-primary-500">
+        </div>
+        <div>
+          <div class="flex items-center justify-between">
+            <label for="adminPassword" class="block text-sm font-medium">Password</label>
+            <a href="#" class="text-xs text-primary-600">Forgot password?</a>
+          </div>
+          <div class="relative mt-1">
+            <input id="adminPassword" type="password" autocomplete="current-password" required class="w-full px-3 py-2 pr-10 rounded-md border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-primary-500">
+            <button type="button" class="absolute inset-y-0 right-0 px-3 text-slate-500" aria-label="Toggle password visibility" data-toggle-password data-target="adminPassword">👁️</button>
+          </div>
+        </div>
+        <div class="flex items-center justify-between">
+          <label class="inline-flex items-center gap-2 text-sm">
+            <input type="checkbox" class="rounded border-slate-300 dark:border-slate-700"> Remember me
+          </label>
+          <span class="text-xs text-slate-500">3 attempts before temporary lock</span>
+        </div>
+        <button class="w-full px-4 py-2 rounded-md text-white bg-gradient-to-r from-primary-600 to-secondary-600 hover:opacity-90 transition">Login</button>
+      </form>
+      <p class="mt-4 text-xs text-slate-500">This area is restricted to authorized personnel only.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

@@ -1,0 +1,58 @@
+/* Custom CSS3 polish to complement Tailwind */
+
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.18);
+}
+
+/* Subtle entrance animations */
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in-up {
+  animation: fade-in-up 0.6s ease-out both;
+}
+
+/* Glassmorphism utility (used alongside Tailwind classes) */
+.glass-surface {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+}
+
+/* Gradient button helper (if needed outside Tailwind) */
+.btn-gradient {
+  background-image: linear-gradient(90deg, #2563eb, #7c3aed);
+  color: #fff;
+  transition: filter 160ms ease, transform 160ms ease;
+}
+.btn-gradient:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.btn-gradient:active { transform: translateY(0); }
+
+/* Focus styles for accessibility */
+:where(a, button, input, textarea, select):focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+/* Smooth hover zoom for gallery */
+.hover-zoom {
+  transition: transform 240ms ease, box-shadow 240ms ease;
+}
+.hover-zoom:hover { transform: scale(1.02); }
+
+/* Custom scrollbars (modern browsers) */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 999px; }
+*::-webkit-scrollbar-thumb:hover { background: #64748b; }
+*::-webkit-scrollbar-track { background: transparent; }
+
+/* Reduce motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+

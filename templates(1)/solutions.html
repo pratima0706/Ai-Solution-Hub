@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Past Solutions • AI-Solutions Hub{% endblock %}
+{% block head_extra %}
+<meta name="description" content="See case studies of AI assistants and prototypes delivering measurable outcomes.">
+{% endblock %}
+{% block content %}
+<section class="py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h1 class="text-3xl font-bold">Past Solutions</h1>
+    <p class="mt-3 text-slate-600 dark:text-slate-400">Case studies that highlight measurable outcomes.</p>
+    <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {% for i in '123456' %}
+      <div class="rounded-2xl overflow-hidden bg-white/70 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+        <img src="https://images.unsplash.com/photo-1556761175-b413da4baf72?q=80&w=1200&auto=format&fit=crop" alt="Case study" class="h-40 w-full object-cover">
+        <div class="p-6">
+          <h3 class="font-semibold">AI Assistant for Global Support</h3>
+          <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">Reduced response time by 45% and improved CSAT by 18%.</p>
+          <button class="mt-4 text-primary-600" data-modal-open="cs-{{ forloop.counter }}">Read More →</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% for i in '123456' %}
+<div class="fixed inset-0 hidden items-center justify-center bg-black/60 z-50" id="modal-cs-{{ forloop.counter }}">
+  <div class="max-w-2xl w-full mx-4 rounded-xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+    <h3 class="text-xl font-semibold">Case Study Details</h3>
+    <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">Problem, approach, architecture highlights, and quantified impact.</p>
+    <div class="mt-4 flex justify-end">
+      <button class="px-4 py-2 rounded-md border border-slate-300 dark:border-slate-700" data-modal-close>Close</button>
+    </div>
+  </div>
+  <button class="absolute inset-0 w-full h-full" data-modal-close aria-label="Close"></button>
+</div>
+{% endfor %}
+{% endblock %}
+

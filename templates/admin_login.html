@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Admin Login – AI‑Solutions Hub{% endblock %}
+{% block content %}
+<section class="py-20">
+  <div class="max-w-md mx-auto px-4">
+    <div class="rounded-2xl p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xl">
+      <h1 class="text-2xl font-bold text-center">Admin Login</h1>
+      <p class="mt-2 text-center text-slate-600 dark:text-slate-300">Secure access to dashboard</p>
+      <form id="adminLoginForm" class="mt-6 grid gap-4" novalidate>
+        <div>
+          <label class="block text-sm font-medium">Email</label>
+          <input name="email" type="email" required class="mt-1 w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500" />
+          <p class="mt-1 text-xs text-red-600 hidden" data-error="email">Enter a valid email</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Password</label>
+          <div class="relative">
+            <input name="password" type="password" minlength="8" required class="mt-1 w-full pr-10 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500" />
+            <button type="button" id="togglePwd" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700">👁️</button>
+          </div>
+          <p class="mt-1 text-xs text-red-600 hidden" data-error="password">Password must be at least 8 characters</p>
+        </div>
+        <div class="text-xs text-slate-500">Protected by reCAPTCHA (placeholder)</div>
+        <button class="mt-2 px-6 py-3 rounded-xl text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500">Sign In</button>
+        <p id="lockoutMsg" class="hidden text-sm text-red-600">Too many failed attempts. Please try again later.</p>
+      </form>
+    </div>
+  </div>
+  </section>
+{% block body_extra %}
+<script>
+  (function(){
+    const form = document.getElementById('adminLoginForm');
+    const lockoutMsg = document.getElementById('lockoutMsg');
+    const toggle = document.getElementById('togglePwd');
+    const maxAttempts = 3;
+    const lockMinutes = 5;
+    const KEY_ATTEMPTS = 'admin_attempts';
+    const KEY_LOCK = 'admin_lock_ts';
+
+    const now = () => Date.now();
+    const get = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+    const set = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+    const diffMinutes = (ts) => (now() - ts) / 60000;
+
+    function checkLockout() {
+      const lockTs = get(KEY_LOCK, 0);
+      if (lockTs && diffMinutes(lockTs) < lockMinutes) {
+        lockoutMsg.classList.remove('hidden');
+        form.querySelector('button[type="submit"], button:not([type])')?.setAttribute('disabled', 'true');
+        return true;
+      }
+      lockoutMsg.classList.add('hidden');
+      form.querySelector('button[type="submit"], button:not([type])')?.removeAttribute('disabled');
+      return false;
+    }
+
+    function validate() {
+      const fd = new FormData(form);
+      const email = (fd.get('email')||'').toString().trim();
+      const password = (fd.get('password')||'').toString();
+      const emailOk = /.+@.+\..+/.test(email);
+      const pwdOk = password.length >= 8;
+      form.querySelector('[data-error="email"]').classList.toggle('hidden', emailOk);
+      form.querySelector('[data-error="password"]').classList.toggle('hidden', pwdOk);
+      return emailOk && pwdOk;
+    }
+
+    if (toggle) toggle.addEventListener('click', () => {
+      const input = form.querySelector('input[name="password"]');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    });
+
+    form.addEventListener('input', validate);
+    checkLockout();
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (checkLockout()) return;
+      if (!validate()) return;
+      // Placeholder: simulate a failed attempt for UI testing
+      let attempts = get(KEY_ATTEMPTS, 0) + 1;
+      if (attempts >= maxAttempts) {
+        set(KEY_LOCK, now());
+        attempts = 0;
+      }
+      set(KEY_ATTEMPTS, attempts);
+      checkLockout();
+    });
+  })();
+  </script>
+{% endblock %}
+{% endblock %}
+
