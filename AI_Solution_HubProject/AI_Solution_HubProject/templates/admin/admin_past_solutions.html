@@ -1,0 +1,596 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Past Solutions - AI Solution Hub Admin{% endblock %}
+
+{% block page_title %}Case Studies & Past Solutions{% endblock %}
+
+{% block content %}
+<!-- Search and Filters -->
+<div class="search-filters">
+    <form method="get" class="filter-form">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label class="form-label">Search</label>
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Search by title, client, or industry..." 
+                       value="{{ search }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Industry</label>
+                <input type="text" name="industry" class="form-control" 
+                       placeholder="Filter by industry..." 
+                       value="{{ industry }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Featured</label>
+                <select name="featured" class="form-control">
+                    <option value="">All Solutions</option>
+                    <option value="yes" {% if featured == 'yes' %}selected{% endif %}>Featured Only</option>
+                    <option value="no" {% if featured == 'no' %}selected{% endif %}>Not Featured</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Filter
+                    </button>
+                    <a href="{% url 'djadmin:past_solutions' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>Clear
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Results Summary -->
+<div class="results-summary mb-3">
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <h6 class="mb-0">Showing {{ solutions.start_index }}-{{ solutions.end_index }} of {{ total_count }} solutions</h6>
+            {% if search or industry or featured %}
+            <small class="text-secondary">Filtered results</small>
+            {% endif %}
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addSolutionModal">
+                <i class="fas fa-plus me-1"></i>Add Solution
+            </button>
+            <button class="btn btn-success btn-sm" onclick="exportSolutions()">
+                <i class="fas fa-download me-1"></i>Export CSV
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Solutions Grid -->
+<div class="solutions-grid">
+    {% for solution in solutions %}
+    <div class="solution-card dashboard-card">
+        <div class="solution-header">
+            <div class="solution-image">
+                {% if solution.image %}
+                    <img src="{{ solution.image.url }}" alt="{{ solution.title }}" class="solution-img">
+                {% else %}
+                    <div class="solution-placeholder">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="solution-content">
+                <div class="solution-meta">
+                    <span class="badge bg-primary">{{ solution.industry }}</span>
+                    {% if solution.is_featured %}
+                        <span class="badge bg-warning">Featured</span>
+                    {% endif %}
+                    <span class="badge bg-info">{{ solution.completion_date|date:"M Y" }}</span>
+                </div>
+                
+                <h5 class="solution-title">
+                    <a href="#" onclick="viewSolution('{{ solution.id }}')" class="text-decoration-none">
+                        {{ solution.title }}
+                    </a>
+                </h5>
+                
+                <div class="solution-client">
+                    <i class="fas fa-building me-1"></i>
+                    <span>{{ solution.client_name }}</span>
+                </div>
+                
+                <p class="solution-description">{{ solution.description|truncatewords:20 }}</p>
+                
+                <div class="solution-technologies">
+                    {% for tech in solution.technologies_used|slice:":3" %}
+                        <span class="tech-tag">{{ tech }}</span>
+                    {% endfor %}
+                    {% if solution.technologies_used|length > 3 %}
+                        <span class="tech-tag">+{{ solution.technologies_used|length|add:"-3" }} more</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="solution-actions">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                            data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="editSolution('{{ solution.id }}')">
+                            <i class="fas fa-edit me-2"></i>Edit
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="duplicateSolution('{{ solution.id }}')">
+                            <i class="fas fa-copy me-2"></i>Duplicate
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="toggleFeatured('{{ solution.id }}')">
+                            <i class="fas fa-star me-2"></i>
+                            {% if solution.is_featured %}Unfeature{% else %}Feature{% endif %}
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="previewSolution('{{ solution.id }}')">
+                            <i class="fas fa-external-link-alt me-2"></i>Preview
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteSolution('{{ solution.id }}', '{{ solution.title }}')">
+                            <i class="fas fa-trash me-2"></i>Delete
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="solution-details">
+            <div class="solution-challenge">
+                <h6>Challenge</h6>
+                <p>{{ solution.challenge|truncatewords:15 }}</p>
+            </div>
+            
+            <div class="solution-approach">
+                <h6>Our Approach</h6>
+                <p>{{ solution.solution|truncatewords:15 }}</p>
+            </div>
+            
+            <div class="solution-results">
+                <h6>Results</h6>
+                <p>{{ solution.results|truncatewords:15 }}</p>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="text-center py-5">
+                <div class="empty-state">
+                    <i class="fas fa-project-diagram fa-3x text-secondary mb-3"></i>
+                    <h5>No solutions found</h5>
+                    <p class="text-secondary">
+                        {% if search or industry or featured %}
+                            Try adjusting your filters or search terms.
+                        {% else %}
+                            No case studies have been added yet.
+                        {% endif %}
+                    </p>
+                    {% if search or industry or featured %}
+                    <a href="{% url 'djadmin:past_solutions' %}" class="btn btn-primary">
+                        <i class="fas fa-times me-1"></i>Clear Filters
+                    </a>
+                    {% else %}
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSolutionModal">
+                        <i class="fas fa-plus me-1"></i>Add First Solution
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if solutions.has_other_pages %}
+<div class="pagination">
+    <div class="pagination-info">
+        Showing {{ solutions.start_index }}-{{ solutions.end_index }} of {{ total_count }} entries
+    </div>
+    <div class="pagination-controls">
+        {% if solutions.has_previous %}
+            <a href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">First</a>
+            <a href="?page={{ solutions.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">Prev</a>
+        {% endif %}
+        
+        {% for num in solutions.paginator.page_range %}
+            {% if solutions.number == num %}
+                <span class="page-btn active">{{ num }}</span>
+            {% elif num > solutions.number|add:'-3' and num < solutions.number|add:'3' %}
+                <a href="?page={{ num }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if solutions.has_next %}
+            <a href="?page={{ solutions.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">Next</a>
+            <a href="?page={{ solutions.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">Last</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Add Solution Modal -->
+<div class="modal fade" id="addSolutionModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Case Study</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addSolutionForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Project Title</label>
+                                <input type="text" name="title" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Client Name</label>
+                                <input type="text" name="client_name" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Industry</label>
+                                <input type="text" name="industry" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Completion Date</label>
+                                <input type="date" name="completion_date" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label class="form-label">Project Image</label>
+                        <input type="file" name="image" class="form-control" accept="image/*">
+                        <small class="form-text text-muted">JPG, PNG, or WebP. Max size: 10MB</small>
+                        <div class="image-preview mt-2" id="imagePreview" style="display: none;">
+                            <img id="previewImg" class="img-thumbnail" style="max-width: 200px;">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label class="form-label">Project Description</label>
+                        <textarea name="description" class="form-control" rows="3" 
+                                  placeholder="Brief overview of the project..." required></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Challenge</label>
+                                <textarea name="challenge" class="form-control" rows="4" 
+                                          placeholder="What problem did the client face?" required></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Our Solution</label>
+                                <textarea name="solution" class="form-control" rows="4" 
+                                          placeholder="How did we solve it?" required></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Results</label>
+                                <textarea name="results" class="form-control" rows="4" 
+                                          placeholder="What were the outcomes?" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label class="form-label">Technologies Used (comma-separated)</label>
+                        <input type="text" name="technologies" class="form-control" 
+                               placeholder="Python, TensorFlow, AWS, Docker">
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" name="is_featured" class="form-check-input">
+                            <label class="form-check-label">Featured case study</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveSolution()">Create Case Study</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.solutions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.solution-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid var(--border-color);
+}
+
+.solution-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.solution-header {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.solution-image {
+    width: 120px;
+    height: 80px;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.solution-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.solution-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: var(--border-color);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.solution-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.solution-meta {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.solution-title {
+    margin: 0 0 0.5rem 0;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.solution-title a {
+    color: inherit;
+}
+
+.solution-title a:hover {
+    color: var(--primary-color);
+}
+
+.solution-client {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+}
+
+.solution-description {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+}
+
+.solution-technologies {
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+}
+
+.tech-tag {
+    background-color: var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+}
+
+.solution-actions {
+    flex-shrink: 0;
+}
+
+.solution-actions .dropdown-toggle {
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+}
+
+.solution-actions .dropdown-toggle:hover {
+    color: var(--text-primary);
+}
+
+.solution-details {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.solution-details h6 {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.solution-details p {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin: 0;
+}
+
+.image-preview {
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .solutions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .solution-header {
+        flex-direction: column;
+    }
+    
+    .solution-image {
+        width: 100%;
+        height: 150px;
+    }
+    
+    .solution-details {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Image preview functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.querySelector('input[name="image"]');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.style.display = 'none';
+            }
+        });
+    }
+});
+
+function editSolution(solutionId) {
+    // This would typically open an edit modal or redirect to edit page
+    showNotification('Edit solution functionality coming soon!', 'info');
+}
+
+function duplicateSolution(solutionId) {
+    if (confirm('Duplicate this case study?')) {
+        // This would typically make an AJAX request
+        showNotification('Case study duplicated successfully!', 'success');
+        location.reload();
+    }
+}
+
+function toggleFeatured(solutionId) {
+    // This would typically make an AJAX request
+    showNotification('Solution featured status updated!', 'success');
+    location.reload();
+}
+
+function previewSolution(solutionId) {
+    // This would typically open a preview modal or redirect to preview page
+    showNotification('Opening solution preview...', 'info');
+}
+
+function deleteSolution(solutionId, solutionTitle) {
+    if (confirm(`Delete case study "${solutionTitle}"? This action cannot be undone.`)) {
+        // This would typically make an AJAX request
+        showNotification('Case study deleted successfully!', 'success');
+        location.reload();
+    }
+}
+
+function viewSolution(solutionId) {
+    // This would typically open a view modal or redirect to solution detail page
+    showNotification('View solution functionality coming soon!', 'info');
+}
+
+function saveSolution() {
+    const form = document.getElementById('addSolutionForm');
+    const formData = new FormData(form);
+    
+    // Basic validation
+    const title = formData.get('title');
+    const clientName = formData.get('client_name');
+    const industry = formData.get('industry');
+    const completionDate = formData.get('completion_date');
+    const description = formData.get('description');
+    const challenge = formData.get('challenge');
+    const solution = formData.get('solution');
+    const results = formData.get('results');
+    
+    if (!title || !clientName || !industry || !completionDate || !description || !challenge || !solution || !results) {
+        alert('Please fill in all required fields');
+        return;
+    }
+    
+    // This would typically make an AJAX request
+    showNotification('Case study created successfully!', 'success');
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('addSolutionModal'));
+    modal.hide();
+    
+    // Reload page to show new solution
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+function exportSolutions() {
+    // This would typically make an AJAX request to export solutions
+    showNotification('Exporting case studies...', 'info');
+    // Simulate export
+    setTimeout(() => {
+        showNotification('Case studies exported successfully!', 'success');
+    }, 2000);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,182 @@
+{% extends 'ai_solution_app/base.html' %}
+{% load static %}
+
+{% block title %}Registration Confirmed - {{ event.title }} - {{ site_settings.site_name }}{% endblock %}
+
+{% block meta_description %}Your registration for {{ event.title }} has been confirmed. We look forward to seeing you at the event.{% endblock %}
+
+{% block content %}
+<!-- Success Hero Section -->
+<section class="relative py-20 md:py-24 lg:py-32 bg-gradient-to-br from-green-600 via-emerald-600 to-teal-700 text-white overflow-hidden">
+    <div class="absolute inset-0 opacity-20" style="background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%);"></div>
+    <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
+        <div class="inline-flex items-center justify-center w-24 h-24 bg-white bg-opacity-20 rounded-full mb-8 animate-bounce">
+            <i class="fas fa-check-circle text-5xl text-white"></i>
+        </div>
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">
+            Registration Confirmed!
+        </h1>
+        <p class="text-lg md:text-xl text-green-100 max-w-2xl mx-auto leading-relaxed mb-10">
+            Your registration for <strong class="text-white">{{ event.title }}</strong> has been successfully confirmed. We look forward to seeing you at the event.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <a href="{% url 'ai_solution_app:home' %}" class="inline-flex items-center justify-center px-8 py-4 bg-white text-green-600 rounded-xl font-semibold text-lg shadow-lg hover:bg-green-50 transform hover:scale-105 transition-all duration-300">
+                <i class="fas fa-home mr-3"></i>
+                Return to Home
+            </a>
+            <a href="{% url 'ai_solution_app:events_gallery' %}" class="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-semibold text-lg hover:bg-white hover:text-green-600 transform hover:scale-105 transition-all duration-300">
+                <i class="fas fa-calendar-alt mr-3"></i>
+                Explore More Events
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Event Details Section -->
+<section class="py-16 bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Event Details Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mr-4">
+                        <i class="fas fa-calendar-check text-blue-600 dark:text-blue-400 text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Event Details</h2>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mr-4 mt-1">
+                            <i class="fas fa-star text-green-600 dark:text-green-400 text-sm"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-700 dark:text-gray-300 text-sm uppercase tracking-wide">Event</h3>
+                            <p class="text-lg font-medium text-gray-900 dark:text-white">{{ event.title }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-4 mt-1">
+                            <i class="fas fa-calendar text-blue-600 dark:text-blue-400 text-sm"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-700 dark:text-gray-300 text-sm uppercase tracking-wide">Date</h3>
+                            <p class="text-lg font-medium text-gray-900 dark:text-white">{{ event.start_date|date:"F d, Y" }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mr-4 mt-1">
+                            <i class="fas fa-clock text-purple-600 dark:text-purple-400 text-sm"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-700 dark:text-gray-300 text-sm uppercase tracking-wide">Time</h3>
+                            <p class="text-lg font-medium text-gray-900 dark:text-white">{{ event.start_date|date:"g:i A" }} - {{ event.end_date|date:"g:i A" }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center mr-4 mt-1">
+                            <i class="fas fa-map-marker-alt text-orange-600 dark:text-orange-400 text-sm"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-700 dark:text-gray-300 text-sm uppercase tracking-wide">Location</h3>
+                            <p class="text-lg font-medium text-gray-900 dark:text-white">
+                                {% if event.is_virtual %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                        <i class="fas fa-video mr-2"></i>Virtual Event
+                                    </span>
+                                {% else %}
+                                    {{ event.location }}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mr-4 mt-1">
+                            <i class="fas fa-tag text-indigo-600 dark:text-indigo-400 text-sm"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-700 dark:text-gray-300 text-sm uppercase tracking-wide">Type</h3>
+                            <p class="text-lg font-medium text-gray-900 dark:text-white">{{ event.get_event_type_display }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- What's Next Card -->
+            <div class="space-y-8">
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-xl p-8 border border-blue-200 dark:border-gray-700">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-envelope text-blue-600 dark:text-blue-400 text-xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">What's Next?</h2>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                        We've sent a confirmation email to your registered email address with all the event details. 
+                        If you don't receive it within a few minutes, please check your spam folder.
+                    </p>
+                </div>
+                
+                <!-- Additional Info Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 text-center">
+                        <div class="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-calendar-plus text-green-600 dark:text-green-400 text-2xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-800 dark:text-white mb-2">Add to Calendar</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Don't forget to add this event to your calendar</p>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 text-center">
+                        <div class="w-16 h-16 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-share-alt text-purple-600 dark:text-purple-400 text-2xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-800 dark:text-white mb-2">Share Event</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Let your network know about this event</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Additional Resources Section -->
+<section class="py-16 bg-white dark:bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-4">Stay Connected</h2>
+            <p class="text-lg text-gray-600 dark:text-gray-300">Follow us for updates and more exciting events</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center">
+                <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-newspaper text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-3">Latest News</h3>
+                <p class="text-gray-600 dark:text-gray-300">Stay updated with our latest articles and insights</p>
+            </div>
+            
+            <div class="text-center">
+                <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-calendar-alt text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-3">More Events</h3>
+                <p class="text-gray-600 dark:text-gray-300">Discover other exciting events and workshops</p>
+            </div>
+            
+            <div class="text-center">
+                <div class="w-20 h-20 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-users text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-3">Community</h3>
+                <p class="text-gray-600 dark:text-gray-300">Join our community of AI enthusiasts</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'ai_solution_app/base.html' %}
+{% load static %}
+
+{% block title %}Demo Request Submitted - {{ site_settings.site_name }}{% endblock %}
+
+{% block meta_description %}Your demo request has been successfully submitted. Our team will contact you shortly.{% endblock %}
+
+{% block content %}
+<!-- Success Hero Section -->
+<section class="relative py-24 bg-gradient-to-br from-blue-700 via-purple-700 to-indigo-800 dark:from-blue-900 dark:via-purple-900 dark:to-indigo-950 text-white overflow-hidden">
+    <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse at 80% 0%, rgba(59,130,246,0.10) 0%, transparent 70%), radial-gradient(ellipse at 0% 100%, rgba(139,92,246,0.10) 0%, transparent 70%);"></div>
+    <div class="relative max-w-2xl mx-auto px-6 text-center z-10">
+        <div class="flex flex-col items-center justify-center">
+            <div class="bg-white/20 dark:bg-slate-900/40 rounded-full p-6 mb-6 shadow-lg">
+                <i class="fas fa-check-circle text-green-400 text-6xl drop-shadow"></i>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">Thank You!</h1>
+            <p class="text-lg md:text-xl text-blue-100 mb-8">Your demo request has been successfully submitted. Our team will contact you shortly to schedule your personalized demo.</p>
+            <div class="flex flex-col md:flex-row gap-4 justify-center mt-4">
+                <a href="{% url 'ai_solution_app:home' %}" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2">
+                    <i class="fas fa-home"></i> Return to Home
+                </a>
+                <a href="{% url 'ai_solution_app:services' %}" class="bg-white/20 dark:bg-slate-900/40 text-white px-8 py-4 rounded-xl text-lg font-semibold shadow-lg hover:bg-white/30 hover:dark:bg-slate-900/60 transition-all duration-300 flex items-center justify-center gap-2">
+                    <i class="fas fa-cogs"></i> Explore Our Services
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Next Steps Section -->
+<section class="py-16 bg-[var(--bg)]">
+    <div class="max-w-5xl mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="backdrop-blur-xl bg-white/10 dark:bg-slate-900/60 rounded-2xl p-8 border border-blue-200 dark:border-blue-900 shadow-lg text-center">
+                <div class="mb-4">
+                    <i class="fas fa-calendar-check text-blue-400 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2 text-[var(--text)]">What's Next?</h3>
+                <p class="text-[var(--text-secondary)]">Our team will reach out within 24-48 hours to schedule your personalized demo at a time that works for you.</p>
+            </div>
+            <div class="backdrop-blur-xl bg-white/10 dark:bg-slate-900/60 rounded-2xl p-8 border border-purple-200 dark:border-purple-900 shadow-lg text-center">
+                <div class="mb-4">
+                    <i class="fas fa-chalkboard-teacher text-purple-400 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2 text-[var(--text)]">Prepare for Your Demo</h3>
+                <p class="text-[var(--text-secondary)]">Consider specific challenges or questions you'd like addressed during your personalized demonstration.</p>
+            </div>
+            <div class="backdrop-blur-xl bg-white/10 dark:bg-slate-900/60 rounded-2xl p-8 border border-indigo-200 dark:border-indigo-900 shadow-lg text-center">
+                <div class="mb-4">
+                    <i class="fas fa-book-open text-indigo-400 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2 text-[var(--text)]">Browse Resources</h3>
+                <p class="text-[var(--text-secondary)]">In the meantime, explore our case studies and articles to learn more about our AI solutions.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

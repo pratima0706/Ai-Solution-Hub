@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Ai_SolutionApp',
+    'operations',
 ]
 
 MIDDLEWARE = [
@@ -66,6 +67,15 @@ TEMPLATES = [
         },
     },
 ]
+
+# Cache (shared backend required by django-ratelimit)
+# Use local-memory cache for simplicity (rate limiting implemented manually)
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-aisolutionhub-cache',
+    }
+}
 
 WSGI_APPLICATION = 'AI_Solution_HubProject.wsgi.application'
 
@@ -142,6 +152,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Authentication URLs
 LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/admin-dashboard/'
+LOGIN_REDIRECT_URL = '/admin/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 

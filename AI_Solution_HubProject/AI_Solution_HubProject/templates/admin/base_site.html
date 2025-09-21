@@ -1,172 +1,242 @@
-{% extends "admin/base.html" %}
-{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI Solution Hub Admin{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom Admin CSS -->
+    <link href="{% static 'admin/css/custom_admin.css' %}" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="admin-body">
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <nav class="admin-sidebar" id="adminSidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <i class="fas fa-robot me-2"></i>
+                    <span class="brand-text">AI Solution Hub</span>
+                </div>
+                <button class="sidebar-toggle d-lg-none" id="sidebarToggle">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-menu">
+                <!-- MAIN Section -->
+                <div class="menu-section">
+                    <div class="menu-section-title">MAIN</div>
+                    <ul class="menu-list">
+                        <li class="menu-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                            <a href="{% url 'djadmin:dashboard' %}" class="menu-link">
+                                <i class="fas fa-tachometer-alt menu-icon"></i>
+                                <span class="menu-text">Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="menu-item {% if request.resolver_match.url_name == 'inquiries_list' %}active{% endif %}">
+                            <a href="{% url 'djadmin:inquiries_list' %}" class="menu-link">
+                                <i class="fas fa-envelope menu-icon"></i>
+                                <span class="menu-text">Inquiries</span>
+                            </a>
+                        </li>
+                        <li class="menu-item {% if request.resolver_match.url_name == 'subscribers' %}active{% endif %}">
+                            <a href="{% url 'djadmin:subscribers' %}" class="menu-link">
+                                <i class="fas fa-users menu-icon"></i>
+                                <span class="menu-text">Subscribers</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
 
-{% block extrastyle %}
-<link rel="stylesheet" href="{% static 'admin/css/admin.css' %}">
-{% endblock %}
+                <!-- CONTENT Section -->
+                <div class="menu-section">
+                    <div class="menu-section-title">CONTENT</div>
+                    <ul class="menu-list">
+                        <li class="menu-item {% if request.resolver_match.url_name == 'events' %}active{% endif %}">
+                            <a href="{% url 'djadmin:events' %}" class="menu-link">
+                                <i class="fas fa-calendar-alt menu-icon"></i>
+                                <span class="menu-text">Events</span>
+                            </a>
+                        </li>
+                        <li class="menu-item {% if request.resolver_match.url_name == 'gallery' %}active{% endif %}">
+                            <a href="{% url 'djadmin:gallery' %}" class="menu-link">
+                                <i class="fas fa-images menu-icon"></i>
+                                <span class="menu-text">Gallery</span>
+                            </a>
+                        </li>
+                        <li class="menu-item {% if request.resolver_match.url_name == 'testimonials' %}active{% endif %}">
+                            <a href="{% url 'djadmin:testimonials' %}" class="menu-link">
+                                <i class="fas fa-quote-left menu-icon"></i>
+                                <span class="menu-text">Testimonials</span>
+                            </a>
+                        </li>
+                        <li class="menu-item {% if request.resolver_match.url_name == 'articles' %}active{% endif %}">
+                            <a href="{% url 'djadmin:articles' %}" class="menu-link">
+                                <i class="fas fa-blog menu-icon"></i>
+                                <span class="menu-text">Articles</span>
+                            </a>
+                        </li>
+                        <li class="menu-item {% if request.resolver_match.url_name == 'services' %}active{% endif %}">
+                            <a href="{% url 'djadmin:services' %}" class="menu-link">
+                                <i class="fas fa-cogs menu-icon"></i>
+                                <span class="menu-text">Services</span>
+                            </a>
+                        </li>
+                        <li class="menu-item {% if request.resolver_match.url_name == 'past_solutions' %}active{% endif %}">
+                            <a href="{% url 'djadmin:past_solutions' %}" class="menu-link">
+                                <i class="fas fa-project-diagram menu-icon"></i>
+                                <span class="menu-text">Past Solutions</span>
+                            </a>
+                        </li>
+                        <li class="menu-item {% if request.resolver_match.url_name == 'forms' %}active{% endif %}">
+                            <a href="{% url 'djadmin:forms' %}" class="menu-link">
+                                <i class="fas fa-clipboard-list menu-icon"></i>
+                                <span class="menu-text">Forms</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
 
-{% block extrahead %}
-<style>
-/* Override default admin styles */
-#header {
-    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-    color: white;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
+                <!-- MANAGEMENT Section -->
+                <div class="menu-section">
+                    <div class="menu-section-title">MANAGEMENT</div>
+                    <ul class="menu-list">
+                        <li class="menu-item {% if request.resolver_match.url_name == 'site_settings' %}active{% endif %}">
+                            <a href="{% url 'djadmin:site_settings' %}" class="menu-link">
+                                <i class="fas fa-cog menu-icon"></i>
+                                <span class="menu-text">Site Settings</span>
+                            </a>
+                        </li>
+                        <li class="menu-item {% if request.resolver_match.url_name == 'users' %}active{% endif %}">
+                            <a href="{% url 'djadmin:users' %}" class="menu-link">
+                                <i class="fas fa-user-shield menu-icon"></i>
+                                <span class="menu-text">Users</span>
+                            </a>
+                        </li>
+                        <li class="menu-item {% if request.resolver_match.url_name == 'audit_exports' %}active{% endif %}">
+                            <a href="{% url 'djadmin:audit_exports' %}" class="menu-link">
+                                <i class="fas fa-clipboard-list menu-icon"></i>
+                                <span class="menu-text">Audit & Exports</span>
+                            </a>
+                        </li>
+                        <li class="menu-item {% if request.resolver_match.url_name == 'reports' %}active{% endif %}">
+                            <a href="{% url 'djadmin:reports' %}" class="menu-link">
+                                <i class="fas fa-chart-bar menu-icon"></i>
+                                <span class="menu-text">Reports</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
 
-#header a:link, #header a:visited {
-    color: white;
-}
+        <!-- Main Content -->
+        <div class="admin-main">
+            <!-- Top Navigation -->
+            <header class="admin-topbar">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle d-lg-none" id="mobileSidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="topbar-title">
+                        {% block page_title %}Dashboard{% endblock %}
+                    </div>
+                </div>
+                
+                <div class="topbar-right">
+                    <div class="topbar-actions">
+                        <a href="{% url 'ai_solution_app:home' %}" class="topbar-btn" title="Home">
+                            <i class="fas fa-home"></i>
+                        </a>
+                        <button class="topbar-btn" title="Search">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <button class="topbar-btn" title="Dark Mode" id="themeToggle">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <div class="notification-dropdown" style="position: relative;">
+                            <button class="topbar-btn" title="Notifications" id="notificationBtn">
+                                <i class="fas fa-bell"></i>
+                                <span class="notification-badge" id="notificationBadge">0</span>
+                            </button>
+                            <div class="notification-menu" id="notificationMenu" style="position: absolute; top: 120%; right: 0; min-width: 340px; max-width: 380px; background: var(--card-bg); color: var(--text-primary); border-radius: 1rem; box-shadow: 0 8px 32px rgba(0,0,0,0.18); border: 1px solid var(--border-color); display: none; z-index: 2000;">
+                                <div class="notification-header" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color);">
+                                    <span style="font-weight: 700; font-size: 1rem;">Notifications</span>
+                                    <span id="notificationCount" style="background: var(--success-color); color: #fff; font-size: 0.85rem; border-radius: 999px; padding: 0.2em 0.7em; font-weight: 600; margin-left: 0.5em; display: none;"></span>
+                                </div>
+                                <div class="notification-list" id="notificationList" style="max-height: 340px; overflow-y: auto;">
+                                    <div class="notification-item" style="padding: 1.2rem; text-align: center; color: var(--text-secondary);">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <span>Loading notifications...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            <img src="{% if user.profile.profile_picture %}{{ user.profile.profile_picture.url }}{% else %}{% static 'images/default-avatar.png' %}{% endif %}" 
+                                 alt="{{ user.get_full_name|default:user.username }}" 
+                                 class="avatar-img">
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                            <div class="user-role">{{ user.profile.role.name|default:"Admin" }}</div>
+                        </div>
+                        <div class="user-dropdown">
+                            <button class="dropdown-toggle" id="userDropdown">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="dropdown-menu" id="userDropdownMenu">
+                                <a href="{% url 'djadmin:profile' %}" class="dropdown-item">
+                                    <i class="fas fa-user me-2"></i>My Profile
+                                </a>
+                                <a href="{% url 'djadmin:site_settings' %}" class="dropdown-item">
+                                    <i class="fas fa-cog me-2"></i>Settings
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a href="{% url 'logout' %}" class="dropdown-item">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
 
-#branding h1 {
-    font-size: 24px;
-    font-weight: 700;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
+            <!-- Page Content -->
+            <main class="admin-content">
+                {% if messages %}
+                    <div class="alert-container">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
-#user-tools {
-    color: rgba(255, 255, 255, 0.9);
-}
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
 
-#user-tools a:focus, #user-tools a:hover {
-    color: white;
-    text-decoration: underline;
-}
-
-/* Content styling */
-#content {
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-}
-
-/* Login page specific styling */
-#content.login-page {
-    padding: 24px;
-    background: transparent;
-}
-
-.login-wrap {
-    max-width: 1100px;
-    margin: 0 auto;
-}
-
-.login-card {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 18px;
-    overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-}
-
-.col {
-    position: relative;
-}
-
-.col.left {
-    background: #ede9fe;
-}
-
-.hero {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.overlay {
-    position: absolute;
-    left: 24px;
-    bottom: 24px;
-    color: #fff;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-}
-
-.overlay h2 {
-    margin: 0 0 6px 0;
-}
-
-.col.right {
-    padding: 36px 32px;
-    background: white;
-}
-
-h1 {
-    margin: 0;
-    color: #1f2937;
-}
-
-.muted {
-    color: #6b7280;
-    margin: 0.25rem 0 1rem;
-}
-
-.field {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 12px;
-}
-
-.field input {
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    padding: 10px 12px;
-    font-size: 14px;
-    background: transparent;
-    color: #1f2937;
-}
-
-.row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 10px 0;
-}
-
-.remember {
-    color: #6b7280;
-    font-size: 14px;
-}
-
-.link {
-    color: #3b82f6;
-    text-decoration: none;
-}
-
-.btn.primary {
-    width: 100%;
-    background: linear-gradient(135deg, #3b82f6, #7c3aed);
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    padding: 10px 14px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.btn.primary:focus-visible {
-    outline: 2px solid #fff;
-    outline-offset: 2px;
-}
-
-.brand {
-    margin-top: 18px;
-    color: #6b7280;
-    font-size: 13px;
-}
-
-.brand .title {
-    color: #1f2937;
-    font-weight: 700;
-}
-
-@media (max-width: 900px) {
-    .login-card {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
-{% endblock %}
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom Admin JS -->
+    <script src="{% static 'admin/js/custom_admin.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

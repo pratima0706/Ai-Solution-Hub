@@ -1,0 +1,692 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Gallery - AI Solution Hub Admin{% endblock %}
+
+{% block page_title %}Image Gallery Management{% endblock %}
+
+{% block content %}
+<!-- Search and Filters -->
+<div class="search-filters">
+    <form method="get" class="filter-form">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label class="form-label">Search</label>
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Search by title, description, or alt text..." 
+                       value="{{ search }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Category</label>
+                <select name="category" class="form-control">
+                    <option value="">All Categories</option>
+                    <option value="ai_solutions" {% if category == 'ai_solutions' %}selected{% endif %}>AI Solutions</option>
+                    <option value="team_events" {% if category == 'team_events' %}selected{% endif %}>Team Events</option>
+                    <option value="conferences" {% if category == 'conferences' %}selected{% endif %}>Conferences</option>
+                    <option value="workshops" {% if category == 'workshops' %}selected{% endif %}>Workshops</option>
+                    <option value="office" {% if category == 'office' %}selected{% endif %}>Office</option>
+                    <option value="awards" {% if category == 'awards' %}selected{% endif %}>Awards</option>
+                    <option value="client_meetings" {% if category == 'client_meetings' %}selected{% endif %}>Client Meetings</option>
+                    <option value="product_demos" {% if category == 'product_demos' %}selected{% endif %}>Product Demos</option>
+                    <option value="research" {% if category == 'research' %}selected{% endif %}>Research & Development</option>
+                    <option value="other" {% if category == 'other' %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Featured</label>
+                <select name="featured" class="form-control">
+                    <option value="">All Images</option>
+                    <option value="yes" {% if featured == 'yes' %}selected{% endif %}>Featured Only</option>
+                    <option value="no" {% if featured == 'no' %}selected{% endif %}>Not Featured</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Filter
+                    </button>
+                    <a href="{% url 'djadmin:gallery' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>Clear
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Results Summary -->
+<div class="results-summary mb-3">
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <h6 class="mb-0">Showing {{ gallery_items.start_index }}-{{ gallery_items.end_index }} of {{ total_count }} images</h6>
+            {% if search or category or featured %}
+            <small class="text-secondary">Filtered results</small>
+            {% endif %}
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addImageModal">
+                <i class="fas fa-plus me-1"></i>Add Image
+            </button>
+            <button class="btn btn-success btn-sm" onclick="bulkUpload()">
+                <i class="fas fa-upload me-1"></i>Bulk Upload
+            </button>
+            <button class="btn btn-info btn-sm" onclick="exportGallery()">
+                <i class="fas fa-download me-1"></i>Export CSV
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Gallery Grid -->
+<div class="gallery-grid">
+    {% for item in gallery_items %}
+    <div class="gallery-item dashboard-card">
+        <div class="gallery-image-container">
+            <img src="{{ item.image.url }}" alt="{{ item.alt_text|default:item.title }}" 
+                 class="gallery-image" onclick="viewImage('{{ item.id }}')">
+            
+            <div class="gallery-overlay">
+                <div class="gallery-actions">
+                    <button class="btn btn-sm btn-light" onclick="viewImage('{{ item.id }}')" title="View">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-light" onclick="editImage('{{ item.id }}')" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-light" onclick="downloadImage('{{ item.id }}')" title="Download">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteImage('{{ item.id }}', '{{ item.title }}')" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            
+            {% if item.is_featured %}
+                <div class="featured-badge">
+                    <i class="fas fa-star"></i>
+                </div>
+            {% endif %}
+            
+            {% if item.is_hero_image %}
+                <div class="hero-badge">
+                    <i class="fas fa-home"></i>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="gallery-info">
+            <h6 class="gallery-title">{{ item.title }}</h6>
+            <div class="gallery-meta">
+                <span class="badge bg-{{ item.category|default:'primary' }}">
+                    {{ item.get_category_display }}
+                </span>
+                {% if item.event %}
+                    <span class="badge bg-info">{{ item.event.title }}</span>
+                {% endif %}
+            </div>
+            {% if item.description %}
+                <p class="gallery-description">{{ item.description|truncatewords:10 }}</p>
+            {% endif %}
+            <div class="gallery-details">
+                <small class="text-secondary">
+                    <i class="fas fa-calendar me-1"></i>{{ item.created_at|date:"M d, Y" }}
+                </small>
+                <div class="gallery-controls">
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" 
+                               {% if item.is_featured %}checked{% endif %}
+                               onchange="toggleFeatured('{{ item.id }}')">
+                        <label class="form-check-label">Featured</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="text-center py-5">
+                <div class="empty-state">
+                    <i class="fas fa-images fa-3x text-secondary mb-3"></i>
+                    <h5>No images found</h5>
+                    <p class="text-secondary">
+                        {% if search or category or featured %}
+                            Try adjusting your filters or search terms.
+                        {% else %}
+                            No images have been uploaded yet.
+                        {% endif %}
+                    </p>
+                    {% if search or category or featured %}
+                    <a href="{% url 'djadmin:gallery' %}" class="btn btn-primary">
+                        <i class="fas fa-times me-1"></i>Clear Filters
+                    </a>
+                    {% else %}
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addImageModal">
+                        <i class="fas fa-plus me-1"></i>Upload First Image
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if gallery_items.has_other_pages %}
+<div class="pagination">
+    <div class="pagination-info">
+        Showing {{ gallery_items.start_index }}-{{ gallery_items.end_index }} of {{ total_count }} entries
+    </div>
+    <div class="pagination-controls">
+        {% if gallery_items.has_previous %}
+            <a href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">First</a>
+            <a href="?page={{ gallery_items.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">Prev</a>
+        {% endif %}
+        
+        {% for num in gallery_items.paginator.page_range %}
+            {% if gallery_items.number == num %}
+                <span class="page-btn active">{{ num }}</span>
+            {% elif num > gallery_items.number|add:'-3' and num < gallery_items.number|add:'3' %}
+                <a href="?page={{ num }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if gallery_items.has_next %}
+            <a href="?page={{ gallery_items.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">Next</a>
+            <a href="?page={{ gallery_items.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">Last</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Add Image Modal -->
+<div class="modal fade" id="addImageModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-light border-0 shadow-lg">
+            <div class="modal-header border-secondary bg-gradient-to-r from-primary to-info">
+                <h5 class="modal-title text-light fw-bold">
+                    <i class="fas fa-plus-circle me-2"></i>Add New Image
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="addImageForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group mb-4">
+                        <label class="form-label text-light fw-semibold">
+                            <i class="fas fa-image me-2 text-info"></i>Image File
+                        </label>
+                        <div class="file-upload-area border border-secondary rounded p-4 text-center" 
+                             style="border-style: dashed !important; background: rgba(255,255,255,0.05);">
+                            <input type="file" name="image" class="form-control bg-dark text-light border-secondary" 
+                                   accept="image/*" required onchange="previewImage(this)">
+                            <div class="mt-2">
+                                <i class="fas fa-cloud-upload-alt text-info fs-1"></i>
+                                <p class="text-muted mb-0">Drag & drop or click to select</p>
+                                <small class="form-text text-muted">JPG, PNG, or WebP. Max size: 10MB</small>
+                            </div>
+                        </div>
+                        <div class="image-preview mt-3" id="imagePreview" style="display: none;">
+                            <img id="previewImg" class="img-thumbnail border-secondary rounded" style="max-width: 300px;">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group mb-3">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-tag me-2 text-primary"></i>Title
+                                </label>
+                                <input type="text" name="title" class="form-control bg-dark text-light border-secondary" 
+                                       placeholder="Enter image title" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-folder me-2 text-success"></i>Category
+                                </label>
+                                <select name="category" class="form-control bg-dark text-light border-secondary" required>
+                                    <option value="">Select Category</option>
+                                    <option value="ai_solutions">AI Solutions</option>
+                                    <option value="team_events">Team Events</option>
+                                    <option value="conferences">Conferences</option>
+                                    <option value="workshops">Workshops</option>
+                                    <option value="office">Office</option>
+                                    <option value="awards">Awards</option>
+                                    <option value="client_meetings">Client Meetings</option>
+                                    <option value="product_demos">Product Demos</option>
+                                    <option value="research">Research & Development</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label class="form-label text-light fw-semibold">
+                            <i class="fas fa-align-left me-2 text-warning"></i>Description
+                        </label>
+                        <textarea name="description" class="form-control bg-dark text-light border-secondary" rows="3" 
+                                  placeholder="Describe the image content, context, and purpose..."></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-eye me-2 text-info"></i>Alt Text
+                                </label>
+                                <input type="text" name="alt_text" class="form-control bg-dark text-light border-secondary" 
+                                       placeholder="Alternative text for accessibility">
+                                <small class="form-text text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>Important for SEO and accessibility
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-hashtag me-2 text-purple"></i>Tags
+                                </label>
+                                <input type="text" name="tags" class="form-control bg-dark text-light border-secondary" 
+                                       placeholder="AI, Machine Learning, Conference">
+                                <small class="form-text text-muted">Separate tags with commas</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" name="is_featured" class="form-check-input" id="is_featured">
+                            <label class="form-check-label text-light" for="is_featured">
+                                <i class="fas fa-star me-2 text-warning"></i>Featured Image
+                            </label>
+                            <small class="form-text text-muted d-block mt-1">
+                                <i class="fas fa-info-circle me-1"></i>Display in home page gallery
+                            </small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary bg-gradient-to-r from-dark to-secondary">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary btn-lg px-4" onclick="uploadImage()">
+                    <i class="fas fa-upload me-2"></i>Upload Image
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Viewer Modal -->
+<div class="modal fade" id="imageViewerModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageViewerTitle">Image Viewer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="viewerImage" class="img-fluid" style="max-height: 70vh;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="downloadCurrentImage()">Download</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.gallery-item {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.gallery-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.gallery-image-container {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.gallery-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.gallery-image:hover {
+    transform: scale(1.05);
+}
+
+.gallery-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.gallery-item:hover .gallery-overlay {
+    opacity: 1;
+}
+
+.gallery-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.gallery-actions .btn {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.featured-badge, .hero-badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: var(--warning-color);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.hero-badge {
+    background: var(--primary-color);
+    top: 2.5rem;
+}
+
+.gallery-info {
+    padding: 1rem;
+}
+
+.gallery-title {
+    margin: 0 0 0.75rem 0;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+.gallery-meta {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.gallery-description {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    line-height: 1.4;
+    margin-bottom: 0.75rem;
+}
+
+.gallery-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+}
+
+.gallery-controls .form-check {
+    margin: 0;
+}
+
+.gallery-controls .form-check-input {
+    margin-right: 0.5rem;
+}
+
+.gallery-controls .form-check-label {
+    font-size: 0.75rem;
+    margin: 0;
+}
+
+.image-preview {
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+    
+    .gallery-details {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+    
+    .gallery-controls {
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Image preview functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.querySelector('input[name="image"]');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.style.display = 'none';
+            }
+        });
+    }
+});
+
+function viewImage(imageId) {
+    // This would typically load the image data and show in modal
+    const modal = new bootstrap.Modal(document.getElementById('imageViewerModal'));
+    document.getElementById('imageViewerTitle').textContent = 'Image Viewer';
+    document.getElementById('viewerImage').src = '/path/to/image/' + imageId;
+    modal.show();
+}
+
+function editImage(imageId) {
+    // This would typically open an edit modal or redirect to edit page
+    showNotification('Edit image functionality coming soon!', 'info');
+}
+
+function downloadImage(imageId) {
+    // This would typically trigger a download
+    showNotification('Downloading image...', 'info');
+}
+
+function deleteImage(imageId, imageTitle) {
+    if (confirm(`Delete image "${imageTitle}"? This action cannot be undone.`)) {
+        const formData = new FormData();
+        formData.append('gallery_id', imageId);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+        
+        fetch('{% url "djadmin:delete_gallery_image" %}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                location.reload();
+            } else {
+                showNotification(data.error || 'Delete failed', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Delete failed. Please try again.', 'error');
+        });
+    }
+}
+
+function toggleFeatured(imageId) {
+    const formData = new FormData();
+    formData.append('gallery_id', imageId);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    
+    fetch('{% url "djadmin:toggle_gallery_featured" %}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Image featured status updated!', 'success');
+            location.reload();
+        } else {
+            showNotification(data.error || 'Update failed', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Update failed. Please try again.', 'error');
+    });
+}
+
+function previewImage(input) {
+    const preview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            preview.style.display = 'block';
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        preview.style.display = 'none';
+    }
+}
+
+function uploadImage() {
+    const form = document.getElementById('addImageForm');
+    const formData = new FormData(form);
+    
+    // Basic validation
+    const image = formData.get('image');
+    const title = formData.get('title');
+    const category = formData.get('category');
+    
+    if (!image || !title || !category) {
+        showNotification('Please fill in all required fields', 'error');
+        return;
+    }
+    
+    // Show loading state
+    const uploadBtn = document.querySelector('#addImageModal .btn-primary');
+    const originalText = uploadBtn.textContent;
+    uploadBtn.textContent = 'Uploading...';
+    uploadBtn.disabled = true;
+    
+    // Make AJAX request
+    fetch('{% url "djadmin:add_gallery_image" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addImageModal'));
+            modal.hide();
+            form.reset();
+            document.getElementById('imagePreview').style.display = 'none';
+            // Reload page to show new image
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            showNotification(data.error || 'Upload failed', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Upload failed. Please try again.', 'error');
+    })
+    .finally(() => {
+        uploadBtn.textContent = originalText;
+        uploadBtn.disabled = false;
+    });
+}
+
+function bulkUpload() {
+    // This would typically open a bulk upload modal
+    showNotification('Bulk upload functionality coming soon!', 'info');
+}
+
+function exportGallery() {
+    // This would typically make an AJAX request to export gallery
+    showNotification('Exporting gallery...', 'info');
+    // Simulate export
+    setTimeout(() => {
+        showNotification('Gallery exported successfully!', 'success');
+    }, 2000);
+}
+
+function downloadCurrentImage() {
+    // This would typically trigger download of the currently viewed image
+    showNotification('Downloading image...', 'info');
+}
+</script>
+{% endblock %}

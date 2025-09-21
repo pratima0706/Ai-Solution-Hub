@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.views import LoginView
 from django.http import JsonResponse, HttpResponse
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
@@ -12,32 +13,38 @@ from django.views.decorators.http import require_http_methods
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
+from django.core.cache import cache
+from django.contrib.sessions.models import Session
 import json
 import csv
 from datetime import datetime, timedelta
 from .models import (
     Contact, Service, PastSolution, Event, Gallery, 
-    Testimonial, Article, AdminDashboard, SiteSettings, UserProfile, UserRole
+    Testimonial, Article, AdminDashboard, SiteSettings, UserProfile, UserRole, NewsletterSubscriber
 )
-from .forms import ContactForm
+from .forms import ContactForm, NewsletterForm, DemoRequestForm, EventRegistrationForm
 
 def home(request):
-    """Home page view with featured content"""
+    """Home page view with featured content and gallery images"""
     context = {
         'services': Service.objects.filter(is_featured=True)[:6],
         'solutions': PastSolution.objects.filter(is_featured=True)[:3],
         'testimonials': Testimonial.objects.filter(is_featured=True)[:3],
         'events': Event.objects.filter(is_featured=True, start_date__gte=timezone.now())[:3],
         'articles': Article.objects.filter(is_featured=True, is_published=True)[:2],
+        'gallery_images': Gallery.objects.filter(is_featured=True).order_by('order', '-created_at')[:8],
         'site_settings': SiteSettings.get_settings(),
     }
     return render(request, 'ai_solution_app/home.html', context)
 
 def services(request):
     """Services page view"""
-    services_list = Service.objects.all().order_by('order', 'title')
+    services_qs = Service.objects.all().order_by('order', 'title')
+    paginator = Paginator(services_qs, 6)  # 2 x 3 grid per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        'services': services_list,
+        'page_obj': page_obj,
         'site_settings': SiteSettings.get_settings(),
     }
     return render(request, 'ai_solution_app/services.html', context)
@@ -96,7 +103,7 @@ def solution_detail(request, solution_id):
     return render(request, 'ai_solution_app/solution_detail.html', context)
 
 def events_gallery(request):
-    """Events and gallery page view"""
+    """Events and gallery page view with enhanced image support"""
     upcoming_events = Event.objects.filter(
         start_date__gte=timezone.now()
     ).order_by('start_date')[:6]
@@ -105,12 +112,22 @@ def events_gallery(request):
         start_date__lt=timezone.now()
     ).order_by('-start_date')[:6]
     
-    gallery_images = Gallery.objects.filter(is_featured=True).order_by('order', '-created_at')[:12]
+    # Get all gallery images with pagination
+    gallery_images = Gallery.objects.all().order_by('order', '-created_at')
+    
+    # Pagination for gallery
+    paginator = Paginator(gallery_images, 12)
+    page_number = request.GET.get('page')
+    gallery_page = paginator.get_page(page_number)
+    
+    # Get featured images for carousel
+    featured_images = Gallery.objects.filter(is_featured=True).order_by('order', '-created_at')[:8]
     
     context = {
         'upcoming_events': upcoming_events,
         'past_events': past_events,
-        'gallery_images': gallery_images,
+        'gallery_images': gallery_page,
+        'featured_images': featured_images,
         'site_settings': SiteSettings.get_settings(),
     }
     return render(request, 'ai_solution_app/events_gallery.html', context)
@@ -124,11 +141,15 @@ def event_detail(request, event_id):
     
     gallery_images = Gallery.objects.filter(event=event).order_by('order')
     
+    # Pass registration form to template
+    registration_form = EventRegistrationForm(initial={'form_type': 'event'})
+    
     context = {
         'event': event,
         'related_events': related_events,
         'gallery_images': gallery_images,
         'site_settings': SiteSettings.get_settings(),
+        'registration_form': registration_form,
     }
     return render(request, 'ai_solution_app/event_detail.html', context)
 
@@ -251,9 +272,11 @@ def about_us(request):
 def contact_us(request):
     """Contact us page view with form handling"""
     if request.method == 'POST':
-        form = ContactForm(request.POST)
+        form = ContactForm(request.POST, request.FILES)
         if form.is_valid():
-            contact = form.save()
+            contact = form.save(commit=False)
+            contact.form_type = 'contact'  # Ensure form_type is set
+            contact.save()
             
             # Send confirmation email to customer
             try:
@@ -318,15 +341,10 @@ Please review and respond within 24 hours.
                 # Log the error but don't fail the form submission
                 print(f"Failed to send admin email: {e}")
             
-            messages.success(
-                request, 
-                f'Thank you {contact.name}! Your inquiry has been submitted successfully. We have sent a confirmation email to {contact.email}. We will get back to you within 24 hours.'
-            )
             return redirect('contact_us')
-        else:
-            messages.error(request, 'Please correct the errors below.')
+        # No messages.error here; errors will be shown inline in the template
     else:
-        form = ContactForm()
+        form = ContactForm(initial={'form_type': 'contact'})
     
     context = {
         'form': form,
@@ -334,146 +352,25 @@ Please review and respond within 24 hours.
     }
     return render(request, 'ai_solution_app/contact_us.html', context)
 
-@login_required
-def admin_dashboard(request):
-    """Admin dashboard view with analytics and contact management"""
-    if not request.user.is_staff:
-        messages.error(request, 'Access denied. Staff privileges required.')
-        return redirect('home')
-    
-    # Get contact statistics
-    total_contacts = Contact.objects.count()
-    new_contacts = Contact.objects.filter(status='new').count()
-    in_progress_contacts = Contact.objects.filter(status='in_progress').count()
-    contacted_contacts = Contact.objects.filter(status='contacted').count()
-    
-    # Weekly contact trend
-    today = timezone.now().date()
-    week_ago = today - timedelta(days=7)
-    weekly_contacts = Contact.objects.filter(
-        created_at__date__gte=week_ago
-    ).extra(
-        select={'day': 'date(created_at)'}
-    ).values('day').annotate(count=Count('id')).order_by('day')
-    
-    # Recent contacts
-    recent_contacts = Contact.objects.all().order_by('-created_at')[:10]
-    
-    # Get or create dashboard configuration
-    dashboard_config, created = AdminDashboard.objects.get_or_create(
-        pk=AdminDashboard.objects.first().pk if AdminDashboard.objects.exists() else None
-    )
-    
-    context = {
-        'total_contacts': total_contacts,
-        'new_contacts': new_contacts,
-        'in_progress_contacts': in_progress_contacts,
-        'contacted_contacts': contacted_contacts,
-        'weekly_contacts': list(weekly_contacts),
-        'recent_contacts': recent_contacts,
-        'dashboard_config': dashboard_config,
-        'site_settings': SiteSettings.get_settings(),
-    }
-    return render(request, 'admin/index.html', context)
-
-@login_required
-@require_http_methods(["POST"])
-def update_contact_status(request, contact_id):
-    """Update contact status via AJAX"""
-    if not request.user.is_staff:
-        return JsonResponse({'error': 'Access denied'}, status=403)
-    
-    try:
-        contact = get_object_or_404(Contact, id=contact_id)
-        new_status = request.POST.get('status')
-        
-        if new_status in ['new', 'in_progress', 'contacted', 'closed']:
-            contact.status = new_status
-            contact.save()
-            return JsonResponse({'success': True, 'new_status': new_status})
+def schedule_demo(request):
+    """Handle Schedule Demo form submissions (AJAX or normal POST)"""
+    if request.method == 'POST':
+        post_data = request.POST.copy()
+        post_data['form_type'] = 'demo'
+        form = ContactForm(post_data, request.FILES)
+        if form.is_valid():
+            contact = form.save()
+            if request.is_ajax() or request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'message': 'Thank you! Your demo request has been submitted.'})
+            else:
+                return redirect('home')
         else:
-            return JsonResponse({'error': 'Invalid status'}, status=400)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-@login_required
-def export_contacts_csv(request):
-    """Export contacts to CSV with filtering"""
-    if not request.user.is_staff:
-        messages.error(request, 'Access denied.')
-        return redirect('admin_dashboard')
-    
-    # Get filter parameters
-    status_filter = request.GET.get('status', '')
-    country_filter = request.GET.get('country', '')
-    date_from = request.GET.get('date_from', '')
-    date_to = request.GET.get('date_to', '')
-    
-    # Build queryset with filters
-    contacts = Contact.objects.all()
-    
-    if status_filter:
-        contacts = contacts.filter(status=status_filter)
-    if country_filter:
-        contacts = contacts.filter(country__icontains=country_filter)
-    if date_from:
-        contacts = contacts.filter(created_at__date__gte=date_from)
-    if date_to:
-        contacts = contacts.filter(created_at__date__lte=date_to)
-    
-    # Create CSV response
-    response = HttpResponse(content_type='text/csv; charset=utf-8')
-    response['Content-Disposition'] = f'attachment; filename="contacts_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"'
-    
-    # Write CSV with UTF-8 BOM for Excel compatibility
-    response.write('\ufeff')
-    writer = csv.writer(response)
-    
-    # Write header
-    writer.writerow([
-        'Name', 'Email', 'Phone', 'Company', 'Country', 
-        'Job Title', 'Job Details', 'Status', 'Created At', 'Notes'
-    ])
-    
-    # Write data
-    for contact in contacts:
-        writer.writerow([
-            contact.name, contact.email, contact.phone, contact.company,
-            contact.country, contact.job_title, contact.job_details,
-            contact.status, contact.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-            contact.notes or ''
-        ])
-    
-    return response
-
-@login_required
-def get_dashboard_stats(request):
-    """Get dashboard statistics for AJAX updates"""
-    if not request.user.is_staff:
-        return JsonResponse({'error': 'Access denied'}, status=403)
-    
-    # Get real-time statistics
-    total_contacts = Contact.objects.count()
-    new_contacts = Contact.objects.filter(status='new').count()
-    
-    # Weekly trend data
-    today = timezone.now().date()
-    week_ago = today - timedelta(days=7)
-    weekly_data = []
-    
-    for i in range(7):
-        date = week_ago + timedelta(days=i)
-        count = Contact.objects.filter(created_at__date=date).count()
-        weekly_data.append({
-            'date': date.strftime('%Y-%m-%d'),
-            'count': count
-        })
-    
-    return JsonResponse({
-        'total_contacts': total_contacts,
-        'new_contacts': new_contacts,
-        'weekly_data': weekly_data
-    })
+            if request.is_ajax() or request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': form.errors})
+            # No messages.error here; errors will be shown inline
+    else:
+        form = ContactForm(initial={'form_type': 'demo'})
+    return render(request, 'ai_solution_app/home.html', {'form': form})
 
 def handler404(request, exception):
     """Custom 404 error handler"""
@@ -483,691 +380,166 @@ def handler500(request):
     """Custom 500 error handler"""
     return render(request, 'ai_solution_app/500.html', status=500)
 
-@login_required
-def contact_analysis(request):
-    """Contact analysis dashboard with detailed analytics"""
-    # Get date range from request
-    days = int(request.GET.get('days', 30))
-    end_date = timezone.now()
-    start_date = end_date - timedelta(days=days)
+def newsletter_subscribe(request):
+    """Newsletter subscription view"""
+    form = NewsletterForm(request.POST)
     
-    # Get contact statistics
-    total_contacts = Contact.objects.count()
-    recent_contacts = Contact.objects.filter(created_at__gte=start_date)
-    
-    # Status breakdown
-    status_stats = Contact.objects.values('status').annotate(count=Count('id'))
-    
-    # Country breakdown
-    country_stats = Contact.objects.values('country').annotate(count=Count('id')).order_by('-count')[:10]
-    
-    # Daily contact trends
-    daily_trends = []
-    for i in range(days):
-        date = start_date + timedelta(days=i)
-        count = Contact.objects.filter(created_at__date=date.date()).count()
-        daily_trends.append({
-            'date': date.strftime('%Y-%m-%d'),
-            'count': count
-        })
-    
-    # Company analysis
-    company_stats = Contact.objects.values('company').annotate(count=Count('id')).order_by('-count')[:10]
-    
-    # Response time analysis (mock data for demo)
-    response_times = {
-        'avg_first_response': '2.5 hours',
-        'avg_resolution': '24 hours',
-        'sla_breaches': 3
-    }
-    
-    context = {
-        'total_contacts': total_contacts,
-        'recent_contacts_count': recent_contacts.count(),
-        'status_stats': status_stats,
-        'country_stats': country_stats,
-        'daily_trends': daily_trends,
-        'company_stats': company_stats,
-        'response_times': response_times,
-        'days': days,
-        'start_date': start_date,
-        'end_date': end_date
-    }
-    
-    return render(request, 'admin/contact_analysis.html', context)
-
-@login_required
-def user_management(request):
-    """User management dashboard for creating and managing admin users"""
-    from django.contrib.auth.models import User
-    from .models import UserRole, UserProfile
-    
-    if request.method == 'POST':
-        # Handle user creation
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        password = request.POST.get('password')
-        role_id = request.POST.get('role')
-        department = request.POST.get('department')
-        phone = request.POST.get('phone')
-        
+    if form.is_valid():
         try:
-            # Create user
-            user = User.objects.create_user(
-                username=username,
-                email=email,
-                first_name=first_name,
-                last_name=last_name,
-                password=password
-            )
-            
-            # Create profile
-            role = UserRole.objects.get(id=role_id) if role_id else None
-            UserProfile.objects.create(
-                user=user,
-                role=role,
-                department=department,
-                phone=phone,
-                is_active=True
-            )
-            
-            messages.success(request, f'User "{username}" created successfully!')
-            return redirect('/admin-dashboard/user-management/')
-            
-        except Exception as e:
-            messages.error(request, f'Error creating user: {str(e)}')
-    
-    # Get all users with their profiles
-    users = User.objects.select_related('profile').all()
-    roles = UserRole.objects.all()
-    
-    # Get user statistics
-    total_users = users.count()
-    active_users = users.filter(profile__is_active=True).count()
-    role_stats = UserProfile.objects.values('role__name').annotate(count=Count('id'))
-    
-    context = {
-        'users': users,
-        'roles': roles,
-        'total_users': total_users,
-        'active_users': active_users,
-        'role_stats': role_stats
-    }
-    
-    return render(request, 'admin/user_management.html', context)
-
-@login_required
-def gallery_management(request):
-    """Gallery management with image upload functionality"""
-    from .models import Gallery
-    from django.core.files.storage import default_storage
-    from django.core.files.base import ContentFile
-    import os
-    
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        item_id = request.POST.get('item_id')
-        
-        if action == 'upload' and 'image' in request.FILES:
-            # Handle image upload
-            image = request.FILES['image']
-            title = request.POST.get('title', '')
-            description = request.POST.get('description', '')
-            category = request.POST.get('category', 'general')
-            is_featured = 'is_featured' in request.POST
-            
-            # Save the image
-            gallery_item = Gallery.objects.create(
-                title=title,
-                description=description,
-                category=category,
-                is_featured=is_featured,
-                image=image
-            )
-            messages.success(request, f'Image "{title}" uploaded successfully!')
-            return redirect('/admin-dashboard/gallery-management/')
-            
-        elif action == 'feature' and item_id:
-            # Feature/unfeature image
-            try:
-                gallery_item = Gallery.objects.get(id=item_id)
-                gallery_item.is_featured = True
-                gallery_item.save()
-                messages.success(request, f'Image "{gallery_item.title}" featured!')
-            except Gallery.DoesNotExist:
-                messages.error(request, 'Image not found!')
-            return redirect('/admin-dashboard/gallery-management/')
-            
-        elif action == 'unfeature' and item_id:
-            # Unfeature image
-            try:
-                gallery_item = Gallery.objects.get(id=item_id)
-                gallery_item.is_featured = False
-                gallery_item.save()
-                messages.success(request, f'Image "{gallery_item.title}" unfeatured!')
-            except Gallery.DoesNotExist:
-                messages.error(request, 'Image not found!')
-            return redirect('/admin-dashboard/gallery-management/')
-            
-        elif action == 'delete' and item_id:
-            # Delete image
-            try:
-                gallery_item = Gallery.objects.get(id=item_id)
-                title = gallery_item.title
-                # Delete the file from storage
-                if gallery_item.image:
-                    gallery_item.image.delete()
-                gallery_item.delete()
-                messages.success(request, f'Image "{title}" deleted!')
-            except Gallery.DoesNotExist:
-                messages.error(request, 'Image not found!')
-            return redirect('/admin-dashboard/gallery-management/')
-    
-    # Get gallery items
-    gallery_items = Gallery.objects.all().order_by('-created_at')
-    categories = Gallery.objects.values_list('category', flat=True).distinct()
-    
-    context = {
-        'gallery_items': gallery_items,
-        'categories': categories,
-        'total_images': gallery_items.count(),
-        'featured_images': gallery_items.filter(is_featured=True).count()
-    }
-    
-    return render(request, 'admin/gallery_management.html', context)
-
-@login_required
-def testimonials_management(request):
-    """Testimonials management with approval system"""
-    from .models import Testimonial
-    
-    if request.method == 'POST':
-        testimonial_id = request.POST.get('testimonial_id')
-        action = request.POST.get('action')
-        
-        try:
-            testimonial = Testimonial.objects.get(id=testimonial_id)
-            
-            if action == 'approve':
-                testimonial.is_verified = True
-                testimonial.save()
-                messages.success(request, f'Testimonial from {testimonial.customer_name} approved!')
-            elif action == 'reject':
-                testimonial.is_verified = False
-                testimonial.save()
-                messages.warning(request, f'Testimonial from {testimonial.customer_name} rejected!')
-            elif action == 'feature':
-                testimonial.is_featured = not testimonial.is_featured
-                testimonial.save()
-                status = 'featured' if testimonial.is_featured else 'unfeatured'
-                messages.info(request, f'Testimonial from {testimonial.customer_name} {status}!')
-            elif action == 'delete':
-                testimonial.delete()
-                messages.error(request, f'Testimonial from {testimonial.customer_name} deleted!')
-                
-        except Testimonial.DoesNotExist:
-            messages.error(request, 'Testimonial not found!')
-        
-        return redirect('/admin-dashboard/testimonials-management/')
-    
-    # Get testimonials
-    all_testimonials = Testimonial.objects.all().order_by('-created_at')
-    pending_testimonials = all_testimonials.filter(is_verified=False)
-    approved_testimonials = all_testimonials.filter(is_verified=True)
-    featured_testimonials = all_testimonials.filter(is_featured=True)
-    
-    context = {
-        'all_testimonials': all_testimonials,
-        'pending_testimonials': pending_testimonials,
-        'approved_testimonials': approved_testimonials,
-        'featured_testimonials': featured_testimonials,
-        'total_testimonials': all_testimonials.count(),
-        'pending_count': pending_testimonials.count(),
-        'approved_count': approved_testimonials.count(),
-        'featured_count': featured_testimonials.count()
-    }
-    
-    return render(request, 'admin/testimonials_management.html', context)
-
-@login_required
-def services_management(request):
-    """Services management with CRUD operations"""
-    from .models import Service
-    
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        service_id = request.POST.get('service_id')
-        
-        if action == 'create':
-            # Create new service
-            title = request.POST.get('title', '')
-            description = request.POST.get('description', '')
-            pricing_tier = request.POST.get('pricing_tier', 'basic')
-            is_featured = 'is_featured' in request.POST
-            
-            try:
-                service = Service.objects.create(
-                    title=title,
-                    description=description,
-                    pricing_tier=pricing_tier,
-                    is_featured=is_featured
-                )
-                messages.success(request, f'Service "{title}" created successfully!')
-            except Exception as e:
-                messages.error(request, f'Error creating service: {str(e)}')
-            return redirect('/admin-dashboard/services-management/')
-            
-        elif action == 'update' and service_id:
-            # Update service
-            try:
-                service = Service.objects.get(id=service_id)
-                service.title = request.POST.get('title', service.title)
-                service.description = request.POST.get('description', service.description)
-                service.pricing_tier = request.POST.get('pricing_tier', service.pricing_tier)
-                service.is_featured = 'is_featured' in request.POST
-
-                service.save()
-                messages.success(request, f'Service "{service.title}" updated successfully!')
-            except Service.DoesNotExist:
-                messages.error(request, 'Service not found!')
-            return redirect('/admin-dashboard/services-management/')
-            
-        elif action == 'delete' and service_id:
-            # Delete service
-            try:
-                service = Service.objects.get(id=service_id)
-                title = service.title
-                service.delete()
-                messages.success(request, f'Service "{title}" deleted!')
-            except Service.DoesNotExist:
-                messages.error(request, 'Service not found!')
-            return redirect('/admin-dashboard/services-management/')
-    
-    # Get all services
-    services = Service.objects.all().order_by('order', 'title')
-    
-    context = {
-        'services': services,
-        'total_services': services.count(),
-        'active_services': services.count(),
-        'featured_services': services.filter(is_featured=True).count()
-    }
-    
-    return render(request, 'admin/services_management.html', context)
-
-@login_required
-def events_management(request):
-    """Events management with CRUD operations"""
-    from .models import Event
-    
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        event_id = request.POST.get('event_id')
-        
-        if action == 'create':
-            # Create new event
-            title = request.POST.get('title', '')
-            description = request.POST.get('description', '')
-            start_date = request.POST.get('start_date', '')
-            end_date = request.POST.get('end_date', '')
-            location = request.POST.get('location', '')
-            is_featured = 'is_featured' in request.POST
-            is_upcoming = 'is_upcoming' in request.POST
-            
-            try:
-                event = Event.objects.create(
-                    title=title,
-                    description=description,
-                    start_date=start_date,
-                    end_date=end_date,
-                    location=location,
-                    is_featured=is_featured,
-                    is_upcoming=is_upcoming
-                )
-                messages.success(request, f'Event "{title}" created successfully!')
-            except Exception as e:
-                messages.error(request, f'Error creating event: {str(e)}')
-            return redirect('/admin-dashboard/events-management/')
-            
-        elif action == 'update' and event_id:
-            # Update event
-            try:
-                event = Event.objects.get(id=event_id)
-                event.title = request.POST.get('title', event.title)
-                event.description = request.POST.get('description', event.description)
-                event.start_date = request.POST.get('start_date', event.start_date)
-                event.end_date = request.POST.get('end_date', event.end_date)
-                event.location = request.POST.get('location', event.location)
-                event.is_featured = 'is_featured' in request.POST
-                event.is_upcoming = 'is_upcoming' in request.POST
-                event.save()
-                messages.success(request, f'Event "{event.title}" updated successfully!')
-            except Event.DoesNotExist:
-                messages.error(request, 'Event not found!')
-            return redirect('/admin-dashboard/events-management/')
-            
-        elif action == 'delete' and event_id:
-            # Delete event
-            try:
-                event = Event.objects.get(id=event_id)
-                title = event.title
-                event.delete()
-                messages.success(request, f'Event "{title}" deleted!')
-            except Event.DoesNotExist:
-                messages.error(request, 'Event not found!')
-            return redirect('/admin-dashboard/events-management/')
-    
-    # Get all events
-    events = Event.objects.all().order_by('-start_date')
-    upcoming_events = events.filter(start_date__gte=timezone.now())
-    past_events = events.filter(start_date__lt=timezone.now())
-    
-    context = {
-        'events': events,
-        'upcoming_events': upcoming_events,
-        'past_events': past_events,
-        'total_events': events.count(),
-        'upcoming_count': upcoming_events.count(),
-        'featured_events': events.filter(is_featured=True).count()
-    }
-    
-    return render(request, 'admin/events_management.html', context)
-
-@login_required
-def articles_management(request):
-    """Articles management with CRUD operations"""
-    from .models import Article
-    
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        article_id = request.POST.get('article_id')
-        
-        if action == 'create':
-            # Create new article
-            title = request.POST.get('title', '')
-            content = request.POST.get('content', '')
-            excerpt = request.POST.get('excerpt', '')
-            author = request.POST.get('author', '')
-            is_featured = 'is_featured' in request.POST
-            is_published = 'is_published' in request.POST
-            
-            try:
-                article = Article.objects.create(
-                    title=title,
-                    content=content,
-                    excerpt=excerpt,
-                    author=author,
-                    is_featured=is_featured,
-                    is_published=is_published
-                )
-                messages.success(request, f'Article "{title}" created successfully!')
-            except Exception as e:
-                messages.error(request, f'Error creating article: {str(e)}')
-            return redirect('/admin-dashboard/articles-management/')
-            
-        elif action == 'update' and article_id:
-            # Update article
-            try:
-                article = Article.objects.get(id=article_id)
-                article.title = request.POST.get('title', article.title)
-                article.content = request.POST.get('content', article.content)
-                article.excerpt = request.POST.get('excerpt', article.excerpt)
-                article.author = request.POST.get('author', article.author)
-                article.is_featured = 'is_featured' in request.POST
-                article.is_published = 'is_published' in request.POST
-                article.save()
-                messages.success(request, f'Article "{article.title}" updated successfully!')
-            except Article.DoesNotExist:
-                messages.error(request, 'Article not found!')
-            return redirect('/admin-dashboard/articles-management/')
-            
-        elif action == 'delete' and article_id:
-            # Delete article
-            try:
-                article = Article.objects.get(id=article_id)
-                title = article.title
-                article.delete()
-                messages.success(request, f'Article "{title}" deleted!')
-            except Article.DoesNotExist:
-                messages.error(request, 'Article not found!')
-            return redirect('/admin-dashboard/articles-management/')
-    
-    # Get all articles
-    articles = Article.objects.all().order_by('-created_at')
-    published_articles = articles.filter(is_published=True)
-    
-    context = {
-        'articles': articles,
-        'published_articles': published_articles,
-        'total_articles': articles.count(),
-        'published_count': published_articles.count(),
-        'featured_articles': articles.filter(is_featured=True).count()
-    }
-    
-    return render(request, 'admin/articles_management.html', context)
-
-@login_required
-def past_solutions_management(request):
-    """Past solutions management with CRUD operations"""
-    from .models import PastSolution
-    
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        solution_id = request.POST.get('solution_id')
-        
-        if action == 'create':
-            # Create new past solution
-            title = request.POST.get('title', '')
-            description = request.POST.get('description', '')
-            client_name = request.POST.get('client_name', '')
-            industry = request.POST.get('industry', '')
-            is_featured = 'is_featured' in request.POST
-            is_active = 'is_active' in request.POST
-            
-            try:
-                solution = PastSolution.objects.create(
-                    title=title,
-                    description=description,
-                    client_name=client_name,
-                    industry=industry,
-                    is_featured=is_featured
-                )
-                messages.success(request, f'Past solution "{title}" created successfully!')
-            except Exception as e:
-                messages.error(request, f'Error creating past solution: {str(e)}')
-            return redirect('/admin-dashboard/past-solutions-management/')
-            
-        elif action == 'update' and solution_id:
-            # Update past solution
-            try:
-                solution = PastSolution.objects.get(id=solution_id)
-                solution.title = request.POST.get('title', solution.title)
-                solution.description = request.POST.get('description', solution.description)
-                solution.client_name = request.POST.get('client_name', solution.client_name)
-                solution.industry = request.POST.get('industry', solution.industry)
-                solution.is_featured = 'is_featured' in request.POST
-                solution.save()
-                messages.success(request, f'Past solution "{solution.title}" updated successfully!')
-            except PastSolution.DoesNotExist:
-                messages.error(request, 'Past solution not found!')
-            return redirect('/admin-dashboard/past-solutions-management/')
-            
-        elif action == 'delete' and solution_id:
-            # Delete past solution
-            try:
-                solution = PastSolution.objects.get(id=solution_id)
-                title = solution.title
-                solution.delete()
-                messages.success(request, f'Past solution "{title}" deleted!')
-            except PastSolution.DoesNotExist:
-                messages.error(request, 'Past solution not found!')
-            return redirect('/admin-dashboard/past-solutions-management/')
-    
-    # Get all past solutions
-    solutions = PastSolution.objects.all().order_by('-created_at')
-    
-    context = {
-        'solutions': solutions,
-        'total_solutions': solutions.count(),
-        'featured_solutions': solutions.filter(is_featured=True).count()
-    }
-    
-    return render(request, 'admin/past_solutions_management.html', context)
-
-@login_required
-def admin_profile(request):
-    """Admin profile page with user information and settings"""
-    user = request.user
-    profile, created = UserProfile.objects.get_or_create(user=user)
-    
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        
-        if action == 'update_profile':
-            # Update user profile information
-            user.first_name = request.POST.get('first_name', user.first_name)
-            user.last_name = request.POST.get('last_name', user.last_name)
-            user.email = request.POST.get('email', user.email)
-            user.save()
-            
-            # Update profile information
-            profile.phone = request.POST.get('phone', profile.phone)
-            profile.department = request.POST.get('department', profile.department)
-            profile.save()
-            
-            messages.success(request, 'Profile updated successfully!')
-            return redirect('admin_profile')
-            
-        elif action == 'change_password':
-            # Handle password change
-            form = PasswordChangeForm(user, request.POST)
-            if form.is_valid():
-                user = form.save()
-                update_session_auth_hash(request, user)  # Important!
-                messages.success(request, 'Password changed successfully!')
-                return redirect('admin_profile')
-            else:
-                # Add form errors to messages
-                for field, errors in form.errors.items():
-                    for error in errors:
-                        messages.error(request, f'Password {field}: {error}')
-                return redirect('admin_profile')
-    
-    # Get user statistics
-    user_stats = {
-        'contacts_created': Contact.objects.count(),
-        'testimonials_managed': Testimonial.objects.count(),
-        'articles_created': Article.objects.filter(author=user).count(),
-        'services_managed': Service.objects.count(),
-        'events_managed': Event.objects.count(),
-        'gallery_items': Gallery.objects.count(),
-    }
-    
-    # Get recent activity
-    recent_contacts = Contact.objects.all().order_by('-created_at')[:5]
-    recent_testimonials = Testimonial.objects.all().order_by('-created_at')[:5]
-    
-    context = {
-        'user': user,
-        'profile': profile,
-        'user_stats': user_stats,
-        'recent_contacts': recent_contacts,
-        'recent_testimonials': recent_testimonials,
-        'password_form': PasswordChangeForm(user),
-        'roles': UserRole.objects.all(),
-    }
-    
-    return render(request, 'admin/admin_profile.html', context)
-
-@login_required
-def edit_profile(request):
-    """Edit profile page - display form for editing profile information"""
-    user = request.user
-    profile, created = UserProfile.objects.get_or_create(user=user)
-    
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        
-        if action == 'update_profile':
-            # Update user profile information
-            user.first_name = request.POST.get('first_name', user.first_name)
-            user.last_name = request.POST.get('last_name', user.last_name)
-            user.email = request.POST.get('email', user.email)
-            user.save()
-            
-            # Update profile information
-            profile.phone = request.POST.get('phone', profile.phone)
-            profile.department = request.POST.get('department', profile.department)
-            profile.bio = request.POST.get('bio', profile.bio)
-            profile.save()
-            
-            messages.success(request, 'Profile updated successfully!')
-            return redirect('admin_profile')
-    
-    context = {
-        'user': user,
-        'profile': profile,
-    }
-    
-    return render(request, 'admin/edit_profile.html', context)
-
-@login_required
-def change_password(request):
-    """Change password page - display form for changing password"""
-    user = request.user
-    
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        
-        if action == 'change_password':
-            # Handle password change
-            form = PasswordChangeForm(user, request.POST)
-            if form.is_valid():
-                user = form.save()
-                update_session_auth_hash(request, user)  # Important!
-                messages.success(request, 'Password changed successfully!')
-                return redirect('admin_profile')
-            else:
-                # Add form errors to messages
-                for field, errors in form.errors.items():
-                    for error in errors:
-                        messages.error(request, f'Password {field}: {error}')
-                return redirect('change_password')
-    
-    context = {
-        'user': user,
-        'password_form': PasswordChangeForm(user),
-    }
-    
-    return render(request, 'admin/change_password.html', context)
-
-@login_required
-def update_profile_picture(request):
-    """AJAX endpoint to update profile picture"""
-    if request.method == 'POST' and request.FILES.get('profile_picture'):
-        try:
-            profile, created = UserProfile.objects.get_or_create(user=request.user)
-            profile.profile_picture = request.FILES['profile_picture']
-            profile.save()
-            
+            subscriber = form.save(request=request)
             return JsonResponse({
                 'success': True,
-                'message': 'Profile picture updated successfully!',
-                'image_url': profile.profile_picture.url
+                'message': 'Thank you for subscribing to our newsletter!'
             })
         except Exception as e:
             return JsonResponse({
                 'success': False,
-                'message': f'Error updating profile picture: {str(e)}'
+                'message': 'An error occurred. Please try again.'
             })
-    
-    return JsonResponse({
-        'success': False,
-        'message': 'No image provided'
-    })
+    else:
+        errors = form.errors.get('email', [])
+        return JsonResponse({
+            'success': False,
+            'message': errors[0] if errors else 'Please enter a valid email address.'
+        })
 
+def custom_login(request):
+    """Custom login view with rate limiting and remember me functionality"""
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        remember_me = request.POST.get('remember')
+        client_ip = request.META.get('REMOTE_ADDR', 'unknown')
+        cache_key = f"login_attempts:{client_ip}"
+        attempt = cache.get(cache_key, {"count": 0, "blocked_until": None})
+
+        # Block if currently within cooldown
+        now = timezone.now()
+        if attempt.get("blocked_until") and now < attempt["blocked_until"]:
+            remaining = int((attempt["blocked_until"] - now).total_seconds())
+            messages.error(request, f'Too many attempts. Try again in {remaining}s.')
+            return render(request, 'admin/login.html')
+        
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            # Reset attempt counter on success
+            cache.delete(cache_key)
+            
+            # Handle remember me functionality
+            if remember_me:
+                # Set session to expire in 30 days
+                request.session.set_expiry(30 * 24 * 60 * 60)  # 30 days
+            else:
+                # Set session to expire when browser closes
+                request.session.set_expiry(0)
+            
+            messages.success(request, 'Login successful! Welcome to AI Solution Hub.')
+            return redirect('/admin/')
+        else:
+            # Increment attempts and set cooldown when threshold reached
+            attempt["count"] = int(attempt.get("count", 0)) + 1
+            if attempt["count"] >= 5:
+                attempt["count"] = 0
+                attempt["blocked_until"] = now + timedelta(seconds=60)
+            cache.set(cache_key, attempt, timeout=120)
+            messages.error(request, 'Invalid username or password. Please try again.')
+    
+    return render(request, 'admin/login.html')
+
+def demo_request(request):
+    """Demo request page view with form handling"""
+    if request.method == 'POST':
+        form = DemoRequestForm(request.POST)
+        if form.is_valid():
+            # Set form_type to 'demo' for demo requests
+            demo = form.save(commit=False)
+            demo.form_type = 'demo'
+            demo.job_title = form.cleaned_data.get('interest', 'Demo Request')
+            demo.job_details = form.cleaned_data.get('message', 'Demo request submitted')
+            demo.save()
+            
+            # Send confirmation email to customer
+            try:
+                customer_subject = f'Thank you for your demo request, {demo.name}!'
+                customer_message = f"""
+Dear {demo.name},
+
+Thank you for requesting a demo of our AI solutions! We have received your request and our team will contact you within 24-48 hours to schedule your personalized demonstration.
+
+Request Details:
+- Interest: {demo.interest}
+- Company: {demo.company}
+- Country: {demo.country}
+- Message: {demo.message or 'No additional message provided'}
+
+We look forward to showing you how our AI solutions can benefit your business.
+
+Best regards,
+AI Solution Hub Team
+                """
+                
+                send_mail(
+                    customer_subject,
+                    customer_message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [demo.email],
+                    fail_silently=False,
+                )
+            except Exception as e:
+                # Log the error but don't fail the form submission
+                print(f"Failed to send customer email: {e}")
+            
+            # Send notification email to admin
+            try:
+                admin_subject = f'New Demo Request from {demo.name} - {demo.company}'
+                admin_message = f"""
+New demo request received:
+
+Name: {demo.name}
+Email: {demo.email}
+Phone: {demo.phone}
+Company: {demo.company}
+Country: {demo.country}
+Interest: {demo.interest}
+Message: {demo.message or 'No additional message provided'}
+Status: {demo.status}
+Created: {demo.created_at}
+
+Please review and respond within 24-48 hours.
+                """
+                
+                # Send to admin email
+                admin_email = getattr(settings, 'ADMIN_EMAIL', 'admin@aisolutionhub.com')
+                send_mail(
+                    admin_subject,
+                    admin_message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [admin_email],
+                    fail_silently=False,
+                )
+            except Exception as e:
+                # Log the error but don't fail the form submission
+                print(f"Failed to send admin email: {e}")
+            
+            return redirect('ai_solution_app:demo_request_success')
+        # No messages.error here; errors will be shown inline
+    else:
+        form = DemoRequestForm(initial={'form_type': 'demo'})
+    
+    context = {
+        'form': form,
+        'site_settings': SiteSettings.get_settings(),
+    }
+    return render(request, 'ai_solution_app/demo_request.html', context)
+
+def demo_request_success(request):
+    """Demo request success page"""
+    context = {
+        'site_settings': SiteSettings.get_settings(),
+    }
+    return render(request, 'ai_solution_app/demo_request_success.html', context)
 
 def custom_logout(request):
     """Custom logout view that directly redirects to login page"""
@@ -1178,3 +550,103 @@ def custom_logout(request):
     
     # Redirect directly to login page
     return redirect('/accounts/login/')
+
+def event_register(request, event_id):
+    """Event registration view with enhanced functionality"""
+    event = get_object_or_404(Event, id=event_id)
+    
+    if request.method == 'POST':
+        form = EventRegistrationForm(request.POST)
+        if form.is_valid():
+            if not event.registration_open:
+                messages.error(request, 'Registration for this event is closed or full.')
+                return redirect('ai_solution_app:event_detail', event_id=event.id)
+
+            registration = form.save(commit=False)
+            registration.form_type = 'event'
+            registration.event = event
+            registration.job_title = f"Event Registration: {event.title}"
+            registration.job_details = f"Registered for event: {event.title} (ID: {event.id})"
+            registration.interest = 'promotional_events'  # Set interest for event registrations
+            registration.save()
+
+            # Increment event participants
+            event.current_participants += 1
+            event.save()
+
+            # Send confirmation email to customer
+            try:
+                customer_subject = f'Event Registration Confirmed: {event.title}'
+                customer_message = f"""
+Dear {registration.name},
+
+Thank you for registering for our event "{event.title}"!
+
+Event Details:
+- Date: {event.start_date.strftime('%B %d, %Y at %I:%M %p')}
+- Location: {event.location if event.location else 'Virtual Event'}
+- Event Type: {event.event_type.title()}
+
+We look forward to seeing you at the event. You will receive a reminder email closer to the event date.
+
+Best regards,
+AI Solution Hub Team
+                """
+                
+                send_mail(
+                    customer_subject,
+                    customer_message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [registration.email],
+                    fail_silently=False,
+                )
+            except Exception as e:
+                print(f"Failed to send customer email: {e}")
+            
+            # Send notification email to admin
+            try:
+                admin_subject = f'New Event Registration: {event.title} - {registration.name}'
+                admin_message = f"""
+New event registration received:
+
+Event: {event.title}
+Name: {registration.name}
+Email: {registration.email}
+Phone: {registration.phone}
+Country: {registration.country}
+Registration Date: {registration.created_at}
+
+Total participants for this event: {event.current_participants}
+                """
+                
+                admin_email = getattr(settings, 'ADMIN_EMAIL', 'admin@aisolutionhub.com')
+                send_mail(
+                    admin_subject,
+                    admin_message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [admin_email],
+                    fail_silently=False,
+                )
+            except Exception as e:
+                print(f"Failed to send admin email: {e}")
+            
+            return redirect('ai_solution_app:event_registration_success', event_id=event.id)
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = EventRegistrationForm(initial={'form_type': 'event'})
+    
+    context = {
+        'form': form,
+        'event': event,
+        'site_settings': SiteSettings.get_settings(),
+    }
+    return render(request, 'ai_solution_app/event_detail.html', context)
+
+def event_registration_success(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    context = {
+        'event': event,
+        'site_settings': SiteSettings.get_settings(),
+    }
+    return render(request, 'ai_solution_app/event_registration_success.html', context)

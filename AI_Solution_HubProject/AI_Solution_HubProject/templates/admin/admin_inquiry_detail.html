@@ -1,0 +1,391 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Inquiry Details - AI Solution Hub Admin{% endblock %}
+
+{% block page_title %}Inquiry Details{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Main Content -->
+    <div class="col-lg-8">
+        <!-- Inquiry Information -->
+        <div class="dashboard-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">Inquiry Information</h5>
+                <div class="d-flex gap-2">
+                    <span class="status-badge {{ inquiry.status }}">
+                        {{ inquiry.get_status_display }}
+                    </span>
+                    <span class="badge bg-secondary">{{ inquiry.created_at|date:"M d, Y H:i" }}</span>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="info-group mb-3">
+                        <label class="form-label fw-bold">Name</label>
+                        <div class="info-value">{{ inquiry.name }}</div>
+                    </div>
+                    
+                    <div class="info-group mb-3">
+                        <label class="form-label fw-bold">Email</label>
+                        <div class="info-value">
+                            <a href="mailto:{{ inquiry.email }}" class="text-decoration-none">
+                                {{ inquiry.email }}
+                            </a>
+                            <button class="btn btn-sm btn-outline-secondary ms-2" 
+                                    onclick="copyToClipboard('{{ inquiry.email }}')" title="Copy Email">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="info-group mb-3">
+                        <label class="form-label fw-bold">Phone</label>
+                        <div class="info-value">
+                            <a href="tel:{{ inquiry.phone }}" class="text-decoration-none">
+                                {{ inquiry.phone }}
+                            </a>
+                            <button class="btn btn-sm btn-outline-secondary ms-2" 
+                                    onclick="copyToClipboard('{{ inquiry.phone }}')" title="Copy Phone">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="info-group mb-3">
+                        <label class="form-label fw-bold">Company</label>
+                        <div class="info-value">{{ inquiry.company }}</div>
+                    </div>
+                    
+                    <div class="info-group mb-3">
+                        <label class="form-label fw-bold">Country</label>
+                        <div class="info-value">{{ inquiry.country }}</div>
+                    </div>
+                    
+                    <div class="info-group mb-3">
+                        <label class="form-label fw-bold">Job Title</label>
+                        <div class="info-value">{{ inquiry.job_title }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Inquiry Details -->
+        <div class="dashboard-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">Inquiry Details</h5>
+            </div>
+            
+            <div class="inquiry-details">
+                <div class="info-group">
+                    <label class="form-label fw-bold">Message</label>
+                    <div class="inquiry-message">
+                        {{ inquiry.job_details|linebreaks }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Internal Notes -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title">Internal Notes</h5>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Notes</label>
+                    <textarea name="notes" class="form-control" rows="4" 
+                              placeholder="Add internal notes about this inquiry...">{{ inquiry.notes|default:"" }}</textarea>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" name="update_notes" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>Update Notes
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="history.back()">
+                        <i class="fas fa-arrow-left me-1"></i>Back to List
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Quick Actions -->
+        <div class="dashboard-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">Quick Actions</h5>
+            </div>
+            
+            <div class="quick-actions">
+                <form method="post" class="mb-3">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Update Status</label>
+                        <div class="d-flex gap-2">
+                            <select name="status" class="form-control">
+                                <option value="new" {% if inquiry.status == 'new' %}selected{% endif %}>New</option>
+                                <option value="in_progress" {% if inquiry.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                                <option value="contacted" {% if inquiry.status == 'contacted' %}selected{% endif %}>Contacted</option>
+                                <option value="closed" {% if inquiry.status == 'closed' %}selected{% endif %}>Closed</option>
+                            </select>
+                            <button type="submit" name="update_status" class="btn btn-primary">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
+                <div class="d-grid gap-2">
+                    <a href="mailto:{{ inquiry.email }}?subject=Re: Your Inquiry" 
+                       class="btn btn-success">
+                        <i class="fas fa-reply me-1"></i>Reply via Email
+                    </a>
+                    
+                    <button class="btn btn-info" onclick="copyInquiryDetails()">
+                        <i class="fas fa-copy me-1"></i>Copy All Details
+                    </button>
+                    
+                    <button class="btn btn-warning" onclick="printInquiry()">
+                        <i class="fas fa-print me-1"></i>Print Inquiry
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contact Information -->
+        <div class="dashboard-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">Contact Information</h5>
+            </div>
+            
+            <div class="contact-info">
+                <div class="contact-item d-flex align-items-center mb-3">
+                    <div class="contact-icon me-3">
+                        <i class="fas fa-envelope text-primary"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Email</div>
+                        <a href="mailto:{{ inquiry.email }}" class="text-decoration-none">
+                            {{ inquiry.email }}
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="contact-item d-flex align-items-center mb-3">
+                    <div class="contact-icon me-3">
+                        <i class="fas fa-phone text-primary"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Phone</div>
+                        <a href="tel:{{ inquiry.phone }}" class="text-decoration-none">
+                            {{ inquiry.phone }}
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="contact-item d-flex align-items-center mb-3">
+                    <div class="contact-icon me-3">
+                        <i class="fas fa-building text-primary"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Company</div>
+                        <div>{{ inquiry.company }}</div>
+                    </div>
+                </div>
+                
+                <div class="contact-item d-flex align-items-center">
+                    <div class="contact-icon me-3">
+                        <i class="fas fa-map-marker-alt text-primary"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Location</div>
+                        <div>{{ inquiry.country }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Inquiry Timeline -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title">Timeline</h5>
+            </div>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-marker bg-primary"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Inquiry Submitted</div>
+                        <div class="timeline-time">{{ inquiry.created_at|date:"M d, Y H:i" }}</div>
+                        <div class="timeline-description">Initial inquiry received</div>
+                    </div>
+                </div>
+                
+                {% if inquiry.status != 'new' %}
+                <div class="timeline-item">
+                    <div class="timeline-marker bg-success"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Status Updated</div>
+                        <div class="timeline-time">{{ inquiry.updated_at|date:"M d, Y H:i" }}</div>
+                        <div class="timeline-description">Status changed to {{ inquiry.get_status_display }}</div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if inquiry.admin_reply_sent %}
+                <div class="timeline-item">
+                    <div class="timeline-marker bg-info"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Reply Sent</div>
+                        <div class="timeline-time">Recently</div>
+                        <div class="timeline-description">Admin reply email sent</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.info-group {
+    margin-bottom: 1rem;
+}
+
+.info-value {
+    padding: 0.5rem;
+    background-color: var(--border-color);
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+}
+
+.inquiry-message {
+    padding: 1rem;
+    background-color: var(--border-color);
+    border-radius: 0.5rem;
+    white-space: pre-wrap;
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+.quick-actions .btn {
+    border-radius: 0.5rem;
+}
+
+.contact-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: rgba(99, 102, 241, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+}
+
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--border-color);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -2rem;
+    top: 0.25rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px var(--border-color);
+}
+
+.timeline-content {
+    padding-left: 1rem;
+}
+
+.timeline-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+.timeline-time {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.timeline-description {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        showNotification('Copied to clipboard!', 'success');
+    }).catch(function() {
+        showNotification('Failed to copy to clipboard', 'error');
+    });
+}
+
+function copyInquiryDetails() {
+    const details = `
+Name: {{ inquiry.name }}
+Email: {{ inquiry.email }}
+Phone: {{ inquiry.phone }}
+Company: {{ inquiry.company }}
+Country: {{ inquiry.country }}
+Job Title: {{ inquiry.job_title }}
+Message: {{ inquiry.job_details }}
+Status: {{ inquiry.get_status_display }}
+Created: {{ inquiry.created_at|date:"M d, Y H:i" }}
+    `.trim();
+    
+    copyToClipboard(details);
+}
+
+function printInquiry() {
+    window.print();
+}
+
+// Auto-save notes
+document.addEventListener('DOMContentLoaded', function() {
+    const notesTextarea = document.querySelector('textarea[name="notes"]');
+    if (notesTextarea) {
+        notesTextarea.addEventListener('input', function() {
+            // Auto-save functionality could be implemented here
+            // For now, we'll just indicate that changes are being made
+            this.style.borderColor = '#f59e0b';
+        });
+    }
+});
+</script>
+{% endblock %}

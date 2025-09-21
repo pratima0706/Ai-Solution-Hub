@@ -5,7 +5,7 @@ from django.utils import timezone
 from datetime import timedelta
 import csv
 
-from .models import Contact, Service, PastSolution, Event, Gallery, Testimonial, Article, UserRole, UserProfile
+from .models import Contact, Service, PastSolution, Event, Gallery, Testimonial, Article, UserRole, UserProfile, NewsletterSubscriber, ExportLog
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 
@@ -13,11 +13,7 @@ class AISolutionHubAdminSite(admin.AdminSite):
     site_header = "🤖 AI Solution Hub"
     site_title = "AI Solution Hub Admin Portal"
     index_title = "🚀 Welcome to AI Solution Hub Command Center"
-    index_template = "admin/index.html"
     login_template = "admin/login.html"
-    logout_template = "admin/logged_out.html"
-    change_list_template = "admin/base.html"
-    change_form_template = "admin/base.html"
     
     def login(self, request, extra_context=None):
         """
@@ -37,16 +33,46 @@ class AISolutionHubAdminSite(admin.AdminSite):
         urls = super().get_urls()
 
         def export_contacts_csv(request):
+            if not request.user.has_perm('Ai_SolutionApp.export_contact'):
+                return HttpResponse('Forbidden', status=403)
             resp = HttpResponse(content_type='text/csv; charset=utf-8')
             resp['Content-Disposition'] = 'attachment; filename="contacts_all.csv"'
             resp.write('\ufeff')  # BOM for Excel
             w = csv.writer(resp)
+            filter_summary = "All contacts ordered by -created_at"
+            w.writerow([f"Export: {filter_summary}"])  # audit header line
             w.writerow(["Name","Email","Phone","Company","Country","Job Title","Status","Created"])
             for c in Contact.objects.all().order_by('-created_at'):
                 w.writerow([c.name, c.email, c.phone, c.company, c.country, c.job_title, c.status, c.created_at.strftime('%Y-%m-%d %H:%M')])
+            # Log export
+            ExportLog.objects.create(user=request.user, model='Contact', filter_summary=filter_summary)
             return resp
 
-        my = [path("export_contacts_csv/", self.admin_view(export_contacts_csv), name="export_contacts_csv")]
+        # Lightweight report endpoint for charts parity
+        def inquiry_report(request):
+            from django.http import JsonResponse
+            from django.db.models import Count
+            from django.utils import timezone
+            from datetime import timedelta
+            if not request.user.is_staff:
+                return JsonResponse({'error': 'Forbidden'}, status=403)
+            today = timezone.now().date()
+            start = today - timedelta(days=6)
+            data = (
+                Contact.objects.filter(created_at__date__gte=start)
+                .extra(select={'day': 'date(created_at)'})
+                .values('day')
+                .annotate(total=Count('id'))
+                .order_by('day')
+            )
+            labels = [str(item['day']) for item in data]
+            counts = [item['total'] for item in data]
+            return JsonResponse({'labels': labels, 'counts': counts})
+
+        my = [
+            path("export_contacts_csv/", self.admin_view(export_contacts_csv), name="export_contacts_csv"),
+            path("core/inquiry/report/", self.admin_view(inquiry_report), name="inquiry_report"),
+        ]
         return my + urls
 
     def index(self, request, extra_context=None):
@@ -251,7 +277,7 @@ class ContactAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Contact Information', {
-            'fields': ('name', 'email', 'phone', 'company', 'country', 'job_title')
+            'fields': ('name', 'email', 'phone', 'company', 'country', 'job_title', 'uploaded_file')
         }),
         ('Inquiry Details', {
             'fields': ('job_details', 'status', 'notes')
@@ -263,12 +289,20 @@ class ContactAdmin(admin.ModelAdmin):
     )
 
     def export_csv(self, request, queryset):
+        if not request.user.has_perm('Ai_SolutionApp.export_contact'):
+            self.message_user(request, "You do not have permission to export inquiries.", level='ERROR')
+            return HttpResponse('Forbidden', status=403)
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="contacts.csv"'
         writer = csv.writer(response)
+        # Build filter summary from queryset query
+        filter_summary = str(queryset.query)[:500]
+        writer.writerow([f"Filter: {filter_summary}"])  # audit header line
         writer.writerow(['Name', 'Email', 'Phone', 'Company', 'Country', 'Job Title', 'Status', 'Created'])
         for contact in queryset:
             writer.writerow([contact.name, contact.email, contact.phone, contact.company, contact.country, contact.job_title, contact.status, contact.created_at])
+        # Log export
+        ExportLog.objects.create(user=request.user, model='Contact', filter_summary=filter_summary)
         return response
     export_csv.short_description = "Export selected contacts to CSV"
 
@@ -421,6 +455,50 @@ class ArticleAdmin(admin.ModelAdmin):
     list_editable = ['is_published', 'is_featured']
     readonly_fields = ['id', 'created_at', 'updated_at', 'views_count']
     prepopulated_fields = {'slug': ('title',)}
+
+@admin.register(NewsletterSubscriber, site=custom_admin_site)
+class NewsletterSubscriberAdmin(admin.ModelAdmin):
+    list_display = ['email', 'is_active', 'source', 'subscribed_at', 'unsubscribed_at']
+    list_filter = ['is_active', 'source', 'subscribed_at']
+    search_fields = ['email']
+    readonly_fields = ['subscribed_at', 'unsubscribed_at', 'ip_address', 'user_agent']
+    list_editable = ['is_active']
+    actions = ['export_subscribers_csv', 'unsubscribe_selected']
+    
+    def export_subscribers_csv(self, request, queryset):
+        """Export selected subscribers to CSV"""
+        response = HttpResponse(content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = 'attachment; filename="newsletter_subscribers.csv"'
+        response.write('\ufeff')  # BOM for Excel
+        
+        writer = csv.writer(response)
+        writer.writerow([
+            'Email', 'Status', 'Source', 'Subscribed At', 'Unsubscribed At', 'IP Address'
+        ])
+        
+        for subscriber in queryset:
+            writer.writerow([
+                subscriber.email,
+                'Active' if subscriber.is_active else 'Inactive',
+                subscriber.source,
+                subscriber.subscribed_at.strftime('%Y-%m-%d %H:%M'),
+                subscriber.unsubscribed_at.strftime('%Y-%m-%d %H:%M') if subscriber.unsubscribed_at else '',
+                subscriber.ip_address or ''
+            ])
+        
+        return response
+    export_subscribers_csv.short_description = "Export selected subscribers to CSV"
+    
+    def unsubscribe_selected(self, request, queryset):
+        """Unsubscribe selected subscribers"""
+        updated = 0
+        for subscriber in queryset:
+            if subscriber.is_active:
+                subscriber.unsubscribe()
+                updated += 1
+        
+        self.message_user(request, f"Successfully unsubscribed {updated} subscribers.")
+    unsubscribe_selected.short_description = "Unsubscribe selected subscribers"
 
 # Register built-in models with our custom admin site
 custom_admin_site.register(User, UserAdmin)

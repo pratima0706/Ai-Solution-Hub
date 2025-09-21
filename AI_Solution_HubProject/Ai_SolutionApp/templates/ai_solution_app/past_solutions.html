@@ -4,13 +4,12 @@
 
 {% block content %}
 <!-- Hero Section -->
-<section class="relative bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 text-white py-16">
-    <div class="absolute inset-0 bg-black opacity-20"></div>
+<section class="relative min-h-[70vh] md:min-h-[80vh] flex items-center justify-center hero-landing hero-landing-overlay py-12 md:py-14">
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h1 class="text-4xl md:text-6xl font-bold mb-6">
+        <h1 class="text-4xl md:text-6xl font-bold mb-6 text-white">
             Success <span class="gradient-text">Stories</span>
         </h1>
-        <p class="text-xl text-green-100 max-w-3xl mx-auto">
+        <p class="text-xl text-blue-100 max-w-3xl mx-auto">
             Real-world AI implementations that delivered measurable results and transformed businesses across various industries.
         </p>
     </div>
@@ -18,19 +17,19 @@
 
 <!-- Featured Solutions Section -->
 {% if featured_solutions %}
-<section class="py-20 bg-gray-50 dark:bg-gray-800">
+<section class="py-20 bg-[var(--bg)]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 class="text-4xl md:text-5xl font-bold text-[var(--text)] mb-4">
                 Featured <span class="gradient-text">Case Studies</span>
             </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p class="text-xl text-[var(--text-secondary)] max-w-3xl mx-auto">
                 Our most impactful AI solutions that showcase the transformative power of artificial intelligence in real business scenarios.
             </p>
         </div>
         
         {% for solution in featured_solutions|slice:":1" %}
-        <div class="bg-white dark:bg-gray-700 rounded-3xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-600">
+        <div class="bg-[var(--card)] rounded-3xl shadow-2xl overflow-hidden border border-[var(--border)]">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 <div class="bg-gradient-to-br from-green-500 to-blue-600 p-12 flex items-center justify-center">
                     <div class="text-center text-white">
@@ -44,15 +43,15 @@
                         <span class="inline-block bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm font-medium px-3 py-1 rounded-full">
                             {{ solution.industry }}
                         </span>
-                        <span class="ml-4 text-sm text-gray-500 dark:text-gray-400">
+                        <span class="ml-4 text-sm text-[color:var(--text-secondary)]/80">
                             <i class="fas fa-calendar mr-2"></i>{{ solution.completion_date|date:"M d, Y" }}
                         </span>
                     </div>
-                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">{{ solution.title }}</h3>
-                    <p class="text-lg text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">{{ solution.description|truncatewords:30 }}</p>
+                    <h3 class="text-3xl font-bold text-[var(--text)] mb-6 leading-tight">{{ solution.title }}</h3>
+                    <p class="text-lg text-[var(--text-secondary)] mb-8 leading-relaxed">{{ solution.description|truncatewords:30 }}</p>
                     <div class="mb-8">
-                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Key Results:</h4>
-                        <p class="text-gray-600 dark:text-gray-300">{{ solution.results|truncatewords:20 }}</p>
+                        <h4 class="font-semibold text-[var(--text)] mb-3">Key Results:</h4>
+                        <p class="text-[var(--text-secondary)]">{{ solution.results|truncatewords:20 }}</p>
                     </div>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
@@ -60,8 +59,8 @@
                                 <i class="fas fa-building text-white"></i>
                             </div>
                             <div>
-                                <p class="font-semibold text-gray-900 dark:text-white">{{ solution.client_name }}</p>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ solution.industry }} Industry</p>
+                                <p class="font-semibold text-[var(--text)]">{{ solution.client_name }}</p>
+                                <p class="text-sm text-[var(--text-secondary)]">{{ solution.industry }} Industry</p>
                             </div>
                         </div>
                         <a href="{% url 'ai_solution_app:solution_detail' solution.id %}" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full font-semibold hover:from-green-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
@@ -78,32 +77,32 @@
 {% endif %}
 
 <!-- All Solutions Section -->
-<section class="py-20 bg-white dark:bg-gray-900">
+<section class="py-20 bg-[var(--bg)]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 class="text-4xl md:text-5xl font-bold text-[var(--text)] mb-4">
                 All <span class="gradient-text">Solutions</span>
             </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p class="text-xl text-[var(--text-secondary)] max-w-3xl mx-auto">
                 Explore our comprehensive portfolio of AI implementations that have delivered measurable business value and competitive advantages.
             </p>
         </div>
         
         <!-- Industry Filter -->
         <div class="flex flex-wrap justify-center gap-4 mb-12">
-            <button class="px-6 py-3 bg-green-500 text-white rounded-full font-semibold hover:bg-green-600 transition-colors duration-200">
+            <button class="px-6 py-3 rounded-full font-semibold transition-colors duration-200 bg-[var(--primary)] text-white hover:bg-[var(--secondary)] border border-transparent">
                 All Industries
             </button>
-            <button class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
+            <button class="px-6 py-3 rounded-full font-semibold transition-colors duration-200 bg-[var(--card)] text-[var(--text-secondary)] hover:bg-[var(--hover)] border border-[var(--border)]">
                 Healthcare
             </button>
-            <button class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
+            <button class="px-6 py-3 rounded-full font-semibold transition-colors duration-200 bg-[var(--card)] text-[var(--text-secondary)] hover:bg-[var(--hover)] border border-[var(--border)]">
                 Finance
             </button>
-            <button class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
+            <button class="px-6 py-3 rounded-full font-semibold transition-colors duration-200 bg-[var(--card)] text-[var(--text-secondary)] hover:bg-[var(--hover)] border border-[var(--border)]">
                 E-commerce
             </button>
-            <button class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
+            <button class="px-6 py-3 rounded-full font-semibold transition-colors duration-200 bg-[var(--card)] text-[var(--text-secondary)] hover:bg-[var(--hover)] border border-[var(--border)]">
                 Manufacturing
             </button>
         </div>
@@ -111,7 +110,7 @@
         <!-- Solutions Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for solution in solutions %}
-            <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-200 dark:border-gray-600 overflow-hidden">
+            <div class="bg-[var(--card)] rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-[var(--border)] overflow-hidden">
                 <div class="p-8">
                     <div class="flex items-center justify-between mb-4">
                         <span class="inline-block bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm font-medium px-3 py-1 rounded-full">
@@ -124,25 +123,25 @@
                         {% endif %}
                     </div>
                     
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">{{ solution.title }}</h3>
-                    <p class="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">{{ solution.description|truncatewords:20 }}</p>
+                    <h3 class="text-xl font-bold text-[var(--text)] mb-4 leading-tight">{{ solution.title }}</h3>
+                    <p class="text-[var(--text-secondary)] mb-6 leading-relaxed">{{ solution.description|truncatewords:20 }}</p>
                     
                     <!-- Challenge Summary -->
                     <div class="mb-6">
-                        <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Challenge:</h4>
-                        <p class="text-sm text-gray-600 dark:text-gray-300">{{ solution.challenge|truncatewords:15 }}</p>
+                        <h4 class="font-semibold text-[var(--text)] mb-2">Challenge:</h4>
+                        <p class="text-sm text-[var(--text-secondary)]">{{ solution.challenge|truncatewords:15 }}</p>
                     </div>
                     
                     <!-- Results Summary -->
                     <div class="mb-6">
-                        <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Results:</h4>
-                        <p class="text-sm text-gray-600 dark:text-gray-300">{{ solution.results|truncatewords:12 }}</p>
+                        <h4 class="font-semibold text-[var(--text)] mb-2">Results:</h4>
+                        <p class="text-sm text-[var(--text-secondary)]">{{ solution.results|truncatewords:12 }}</p>
                     </div>
                     
                     <!-- Technologies Used -->
                     {% if solution.technologies_used %}
                     <div class="mb-6">
-                        <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Technologies:</h4>
+                        <h4 class="font-semibold text-[var(--text)] mb-2">Technologies:</h4>
                         <div class="flex flex-wrap gap-2">
                             {% for tech in solution.technologies_used|slice:":3" %}
                             <span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded-full">
@@ -150,7 +149,7 @@
                             </span>
                             {% endfor %}
                             {% if solution.technologies_used|length > 3 %}
-                            <span class="inline-block bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 text-xs px-2 py-1 rounded-full">
+                            <span class="inline-block bg-[var(--hover)] text-[var(--text-secondary)] text-xs px-2 py-1 rounded-full">
                                 +{{ solution.technologies_used|length|add:"-3" }} more
                             </span>
                             {% endif %}
@@ -164,8 +163,8 @@
                             <i class="fas fa-building text-white text-sm"></i>
                         </div>
                         <div>
-                            <p class="font-semibold text-gray-900 dark:text-white text-sm">{{ solution.client_name }}</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ solution.completion_date|date:"M Y" }}</p>
+                            <p class="font-semibold text-[var(--text)] text-sm">{{ solution.client_name }}</p>
+                            <p class="text-xs text-[var(--text-secondary)]">{{ solution.completion_date|date:"M Y" }}</p>
                         </div>
                     </div>
                     
@@ -174,7 +173,7 @@
                         <a href="{% url 'ai_solution_app:solution_detail' solution.id %}" class="flex-1 bg-gradient-to-r from-green-500 to-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:from-green-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 text-center">
                             Learn More
                         </a>
-                        <a href="{% url 'ai_solution_app:contact_us' %}" class="flex-1 border-2 border-green-500 text-green-600 dark:text-green-400 px-6 py-3 rounded-full font-semibold hover:bg-green-500 hover:text-white dark:hover:bg-green-500 dark:hover:text-white transition-all duration-300 transform hover:scale-105 text-center">
+                        <a href="{% url 'ai_solution_app:contact_us' %}" class="flex-1 border-2 border-green-500 text-green-600 dark:text-green-400 px-6 py-3 rounded-full font-semibold hover:bg-green-500 hover:text-white transition-all duration-300 transform hover:scale-105 text-center">
                             Get Similar Solution
                         </a>
                     </div>
@@ -182,11 +181,11 @@
             </div>
             {% empty %}
             <div class="col-span-full text-center py-12">
-                <div class="w-24 h-24 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-trophy text-3xl text-gray-400 dark:text-gray-500"></i>
+                <div class="w-24 h-24 bg-[var(--hover)] rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-trophy text-3xl text-[var(--text-secondary)]"></i>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">No Solutions Available</h3>
-                <p class="text-gray-500 dark:text-gray-500">We're gathering our success stories. Check back soon!</p>
+                <h3 class="text-xl font-semibold text-[var(--text-secondary)] mb-2">No Solutions Available</h3>
+                <p class="text-[var(--text-secondary)]">We're gathering our success stories. Check back soon!</p>
             </div>
             {% endfor %}
         </div>
@@ -204,13 +203,13 @@
 </section>
 
 <!-- Success Metrics Section -->
-<section class="py-20 bg-gray-50 dark:bg-gray-800">
+<section class="py-20 bg-[var(--bg)]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 class="text-4xl md:text-5xl font-bold text-[var(--text)] mb-4">
                 Our <span class="gradient-text">Success Metrics</span>
             </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p class="text-xl text-[var(--text-secondary)] max-w-3xl mx-auto">
                 Quantifiable results that demonstrate the real business value our AI solutions deliver.
             </p>
         </div>
@@ -220,29 +219,29 @@
                 <div class="w-20 h-20 bg-gradient-to-r from-green-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
                     <i class="fas fa-chart-line text-3xl text-white"></i>
                 </div>
-                <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">95%</h3>
-                <p class="text-gray-600 dark:text-gray-300">Client Satisfaction Rate</p>
+                <h3 class="text-3xl font-bold text-[var(--text)] mb-2">95%</h3>
+                <p class="text-[var(--text-secondary)]">Client Satisfaction Rate</p>
             </div>
             <div class="text-center">
                 <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
                     <i class="fas fa-rocket text-3xl text-white"></i>
                 </div>
-                <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">40%</h3>
-                <p class="text-gray-600 dark:text-gray-300">Average Efficiency Gain</p>
+                <h3 class="text-3xl font-bold text-[var(--text)] mb-2">40%</h3>
+                <p class="text-[var(--text-secondary)]">Average Efficiency Gain</p>
             </div>
             <div class="text-center">
                 <div class="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
                     <i class="fas fa-dollar-sign text-3xl text-white"></i>
                 </div>
-                <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">3.2x</h3>
-                <p class="text-gray-600 dark:text-gray-300">Average ROI</p>
+                <h3 class="text-3xl font-bold text-[var(--text)] mb-2">3.2x</h3>
+                <p class="text-[var(--text-secondary)]">Average ROI</p>
             </div>
             <div class="text-center">
                 <div class="w-20 h-20 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
                     <i class="fas fa-users text-3xl text-white"></i>
                 </div>
-                <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">150+</h3>
-                <p class="text-gray-600 dark:text-gray-300">Successful Projects</p>
+                <h3 class="text-3xl font-bold text-[var(--text)] mb-2">150+</h3>
+                <p class="text-[var(--text-secondary)]">Successful Projects</p>
             </div>
         </div>
     </div>
@@ -271,28 +270,24 @@
 <!-- JavaScript for Industry Filter -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Industry filter functionality
+    // Industry filter button styling (theme-safe)
     const filterButtons = document.querySelectorAll('.flex.flex-wrap.justify-center button');
-    
+    const neutralClasses = ['bg-[var(--card)]','text-[var(--text-secondary)]','border','border-[var(--border)]','hover:bg-[var(--hover)]'];
+    const activeClasses = ['bg-[var(--primary)]','text-white','border','border-transparent','hover:bg-[var(--secondary)]'];
+
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
-            // Remove active state from all filter buttons
             filterButtons.forEach(btn => {
-                btn.classList.remove('bg-green-500', 'text-white');
-                btn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+                btn.classList.remove(...activeClasses);
+                neutralClasses.forEach(c => { if (!btn.classList.contains(c)) btn.classList.add(c); });
             });
-            
-            // Add active state to clicked button
-            this.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
-            this.classList.add('bg-green-500', 'text-white');
-            
-            // Here you would typically filter solutions by industry
-            // For now, we'll just show a simple animation
+
+            neutralClasses.forEach(c => this.classList.remove(c));
+            this.classList.add(...activeClasses);
+
             const solutionsGrid = document.querySelector('.grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3');
             solutionsGrid.style.opacity = '0.5';
-            setTimeout(() => {
-                solutionsGrid.style.opacity = '1';
-            }, 200);
+            setTimeout(() => { solutionsGrid.style.opacity = '1'; }, 200);
         });
     });
 });

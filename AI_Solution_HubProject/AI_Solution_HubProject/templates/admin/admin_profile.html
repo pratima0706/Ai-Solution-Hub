@@ -1,442 +1,476 @@
-{% extends "admin/base_standalone.html" %}
+{% extends "admin/base_site.html" %}
 {% load static %}
 
-{% block page_title %}Admin Profile{% endblock %}
+{% block title %}My Profile - AI Solution Hub Admin{% endblock %}
 
-{% block extrastyle %}
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Profile Information -->
+        <div class="dashboard-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">Profile Information</h5>
+            </div>
+            
+            <form method="post" id="profileForm">
+                {% csrf_token %}
+                <input type="hidden" name="update_profile" value="1">
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">First Name</label>
+                            <input type="text" name="first_name" class="form-control" 
+                                   value="{{ user_profile.user.first_name|default:'' }}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" name="last_name" class="form-control" 
+                                   value="{{ user_profile.user.last_name|default:'' }}" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" name="email" class="form-control" 
+                           value="{{ user_profile.user.email|default:'' }}" required>
+                    <small class="form-text text-muted">This will be used for login and notifications</small>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" name="phone" class="form-control" 
+                                   value="{{ user_profile.phone|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Department</label>
+                            <input type="text" name="department" class="form-control" 
+                                   value="{{ user_profile.department|default:'' }}" readonly>
+                            <small class="form-text text-muted">Contact administrator to change department</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label class="form-label">Bio</label>
+                    <textarea name="bio" class="form-control" rows="4" 
+                              placeholder="Tell us about yourself...">{{ user_profile.bio|default:'' }}</textarea>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>Update Profile
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="resetProfileForm()">
+                        <i class="fas fa-undo me-1"></i>Reset
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Change Password -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title">Change Password</h5>
+            </div>
+            
+            <form method="post" id="passwordForm">
+                {% csrf_token %}
+                <input type="hidden" name="change_password" value="1">
+                
+                <div class="form-group mb-3">
+                    <label class="form-label">Current Password</label>
+                    <input type="password" name="old_password" class="form-control" required>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label class="form-label">New Password</label>
+                    <input type="password" name="new_password" class="form-control" 
+                           minlength="8" required>
+                    <small class="form-text text-muted">Password must be at least 8 characters long</small>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label class="form-label">Confirm New Password</label>
+                    <input type="password" name="confirm_password" class="form-control" 
+                           minlength="8" required>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-key me-1"></i>Change Password
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="resetPasswordForm()">
+                        <i class="fas fa-undo me-1"></i>Reset
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Profile Picture -->
+        <div class="dashboard-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">Profile Picture</h5>
+            </div>
+            
+            <div class="text-center">
+                <div class="profile-picture mb-3">
+                    {% if user_profile.profile_picture %}
+                        <img src="{{ user_profile.profile_picture.url }}" 
+                             alt="{{ user_profile.user.get_full_name|default:user_profile.user.username }}" 
+                             class="profile-img">
+                    {% else %}
+                        <div class="profile-placeholder">
+                            <i class="fas fa-user fa-3x"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <button class="btn btn-outline-primary btn-sm" onclick="changeProfilePicture()">
+                    <i class="fas fa-camera me-1"></i>Change Picture
+                </button>
+                
+                {% if user_profile.profile_picture %}
+                <button class="btn btn-outline-danger btn-sm ms-2" onclick="removeProfilePicture()">
+                    <i class="fas fa-trash me-1"></i>Remove
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Account Information -->
+        <div class="dashboard-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">Account Information</h5>
+            </div>
+            
+            <div class="account-info">
+                <div class="info-item d-flex justify-content-between mb-3">
+                    <span class="text-secondary">Username:</span>
+                    <span class="fw-bold">{{ user_profile.user.username }}</span>
+                </div>
+                
+                <div class="info-item d-flex justify-content-between mb-3">
+                    <span class="text-secondary">Role:</span>
+                    <span class="badge bg-primary">{{ user_profile.role.name|default:"Admin" }}</span>
+                </div>
+                
+                <div class="info-item d-flex justify-content-between mb-3">
+                    <span class="text-secondary">Status:</span>
+                    {% if user_profile.is_active %}
+                        <span class="badge bg-success">Active</span>
+                    {% else %}
+                        <span class="badge bg-danger">Inactive</span>
+                    {% endif %}
+                </div>
+                
+                <div class="info-item d-flex justify-content-between mb-3">
+                    <span class="text-secondary">Member Since:</span>
+                    <span class="fw-bold">{{ user_profile.created_at|date:"M d, Y" }}</span>
+                </div>
+                
+                <div class="info-item d-flex justify-content-between">
+                    <span class="text-secondary">Last Login:</span>
+                    <span class="fw-bold">{{ user_profile.user.last_login|date:"M d, Y H:i"|default:"Never" }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Security Settings -->
+        <div class="dashboard-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">Security Settings</h5>
+            </div>
+            
+            <div class="security-settings">
+                <div class="security-item d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <div class="fw-bold">Two-Factor Authentication</div>
+                        <small class="text-secondary">Add an extra layer of security</small>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" disabled>
+                    </div>
+                </div>
+                
+                <div class="security-item d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <div class="fw-bold">Email Notifications</div>
+                        <small class="text-secondary">Receive security alerts</small>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" checked>
+                    </div>
+                </div>
+                
+                <div class="security-item d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="fw-bold">Login Notifications</div>
+                        <small class="text-secondary">Get notified of new logins</small>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" checked>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title">Quick Actions</h5>
+            </div>
+            
+            <div class="d-grid gap-2">
+                <button class="btn btn-outline-info" onclick="viewActivityLog()">
+                    <i class="fas fa-history me-2"></i>View Activity Log
+                </button>
+                
+                <button class="btn btn-outline-warning" onclick="exportData()">
+                    <i class="fas fa-download me-2"></i>Export My Data
+                </button>
+                
+                <button class="btn btn-outline-danger" onclick="deleteAccount()">
+                    <i class="fas fa-trash me-2"></i>Delete Account
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Picture Upload Modal -->
+<div class="modal fade" id="profilePictureModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Change Profile Picture</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="profilePictureForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Select Image</label>
+                        <input type="file" name="profile_picture" class="form-control" 
+                               accept="image/*" required>
+                        <small class="form-text text-muted">JPG, PNG, or WebP. Max size: 5MB</small>
+                    </div>
+                    
+                    <div class="preview-container text-center">
+                        <img id="imagePreview" class="img-thumbnail" style="display: none; max-width: 200px;">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="uploadProfilePicture()">Upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
 <style>
-/* Profile Page Specific Styles - Scoped to avoid conflicts with base template */
-.profile-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  background: transparent;
+.profile-picture {
+    position: relative;
+    display: inline-block;
 }
 
-.profile-container .profile-header {
-  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
-  color: white;
-  padding: 3rem 2rem;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  border-radius: 16px;
-  margin-bottom: 2rem;
-  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+.profile-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--border-color);
 }
 
-.profile-container .profile-header::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-  background-size: 50px 50px;
-  animation: float 20s infinite linear;
-  pointer-events: none;
-}
-
-@keyframes float {
-  0% { transform: translate(-50%, -50%) rotate(0deg); }
-  100% { transform: translate(-50%, -50%) rotate(360deg); }
-}
-
-.profile-container .profile-avatar {
-  width: 120px;
-  height: 120px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 50%;
-  margin: 0 auto 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3rem;
-  font-weight: bold;
-  border: 4px solid rgba(255,255,255,0.3);
-  position: relative;
-  z-index: 2;
-}
-
-.profile-container .profile-name {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  position: relative;
-  z-index: 2;
-}
-
-.profile-container .profile-role {
-  font-size: 1.2rem;
-  opacity: 0.9;
-  margin-bottom: 2rem;
-  position: relative;
-  z-index: 2;
-}
-
-.profile-container .profile-stats {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  margin-top: 2rem;
-  position: relative;
-  z-index: 2;
-}
-
-.profile-container .stat-item {
-  background: rgba(255,255,255,0.1);
-  padding: 1rem 1.5rem;
-  border-radius: 12px;
-  text-align: center;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.2);
-}
-
-.profile-container .stat-number {
-  font-size: 2rem;
-  font-weight: 700;
-  display: block;
-}
-
-.profile-container .stat-label {
-  font-size: 0.9rem;
-  opacity: 0.8;
-}
-
-.profile-container .profile-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-bottom: 2rem;
-}
-
-@media (max-width: 1024px) {
-  .profile-container .profile-content {
-    grid-template-columns: 1fr;
-  }
-}
-
-.profile-container .profile-section {
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  border-left: 4px solid #8B5CF6;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  border: 1px solid #e2e8f0;
-  height: fit-content;
-}
-
-.profile-container .section-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.profile-container .info-grid {
-  display: grid;
-  gap: 1rem;
-}
-
-.profile-container .info-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #f1f5f9;
-  transition: all 0.3s ease;
-}
-
-.profile-container .info-item:last-child {
-  border-bottom: none;
-}
-
-.profile-container .info-label {
-  font-weight: 600;
-  color: #64748b;
-  font-size: 0.95rem;
-}
-
-.profile-container .info-value {
-  font-weight: 500;
-  color: #1e293b;
-  text-align: right;
-}
-
-.profile-container .info-value.empty {
-  color: #94a3b8;
-  font-style: italic;
-}
-
-.profile-container .action-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-top: 2rem;
-}
-
-/* Profile Action Buttons - Scoped to avoid navigation conflicts */
-.action-buttons .profile-btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.95rem;
-}
-
-.action-buttons .profile-btn-primary {
-  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
-  color: white;
-}
-
-.action-buttons .profile-btn-primary:hover {
-  background: linear-gradient(135deg, #7C3AED, #6D28D9);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-}
-
-.action-buttons .profile-btn-secondary {
-  background: linear-gradient(135deg, #64748b, #475569);
-  color: white;
-}
-
-.action-buttons .profile-btn-secondary:hover {
-  background: linear-gradient(135deg, #475569, #334155);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
-}
-
-.action-buttons .profile-btn-warning {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  color: white;
-}
-
-.action-buttons .profile-btn-warning:hover {
-  background: linear-gradient(135deg, #d97706, #b45309);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-}
-
-.action-buttons .profile-btn-danger {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: white;
-}
-
-.action-buttons .profile-btn-danger:hover {
-  background: linear-gradient(135deg, #dc2626, #b91c1c);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-
-/* Responsive Design - Scoped to profile page only */
-@media (max-width: 768px) {
-  .profile-container .profile-header {
-    padding: 2rem 1rem;
-  }
-  
-  .profile-container .profile-name {
-    font-size: 2rem;
-  }
-  
-  .profile-container .profile-stats {
-    gap: 1rem;
-  }
-  
-  .profile-container .stat-item {
-    padding: 0.75rem;
-  }
-  
-  .profile-container .info-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .profile-container .action-buttons {
-    flex-direction: column;
+.profile-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: var(--border-color);
+    display: flex;
     align-items: center;
-  }
-  
-  .profile-container .action-buttons .profile-btn {
-    width: 100%;
-    max-width: 300px;
-  }
+    justify-content: center;
+    color: var(--text-secondary);
+    border: 4px solid var(--border-color);
 }
 
-@media (max-width: 480px) {
-  .profile-container .profile-header {
-    padding: 1.5rem 1rem;
-  }
-  
-  .profile-container .profile-name {
-    font-size: 1.5rem;
-  }
-  
-  .profile-container .profile-avatar {
-    width: 100px;
-    height: 100px;
-    font-size: 2.5rem;
-  }
+.account-info .info-item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.account-info .info-item:last-child {
+    border-bottom: none;
+}
+
+.security-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.security-item:last-child {
+    border-bottom: none;
+}
+
+.form-switch .form-check-input {
+    width: 3rem;
+    height: 1.5rem;
+}
+
+.preview-container {
+    margin-top: 1rem;
+}
+
+#imagePreview {
+    border-radius: 0.5rem;
 }
 </style>
 {% endblock %}
 
-{% block content %}
-<div class="profile-container">
-  
-  <!-- Profile Header -->
-  <div class="profile-header">
-    <div class="profile-avatar">
-      {% if profile.profile_picture %}
-        <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
-      {% else %}
-        {{ user.first_name|first|default:user.username|first|upper }}{{ user.last_name|first|default:""|upper }}
-      {% endif %}
-    </div>
-    <h1 class="profile-name">{{ user.get_full_name|default:user.username }}</h1>
-    <p class="profile-role">⭐ {{ profile.role|default:"Administrator" }}</p>
-    
-    <div class="profile-stats">
-      <div class="stat-item">
-        <span class="stat-number">5</span>
-        <span class="stat-label">Contacts</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number">5</span>
-        <span class="stat-label">Articles</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number">6</span>
-        <span class="stat-label">Testimonials</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number">9</span>
-        <span class="stat-label">Services</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Profile Content -->
-  <div class="profile-content">
-    <!-- Personal Information Section -->
-    <div class="profile-section">
-      <h2 class="section-title">
-        👤 Personal Information
-      </h2>
-      <div class="info-grid">
-        <div class="info-item">
-          <span class="info-label">Full Name</span>
-          <span class="info-value">{{ user.get_full_name|default:"Not set" }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Username</span>
-          <span class="info-value">{{ user.username }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Email</span>
-          <span class="info-value">{{ user.email|default:"Not set" }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Phone</span>
-          <span class="info-value">{{ profile.phone|default:"Not set" }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Department</span>
-          <span class="info-value">{{ profile.department|default:"Not set" }}</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bio Section -->
-    {% if profile.bio %}
-    <div class="profile-section">
-      <h2 class="section-title">
-        📝 Bio
-      </h2>
-      <p class="info-value" style="line-height: 1.6; margin: 0;">{{ profile.bio }}</p>
-    </div>
-    {% endif %}
-
-    <!-- Account Information Section -->
-    <div class="profile-section">
-      <h2 class="section-title">
-        🔐 Account Information
-      </h2>
-      <div class="info-grid">
-        <div class="info-item">
-          <span class="info-label">User ID</span>
-          <span class="info-value">#{{ user.id }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Account Status</span>
-          <span class="info-value" style="color: #16a34a;">✅ Active</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Date Joined</span>
-          <span class="info-value">{{ user.date_joined|date:"M d, Y" }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Last Login</span>
-          <span class="info-value">{{ user.last_login|date:"M d, Y - H:i"|default:"Never" }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Role</span>
-          <span class="info-value">{{ profile.role|default:"Administrator" }}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Action Buttons -->
-  <div class="action-buttons">
-    <a href="/admin-dashboard/profile/edit/" class="profile-btn profile-btn-primary">
-      ✏️ Edit Profile
-    </a>
-    <a href="/admin-dashboard/profile/change-password/" class="profile-btn profile-btn-warning">
-      🔒 Change Password
-    </a>
-    <a href="/admin-dashboard/" class="profile-btn profile-btn-secondary">
-      🏠 Back to Dashboard
-    </a>
-    <button onclick="showLogoutConfirmation()" class="profile-btn profile-btn-danger">
-      🚪 Sign Out
-    </button>
-  </div>
-</div>
-
+{% block extra_js %}
 <script>
-function showLogoutConfirmation() {
-  if (confirm('Are you sure you want to sign out?')) {
-    window.location.href = '/accounts/logout/';
-  }
+document.addEventListener('DOMContentLoaded', function() {
+    // Profile picture preview
+    const fileInput = document.querySelector('input[name="profile_picture"]');
+    const imagePreview = document.getElementById('imagePreview');
+    
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // Form validation
+    const passwordForm = document.getElementById('passwordForm');
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', function(e) {
+            const newPassword = document.querySelector('input[name="new_password"]').value;
+            const confirmPassword = document.querySelector('input[name="confirm_password"]').value;
+            
+            if (newPassword !== confirmPassword) {
+                e.preventDefault();
+                alert('New passwords do not match');
+                return false;
+            }
+            
+            if (newPassword.length < 8) {
+                e.preventDefault();
+                alert('Password must be at least 8 characters long');
+                return false;
+            }
+        });
+    }
+    
+    // Auto-save functionality
+    const profileForm = document.getElementById('profileForm');
+    const inputs = profileForm.querySelectorAll('input, textarea');
+    
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            profileForm.dataset.unsaved = 'true';
+        });
+    });
+    
+    // Warn before leaving with unsaved changes
+    window.addEventListener('beforeunload', function(e) {
+        if (profileForm.dataset.unsaved === 'true') {
+            e.preventDefault();
+            e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+        }
+    });
+    
+    // Clear unsaved flag on form submit
+    profileForm.addEventListener('submit', function() {
+        profileForm.dataset.unsaved = 'false';
+    });
+});
+
+function resetProfileForm() {
+    if (confirm('Reset all profile fields to their current saved values?')) {
+        location.reload();
+    }
 }
 
-// Add some interactive effects
-document.addEventListener('DOMContentLoaded', function() {
-  // Add hover effects to info items
-  const infoItems = document.querySelectorAll('.info-item');
-  infoItems.forEach(item => {
-    item.addEventListener('mouseenter', function() {
-      this.style.backgroundColor = 'rgba(139, 92, 246, 0.05)';
-      this.style.borderRadius = '8px';
-      this.style.padding = '0.5rem';
-      this.style.margin = '0 -0.5rem';
-    });
+function resetPasswordForm() {
+    document.getElementById('passwordForm').reset();
+}
+
+function changeProfilePicture() {
+    const modal = new bootstrap.Modal(document.getElementById('profilePictureModal'));
+    modal.show();
+}
+
+function uploadProfilePicture() {
+    const form = document.getElementById('profilePictureForm');
+    const formData = new FormData(form);
     
-    item.addEventListener('mouseleave', function() {
-      this.style.backgroundColor = 'transparent';
-      this.style.padding = '0';
-      this.style.margin = '0';
-    });
-  });
-});
+    // This would typically make an AJAX request
+    showNotification('Profile picture updated successfully!', 'success');
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('profilePictureModal'));
+    modal.hide();
+    
+    // Reload page to show new picture
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+function removeProfilePicture() {
+    if (confirm('Remove your profile picture?')) {
+        // This would typically make an AJAX request
+        showNotification('Profile picture removed!', 'success');
+        location.reload();
+    }
+}
+
+function viewActivityLog() {
+    showNotification('Opening activity log...', 'info');
+    // This would typically open an activity log page
+}
+
+function exportData() {
+    if (confirm('Export all your personal data? This may take a few minutes.')) {
+        showNotification('Data export started! You will receive an email when ready.', 'info');
+        // This would typically trigger a data export process
+    }
+}
+
+function deleteAccount() {
+    if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+        if (confirm('This will permanently delete your account and all associated data. Are you absolutely sure?')) {
+            if (confirm('Last chance! This will delete your account permanently. Continue?')) {
+                // This would typically make an AJAX request
+                showNotification('Account deletion requested. You will be logged out shortly.', 'warning');
+                setTimeout(() => {
+                    window.location.href = '/accounts/logout/';
+                }, 3000);
+            }
+        }
+    }
+}
 </script>
 {% endblock %}

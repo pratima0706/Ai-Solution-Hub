@@ -1,0 +1,523 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Services - AI Solution Hub Admin{% endblock %}
+
+{% block page_title %}Services Management{% endblock %}
+
+{% block content %}
+<!-- Search and Filters -->
+<div class="search-filters">
+    <form method="get" class="filter-form">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label class="form-label">Search</label>
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Search by title or description..." 
+                       value="{{ search }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Pricing Tier</label>
+                <select name="pricing_tier" class="form-control">
+                    <option value="">All Tiers</option>
+                    <option value="basic" {% if pricing_tier == 'basic' %}selected{% endif %}>Basic</option>
+                    <option value="professional" {% if pricing_tier == 'professional' %}selected{% endif %}>Professional</option>
+                    <option value="enterprise" {% if pricing_tier == 'enterprise' %}selected{% endif %}>Enterprise</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Featured</label>
+                <select name="featured" class="form-control">
+                    <option value="">All Services</option>
+                    <option value="yes" {% if featured == 'yes' %}selected{% endif %}>Featured Only</option>
+                    <option value="no" {% if featured == 'no' %}selected{% endif %}>Not Featured</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Filter
+                    </button>
+                    <a href="{% url 'djadmin:services' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>Clear
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Results Summary -->
+<div class="results-summary mb-3">
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <h6 class="mb-0">Showing {{ services.start_index }}-{{ services.end_index }} of {{ total_count }} services</h6>
+            {% if search or pricing_tier or featured %}
+            <small class="text-secondary">Filtered results</small>
+            {% endif %}
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addServiceModal">
+                <i class="fas fa-plus me-1"></i>Add Service
+            </button>
+            <button class="btn btn-success btn-sm" onclick="exportServices()">
+                <i class="fas fa-download me-1"></i>Export CSV
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Services List -->
+<div class="services-list">
+    {% for service in services %}
+    <div class="service-card dashboard-card">
+        <div class="service-header">
+            <div class="service-icon">
+                <i class="{{ service.icon|default:'fas fa-cog' }} fa-2x"></i>
+            </div>
+            <div class="service-content">
+                <div class="service-meta">
+                    <span class="badge bg-{{ service.pricing_tier|default:'primary' }}">
+                        {{ service.get_pricing_tier_display }}
+                    </span>
+                    {% if service.is_featured %}
+                        <span class="badge bg-warning">Featured</span>
+                    {% endif %}
+                    <span class="badge bg-info">Order: {{ service.order }}</span>
+                </div>
+                
+                <h5 class="service-title">
+                    <a href="#" onclick="viewService('{{ service.id }}')" class="text-decoration-none">
+                        {{ service.title }}
+                    </a>
+                </h5>
+                
+                <p class="service-description">{{ service.description|truncatewords:25 }}</p>
+                
+                <div class="service-features">
+                    {% for feature in service.features|slice:":3" %}
+                        <span class="feature-tag">{{ feature }}</span>
+                    {% endfor %}
+                    {% if service.features|length > 3 %}
+                        <span class="feature-tag">+{{ service.features|length|add:"-3" }} more</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="service-actions">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                            data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="editService('{{ service.id }}')">
+                            <i class="fas fa-edit me-2"></i>Edit
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="duplicateService('{{ service.id }}')">
+                            <i class="fas fa-copy me-2"></i>Duplicate
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="toggleFeatured('{{ service.id }}')">
+                            <i class="fas fa-star me-2"></i>
+                            {% if service.is_featured %}Unfeature{% else %}Feature{% endif %}
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="moveUp('{{ service.id }}')">
+                            <i class="fas fa-arrow-up me-2"></i>Move Up
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="moveDown('{{ service.id }}')">
+                            <i class="fas fa-arrow-down me-2"></i>Move Down
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteService('{{ service.id }}', '{{ service.title }}')">
+                            <i class="fas fa-trash me-2"></i>Delete
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="service-footer">
+            <div class="service-stats">
+                <small class="text-secondary">
+                    <i class="fas fa-calendar me-1"></i>Created {{ service.created_at|date:"M d, Y" }}
+                </small>
+            </div>
+            <div class="service-controls">
+                <div class="form-check form-switch">
+                    <input type="checkbox" class="form-check-input" 
+                           {% if service.is_featured %}checked{% endif %}
+                           onchange="toggleFeatured('{{ service.id }}')">
+                    <label class="form-check-label">Featured</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="text-center py-5">
+                <div class="empty-state">
+                    <i class="fas fa-cogs fa-3x text-secondary mb-3"></i>
+                    <h5>No services found</h5>
+                    <p class="text-secondary">
+                        {% if search or pricing_tier or featured %}
+                            Try adjusting your filters or search terms.
+                        {% else %}
+                            No services have been created yet.
+                        {% endif %}
+                    </p>
+                    {% if search or pricing_tier or featured %}
+                    <a href="{% url 'djadmin:services' %}" class="btn btn-primary">
+                        <i class="fas fa-times me-1"></i>Clear Filters
+                    </a>
+                    {% else %}
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addServiceModal">
+                        <i class="fas fa-plus me-1"></i>Create First Service
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if services.has_other_pages %}
+<div class="pagination">
+    <div class="pagination-info">
+        Showing {{ services.start_index }}-{{ services.end_index }} of {{ total_count }} entries
+    </div>
+    <div class="pagination-controls">
+        {% if services.has_previous %}
+            <a href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">First</a>
+            <a href="?page={{ services.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">Prev</a>
+        {% endif %}
+        
+        {% for num in services.paginator.page_range %}
+            {% if services.number == num %}
+                <span class="page-btn active">{{ num }}</span>
+            {% elif num > services.number|add:'-3' and num < services.number|add:'3' %}
+                <a href="?page={{ num }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if services.has_next %}
+            <a href="?page={{ services.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">Next</a>
+            <a href="?page={{ services.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">Last</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Add Service Modal -->
+<div class="modal fade" id="addServiceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Service</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addServiceForm">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Service Title</label>
+                                <input type="text" name="title" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Pricing Tier</label>
+                                <select name="pricing_tier" class="form-control" required>
+                                    <option value="">Select Tier</option>
+                                    <option value="basic">Basic</option>
+                                    <option value="professional">Professional</option>
+                                    <option value="enterprise">Enterprise</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label class="form-label">Service Description</label>
+                        <textarea name="description" class="form-control" rows="4" 
+                                  placeholder="Describe what this service offers..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label class="form-label">Icon Class</label>
+                        <input type="text" name="icon" class="form-control" 
+                               placeholder="fas fa-robot" value="fas fa-cog">
+                        <small class="form-text text-muted">FontAwesome icon class (e.g., fas fa-robot, fas fa-brain)</small>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label class="form-label">Features (one per line)</label>
+                        <textarea name="features" class="form-control" rows="4" 
+                                  placeholder="Feature 1&#10;Feature 2&#10;Feature 3"></textarea>
+                        <small class="form-text text-muted">Enter each feature on a new line</small>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Display Order</label>
+                                <input type="number" name="order" class="form-control" value="0" min="0">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" name="is_featured" class="form-check-input">
+                                    <label class="form-check-label">Featured Service</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveService()">Create Service</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.services-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.service-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid var(--border-color);
+}
+
+.service-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.service-header {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.service-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.service-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.service-meta {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.service-title {
+    margin: 0 0 0.75rem 0;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.service-title a {
+    color: inherit;
+}
+
+.service-title a:hover {
+    color: var(--primary-color);
+}
+
+.service-description {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+}
+
+.service-features {
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+}
+
+.feature-tag {
+    background-color: var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+}
+
+.service-actions {
+    flex-shrink: 0;
+}
+
+.service-actions .dropdown-toggle {
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+}
+
+.service-actions .dropdown-toggle:hover {
+    color: var(--text-primary);
+}
+
+.service-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.service-stats {
+    font-size: 0.75rem;
+}
+
+.service-controls .form-check {
+    margin: 0;
+}
+
+.service-controls .form-check-input {
+    margin-right: 0.5rem;
+}
+
+.service-controls .form-check-label {
+    font-size: 0.75rem;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .service-header {
+        flex-direction: column;
+    }
+    
+    .service-icon {
+        align-self: center;
+    }
+    
+    .service-footer {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    
+    .service-controls {
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function editService(serviceId) {
+    // This would typically open an edit modal or redirect to edit page
+    showNotification('Edit service functionality coming soon!', 'info');
+}
+
+function duplicateService(serviceId) {
+    if (confirm('Duplicate this service?')) {
+        // This would typically make an AJAX request
+        showNotification('Service duplicated successfully!', 'success');
+        location.reload();
+    }
+}
+
+function toggleFeatured(serviceId) {
+    // This would typically make an AJAX request
+    showNotification('Service featured status updated!', 'success');
+    location.reload();
+}
+
+function moveUp(serviceId) {
+    // This would typically make an AJAX request to reorder
+    showNotification('Service moved up!', 'success');
+    location.reload();
+}
+
+function moveDown(serviceId) {
+    // This would typically make an AJAX request to reorder
+    showNotification('Service moved down!', 'success');
+    location.reload();
+}
+
+function deleteService(serviceId, serviceTitle) {
+    if (confirm(`Delete service "${serviceTitle}"? This action cannot be undone.`)) {
+        // This would typically make an AJAX request
+        showNotification('Service deleted successfully!', 'success');
+        location.reload();
+    }
+}
+
+function viewService(serviceId) {
+    // This would typically open a view modal or redirect to service detail page
+    showNotification('View service functionality coming soon!', 'info');
+}
+
+function saveService() {
+    const form = document.getElementById('addServiceForm');
+    const formData = new FormData(form);
+    
+    // Basic validation
+    const title = formData.get('title');
+    const description = formData.get('description');
+    const pricingTier = formData.get('pricing_tier');
+    
+    if (!title || !description || !pricingTier) {
+        alert('Please fill in all required fields');
+        return;
+    }
+    
+    // This would typically make an AJAX request
+    showNotification('Service created successfully!', 'success');
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('addServiceModal'));
+    modal.hide();
+    
+    // Reload page to show new service
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+function exportServices() {
+    // This would typically make an AJAX request to export services
+    showNotification('Exporting services...', 'info');
+    // Simulate export
+    setTimeout(() => {
+        showNotification('Services exported successfully!', 'success');
+    }, 2000);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,361 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Subscribers - AI Solution Hub Admin{% endblock %}
+
+{% block page_title %}Newsletter Subscribers{% endblock %}
+
+{% block content %}
+<!-- Search and Filters -->
+<div class="search-filters">
+    <form method="get" class="filter-form">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label class="form-label">Search</label>
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Search by email..." 
+                       value="{{ search }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-control">
+                    <option value="">All Statuses</option>
+                    <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Source</label>
+                <select name="source" class="form-control">
+                    <option value="">All Sources</option>
+                    {% for source_option in sources %}
+                    <option value="{{ source_option }}" {% if source == source_option %}selected{% endif %}>
+                        {{ source_option|title }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Filter
+                    </button>
+                    <a href="{% url 'djadmin:subscribers' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>Clear
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Results Summary -->
+<div class="results-summary mb-3">
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <h6 class="mb-0">Showing {{ subscribers.start_index }}-{{ subscribers.end_index }} of {{ total_count }} subscribers</h6>
+            {% if search or status or source %}
+            <small class="text-secondary">Filtered results</small>
+            {% endif %}
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'djadmin:export_subscribers_csv' %}?{{ request.GET.urlencode }}" 
+               class="btn btn-success btn-sm">
+                <i class="fas fa-download me-1"></i>Export CSV
+            </a>
+            <button class="btn btn-warning btn-sm" onclick="unsubscribeSelected()">
+                <i class="fas fa-user-times me-1"></i>Unsubscribe Selected
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Subscribers Table -->
+<div class="dashboard-card">
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th width="50">
+                        <input type="checkbox" id="selectAll" class="form-check-input">
+                    </th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Source</th>
+                    <th>Subscribed</th>
+                    <th>Unsubscribed</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for subscriber in subscribers %}
+                <tr>
+                    <td>
+                        <input type="checkbox" name="selected_subscribers" value="{{ subscriber.id }}" 
+                               class="form-check-input subscriber-checkbox" 
+                               {% if not subscriber.is_active %}disabled{% endif %}>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-circle me-2">{{ subscriber.email|first|upper }}</div>
+                            <div>
+                                <div class="fw-bold">{{ subscriber.email }}</div>
+                                {% if subscriber.ip_address %}
+                                <small class="text-secondary">IP: {{ subscriber.ip_address }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {% if subscriber.is_active %}
+                            <span class="status-badge contacted">Active</span>
+                        {% else %}
+                            <span class="status-badge closed">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge bg-info">{{ subscriber.source|title }}</span>
+                    </td>
+                    <td>
+                        <div>{{ subscriber.subscribed_at|date:"M d, Y" }}</div>
+                        <small class="text-secondary">{{ subscriber.subscribed_at|time:"H:i" }}</small>
+                    </td>
+                    <td>
+                        {% if subscriber.unsubscribed_at %}
+                            <div>{{ subscriber.unsubscribed_at|date:"M d, Y" }}</div>
+                            <small class="text-secondary">{{ subscriber.unsubscribed_at|time:"H:i" }}</small>
+                        {% else %}
+                            <span class="text-secondary">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            {% if subscriber.is_active %}
+                                <button class="btn btn-sm btn-outline-warning" 
+                                        onclick="unsubscribeSingle('{{ subscriber.id }}', '{{ subscriber.email }}')" 
+                                        title="Unsubscribe">
+                                    <i class="fas fa-user-times"></i>
+                                </button>
+                            {% else %}
+                                <button class="btn btn-sm btn-outline-success" 
+                                        onclick="resubscribe('{{ subscriber.id }}', '{{ subscriber.email }}')" 
+                                        title="Resubscribe">
+                                    <i class="fas fa-user-plus"></i>
+                                </button>
+                            {% endif %}
+                            <button class="btn btn-sm btn-outline-info" 
+                                    onclick="copyEmail('{{ subscriber.email }}')" title="Copy Email">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" 
+                                    onclick="deleteSubscriber('{{ subscriber.id }}', '{{ subscriber.email }}')" 
+                                    title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-5">
+                        <div class="empty-state">
+                            <i class="fas fa-users fa-3x text-secondary mb-3"></i>
+                            <h5>No subscribers found</h5>
+                            <p class="text-secondary">
+                                {% if search or status or source %}
+                                    Try adjusting your filters or search terms.
+                                {% else %}
+                                    No newsletter subscribers yet.
+                                {% endif %}
+                            </p>
+                            {% if search or status or source %}
+                            <a href="{% url 'djadmin:subscribers' %}" class="btn btn-primary">
+                                <i class="fas fa-times me-1"></i>Clear Filters
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if subscribers.has_other_pages %}
+    <div class="pagination">
+        <div class="pagination-info">
+            Showing {{ subscribers.start_index }}-{{ subscribers.end_index }} of {{ total_count }} entries
+        </div>
+        <div class="pagination-controls">
+            {% if subscribers.has_previous %}
+                <a href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">First</a>
+                <a href="?page={{ subscribers.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">Prev</a>
+            {% endif %}
+            
+            {% for num in subscribers.paginator.page_range %}
+                {% if subscribers.number == num %}
+                    <span class="page-btn active">{{ num }}</span>
+                {% elif num > subscribers.number|add:'-3' and num < subscribers.number|add:'3' %}
+                    <a href="?page={{ num }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                       class="page-btn">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+            
+            {% if subscribers.has_next %}
+                <a href="?page={{ subscribers.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">Next</a>
+                <a href="?page={{ subscribers.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">Last</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="card-subtitle">Total Subscribers</h6>
+                    <h3 class="kpi-value">{{ total_count }}</h3>
+                </div>
+                <div class="kpi-icon info">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="card-subtitle">Active</h6>
+                    <h3 class="kpi-value">{{ subscribers|length }}</h3>
+                </div>
+                <div class="kpi-icon success">
+                    <i class="fas fa-user-check"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="card-subtitle">This Month</h6>
+                    <h3 class="kpi-value">0</h3>
+                </div>
+                <div class="kpi-icon warning">
+                    <i class="fas fa-calendar"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="card-subtitle">Unsubscribed</h6>
+                    <h3 class="kpi-value">0</h3>
+                </div>
+                <div class="kpi-icon danger">
+                    <i class="fas fa-user-times"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Select all functionality
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const subscriberCheckboxes = document.querySelectorAll('.subscriber-checkbox');
+    
+    selectAllCheckbox.addEventListener('change', function() {
+        subscriberCheckboxes.forEach(checkbox => {
+            if (!checkbox.disabled) {
+                checkbox.checked = this.checked;
+            }
+        });
+    });
+    
+    subscriberCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            // Update select all checkbox state
+            const checkedCount = document.querySelectorAll('.subscriber-checkbox:checked').length;
+            const totalCount = document.querySelectorAll('.subscriber-checkbox:not([disabled])').length;
+            
+            if (checkedCount === 0) {
+                selectAllCheckbox.indeterminate = false;
+                selectAllCheckbox.checked = false;
+            } else if (checkedCount === totalCount) {
+                selectAllCheckbox.indeterminate = false;
+                selectAllCheckbox.checked = true;
+            } else {
+                selectAllCheckbox.indeterminate = true;
+            }
+        });
+    });
+});
+
+function unsubscribeSelected() {
+    const selectedIds = Array.from(document.querySelectorAll('.subscriber-checkbox:checked'))
+        .map(checkbox => checkbox.value);
+    
+    if (selectedIds.length === 0) {
+        alert('Please select at least one subscriber');
+        return;
+    }
+    
+    if (confirm(`Are you sure you want to unsubscribe ${selectedIds.length} subscribers?`)) {
+        // This would typically make an AJAX request
+        alert(`Unsubscribed ${selectedIds.length} subscribers`);
+        location.reload();
+    }
+}
+
+function unsubscribeSingle(id, email) {
+    if (confirm(`Unsubscribe ${email}?`)) {
+        // This would typically make an AJAX request
+        alert(`${email} unsubscribed`);
+        location.reload();
+    }
+}
+
+function resubscribe(id, email) {
+    if (confirm(`Resubscribe ${email}?`)) {
+        // This would typically make an AJAX request
+        alert(`${email} resubscribed`);
+        location.reload();
+    }
+}
+
+function deleteSubscriber(id, email) {
+    if (confirm(`Permanently delete ${email}? This action cannot be undone.`)) {
+        // This would typically make an AJAX request
+        alert(`${email} deleted`);
+        location.reload();
+    }
+}
+
+function copyEmail(email) {
+    navigator.clipboard.writeText(email).then(function() {
+        showNotification('Email copied to clipboard!', 'success');
+    }).catch(function() {
+        showNotification('Failed to copy email', 'error');
+    });
+}
+</script>
+{% endblock %}

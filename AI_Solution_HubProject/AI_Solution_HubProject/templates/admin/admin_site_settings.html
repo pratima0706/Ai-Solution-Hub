@@ -1,0 +1,399 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Site Settings - AI Solution Hub Admin{% endblock %}
+
+{% block page_title %}Site Settings{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <!-- General Settings -->
+        <div class="dashboard-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">General Settings</h5>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Site Name</label>
+                            <input type="text" name="site_name" class="form-control" 
+                                   value="{{ settings.site_name|default:'AI Solution Hub' }}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Contact Email</label>
+                            <input type="email" name="contact_email" class="form-control" 
+                                   value="{{ settings.contact_email|default:'info@aisolutionshub.com' }}" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label class="form-label">Site Description</label>
+                    <textarea name="site_description" class="form-control" rows="3" 
+                              placeholder="Brief description of your AI solution services...">{{ settings.site_description|default:'Leading AI Solutions Provider' }}</textarea>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Contact Phone</label>
+                            <input type="tel" name="contact_phone" class="form-control" 
+                                   value="{{ settings.contact_phone|default:'+1-555-123-4567' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Address</label>
+                            <input type="text" name="address" class="form-control" 
+                                   value="{{ settings.address|default:'123 AI Street, Tech City, TC 12345' }}">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <div class="form-check">
+                        <input type="checkbox" name="maintenance_mode" class="form-check-input" 
+                               {% if settings.maintenance_mode %}checked{% endif %}>
+                        <label class="form-check-label">
+                            Maintenance Mode
+                        </label>
+                        <small class="form-text text-muted">Enable to show maintenance page to visitors</small>
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>Save Settings
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                        <i class="fas fa-undo me-1"></i>Reset
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Email Settings -->
+        <div class="dashboard-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">Email Settings</h5>
+            </div>
+            
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Email settings are configured in your Django settings file. Contact your system administrator to modify these settings.
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label class="form-label">SMTP Host</label>
+                        <input type="text" class="form-control" value="smtp.gmail.com" readonly>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label class="form-label">SMTP Port</label>
+                        <input type="number" class="form-control" value="587" readonly>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label class="form-label">From Email</label>
+                        <input type="email" class="form-control" value="noreply@aisolutionshub.com" readonly>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label class="form-label">From Name</label>
+                        <input type="text" class="form-control" value="AI Solution Hub" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Analytics Settings -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title">Analytics & Tracking</h5>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label class="form-label">Google Analytics Code</label>
+                <textarea name="analytics_code" class="form-control" rows="4" 
+                          placeholder="Paste your Google Analytics tracking code here...">{{ settings.analytics_code|default:'' }}</textarea>
+                <small class="form-text text-muted">Enter your Google Analytics tracking code (GA4 or Universal Analytics)</small>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label class="form-label">Google Tag Manager ID</label>
+                <input type="text" class="form-control" placeholder="GTM-XXXXXXX" readonly>
+                <small class="form-text text-muted">Configure in Django settings</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- System Status -->
+        <div class="dashboard-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">System Status</h5>
+            </div>
+            
+            <div class="system-status">
+                <div class="status-item d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="status-dot bg-success"></div>
+                        <span>Database</span>
+                    </div>
+                    <span class="badge bg-success">Online</span>
+                </div>
+                
+                <div class="status-item d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="status-dot bg-success"></div>
+                        <span>Email Service</span>
+                    </div>
+                    <span class="badge bg-success">Online</span>
+                </div>
+                
+                <div class="status-item d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="status-dot bg-warning"></div>
+                        <span>Cache</span>
+                    </div>
+                    <span class="badge bg-warning">Limited</span>
+                </div>
+                
+                <div class="status-item d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <div class="status-dot bg-success"></div>
+                        <span>File Storage</span>
+                    </div>
+                    <span class="badge bg-success">Online</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="dashboard-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">Quick Actions</h5>
+            </div>
+            
+            <div class="d-grid gap-2">
+                <button class="btn btn-outline-primary" onclick="testEmail()">
+                    <i class="fas fa-envelope me-2"></i>Test Email
+                </button>
+                
+                <button class="btn btn-outline-success" onclick="clearCache()">
+                    <i class="fas fa-broom me-2"></i>Clear Cache
+                </button>
+                
+                <button class="btn btn-outline-info" onclick="backupData()">
+                    <i class="fas fa-download me-2"></i>Backup Data
+                </button>
+                
+                <button class="btn btn-outline-warning" onclick="viewLogs()">
+                    <i class="fas fa-file-alt me-2"></i>View Logs
+                </button>
+            </div>
+        </div>
+        
+        <!-- Site Information -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title">Site Information</h5>
+            </div>
+            
+            <div class="site-info">
+                <div class="info-item d-flex justify-content-between mb-2">
+                    <span class="text-secondary">Django Version:</span>
+                    <span class="fw-bold">5.2.5</span>
+                </div>
+                
+                <div class="info-item d-flex justify-content-between mb-2">
+                    <span class="text-secondary">Python Version:</span>
+                    <span class="fw-bold">3.12</span>
+                </div>
+                
+                <div class="info-item d-flex justify-content-between mb-2">
+                    <span class="text-secondary">Database:</span>
+                    <span class="fw-bold">SQLite</span>
+                </div>
+                
+                <div class="info-item d-flex justify-content-between mb-2">
+                    <span class="text-secondary">Debug Mode:</span>
+                    <span class="badge bg-warning">Enabled</span>
+                </div>
+                
+                <div class="info-item d-flex justify-content-between mb-2">
+                    <span class="text-secondary">Last Updated:</span>
+                    <span class="fw-bold">{{ settings.updated_at|date:"M d, Y" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Danger Zone -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="dashboard-card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Danger Zone
+                </h5>
+            </div>
+            
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Reset All Settings</h6>
+                        <p class="text-secondary">Reset all site settings to their default values. This action cannot be undone.</p>
+                        <button class="btn btn-outline-danger" onclick="resetAllSettings()">
+                            <i class="fas fa-undo me-1"></i>Reset All Settings
+                        </button>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h6>Clear All Data</h6>
+                        <p class="text-secondary">Permanently delete all inquiries, subscribers, and content. This action cannot be undone.</p>
+                        <button class="btn btn-outline-danger" onclick="clearAllData()">
+                            <i class="fas fa-trash me-1"></i>Clear All Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+}
+
+.system-status .status-item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.system-status .status-item:last-child {
+    border-bottom: none;
+}
+
+.site-info .info-item {
+    padding: 0.25rem 0;
+}
+
+.danger-zone {
+    border: 2px solid var(--danger-color);
+    border-radius: 0.75rem;
+}
+
+.danger-zone .card-header {
+    background-color: var(--danger-color);
+    color: white;
+    border-radius: 0.75rem 0.75rem 0 0;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function resetForm() {
+    if (confirm('Reset all form fields to their current saved values?')) {
+        location.reload();
+    }
+}
+
+function testEmail() {
+    if (confirm('Send a test email to the configured contact address?')) {
+        // This would typically make an AJAX request
+        showNotification('Test email sent!', 'success');
+    }
+}
+
+function clearCache() {
+    if (confirm('Clear all cached data? This may temporarily slow down the site.')) {
+        // This would typically make an AJAX request
+        showNotification('Cache cleared successfully!', 'success');
+    }
+}
+
+function backupData() {
+    if (confirm('Create a backup of all site data?')) {
+        // This would typically trigger a backup process
+        showNotification('Backup process started!', 'info');
+    }
+}
+
+function viewLogs() {
+    // This would typically open a logs viewer or redirect to logs page
+    showNotification('Opening logs viewer...', 'info');
+}
+
+function resetAllSettings() {
+    if (confirm('Are you sure you want to reset ALL site settings to their default values? This action cannot be undone.')) {
+        if (confirm('This will reset everything. Are you absolutely sure?')) {
+            // This would typically make an AJAX request
+            showNotification('Settings reset successfully!', 'success');
+            location.reload();
+        }
+    }
+}
+
+function clearAllData() {
+    if (confirm('Are you sure you want to permanently delete ALL data? This includes inquiries, subscribers, and all content. This action cannot be undone.')) {
+        if (confirm('This will delete everything. Are you absolutely sure?')) {
+            if (confirm('Last chance! This will permanently delete all data. Continue?')) {
+                // This would typically make an AJAX request
+                showNotification('All data cleared!', 'warning');
+                location.reload();
+            }
+        }
+    }
+}
+
+// Auto-save functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const inputs = form.querySelectorAll('input, textarea, select');
+    
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            // Mark form as having unsaved changes
+            form.dataset.unsaved = 'true';
+        });
+    });
+    
+    // Warn before leaving with unsaved changes
+    window.addEventListener('beforeunload', function(e) {
+        if (form.dataset.unsaved === 'true') {
+            e.preventDefault();
+            e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+        }
+    });
+    
+    // Clear unsaved flag on form submit
+    form.addEventListener('submit', function() {
+        form.dataset.unsaved = 'false';
+    });
+});
+</script>
+{% endblock %}

@@ -1,66 +1,69 @@
 {% extends 'ai_solution_app/base.html' %}
+{% load static %}
 
 {% block title %}Events & Gallery - AI Solution Hub{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
-<section class="relative bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 text-white py-16">
-    <div class="absolute inset-0 bg-black opacity-20"></div>
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h1 class="text-4xl md:text-6xl font-bold mb-6">
+<section class="relative min-h-[60vh] flex items-center justify-center overflow-hidden hero-landing" style="--hero-landing-img: url('{% static 'images/hero-backgrounds/EventGallery.jpg' %}');">
+    
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
+        <div class="animate-slide-in-up">
+            <h1 class="text-4xl md:text-6xl font-bold mb-8 text-white">
             Events & <span class="gradient-text">Gallery</span>
         </h1>
-        <p class="text-xl text-blue-100 max-w-3xl mx-auto">
+            <p class="text-xl text-blue-100 max-w-4xl mx-auto leading-relaxed">
             Join our exclusive AI events and explore our gallery showcasing the latest innovations and achievements.
         </p>
+        </div>
     </div>
 </section>
 
 <!-- Events Section -->
-<section class="py-20 bg-gray-50 dark:bg-gray-800">
+<section class="py-20 bg-[var(--bg)]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-[var(--text)] mb-4">
                 Upcoming <span class="gradient-text">Events</span>
             </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p class="text-lg text-[var(--text-secondary)] max-w-3xl mx-auto">
                 Join us for exclusive AI insights, workshops, and networking opportunities with industry leaders.
             </p>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for event in upcoming_events %}
-            <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-200 dark:border-gray-600 overflow-hidden">
+            <div class="bg-[var(--card)] rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-[var(--border)] overflow-hidden">
                 <div class="p-8">
                     <div class="flex items-center justify-between mb-4">
-                        <span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm font-medium px-3 py-1 rounded-full">
+                        <span class="inline-block bg-blue-900 text-blue-200 text-sm font-medium px-3 py-1 rounded-full">
                             {{ event.event_type|title }}
                         </span>
                         {% if event.is_featured %}
-                        <span class="inline-block bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-sm font-medium px-3 py-1 rounded-full">
+                        <span class="inline-block bg-yellow-900 text-yellow-200 text-sm font-medium px-3 py-1 rounded-full">
                             Featured
                         </span>
                         {% endif %}
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">{{ event.title }}</h3>
-                    <p class="text-gray-600 dark:text-gray-300 mb-6">{{ event.description|truncatewords:25 }}</p>
+                    <h3 class="text-xl font-bold text-[var(--text)] mb-4">{{ event.title }}</h3>
+                    <p class="text-[var(--text-secondary)] mb-6">{{ event.description|truncatewords:25 }}</p>
                     <div class="space-y-3 mb-6">
                         {% if event.location %}
-                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                        <div class="flex items-center text-sm text-[var(--text-secondary)]">
                             <i class="fas fa-map-marker-alt mr-3 w-5"></i>
                             <span>{{ event.location }}</span>
                         </div>
                         {% endif %}
-                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                        <div class="flex items-center text-sm text-[var(--text-secondary)]">
                             <i class="fas fa-calendar mr-3 w-5"></i>
                             <span>{{ event.start_date|date:"M d, Y" }}</span>
                         </div>
-                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                        <div class="flex items-center text-sm text-[var(--text-secondary)]">
                             <i class="fas fa-clock mr-3 w-5"></i>
                             <span>{{ event.start_date|date:"g:i A" }} - {{ event.end_date|date:"g:i A" }}</span>
                         </div>
                         {% if event.max_participants %}
-                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                        <div class="flex items-center text-sm text-[var(--text-secondary)]">
                             <i class="fas fa-users mr-3 w-5"></i>
                             <span>{{ event.current_participants }}/{{ event.max_participants }} participants</span>
                         </div>
@@ -106,90 +109,167 @@
 </section>
 
 <!-- Gallery Section -->
-<section class="py-20 bg-white dark:bg-gray-900">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+<section class="py-24 bg-white dark:bg-slate-900 relative overflow-hidden">
+    <!-- Background Elements -->
+    <div class="absolute top-0 right-0 w-96 h-96 bg-blue-100 dark:bg-blue-900 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+    <div class="absolute bottom-0 left-0 w-80 h-80 bg-purple-100 dark:bg-purple-900 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-20">
+            <h2 class="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6">
                 Our <span class="gradient-text">Gallery</span>
             </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p class="text-xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto leading-relaxed">
                 Explore our collection of AI innovations, team events, and breakthrough moments that define our journey.
             </p>
         </div>
         
-        <!-- Gallery Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+        <!-- Modern Scrollable Gallery Container -->
+        <div class="relative">
+            <!-- Scroll Indicators -->
+            <div class="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 hidden lg:block">
+                <button id="scrollLeft" class="w-12 h-12 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white dark:hover:bg-slate-700 transition-all duration-300 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            <div class="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 hidden lg:block">
+                <button id="scrollRight" class="w-12 h-12 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white dark:hover:bg-slate-700 transition-all duration-300 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            
+            <!-- Scrollable Gallery Grid -->
+            <div class="overflow-x-auto scrollbar-hide scroll-smooth" id="galleryScrollContainer">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 min-w-max lg:min-w-0" id="galleryGrid">
             {% for image in gallery_images %}
-            <div class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer">
+            <div class="gallery-item group relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 cursor-pointer" data-category="{{ image.category|default:'all' }}">
                 {% if image.image %}
-                <img src="{{ image.image.url }}" alt="{{ image.title|default:'Gallery Image' }}" class="w-full h-full object-cover aspect-square">
-                {% else %}
-                <div class="aspect-square bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
-                    <i class="fas fa-image text-4xl text-white opacity-50 group-hover:opacity-75 transition-opacity duration-300"></i>
-                </div>
-                {% endif %}
-                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-300 flex items-center justify-center">
-                    <div class="text-white text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <h3 class="text-lg font-semibold mb-2">{{ image.title|default:"Gallery Image" }}</h3>
-                        {% if image.description %}
-                        <p class="text-sm">{{ image.description|truncatewords:8 }}</p>
-                        {% else %}
-                        <p class="text-sm">Click to view details</p>
-                        {% endif %}
+                <div class="aspect-square relative overflow-hidden">
+                    <img src="{{ image.image.url }}" 
+                         alt="{{ image.alt_text|default:image.title|default:'Gallery Image' }}" 
+                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                         loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-400 via-purple-500 to-indigo-600 flex items-center justify-center hidden">
+                        <i class="fas fa-image text-4xl text-white opacity-50"></i>
                     </div>
                 </div>
+                {% else %}
+                <div class="aspect-square bg-gradient-to-br from-blue-400 via-purple-500 to-indigo-600 flex items-center justify-center">
+                    <i class="fas fa-image text-4xl text-white opacity-50"></i>
+                </div>
+                {% endif %}
+                
+                <!-- Image Overlay -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end">
+                    <div class="text-white p-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 w-full">
+                        <h3 class="text-lg font-bold mb-2 truncate">{{ image.title|default:"Gallery Image" }}</h3>
+                        {% if image.description %}
+                        <p class="text-sm opacity-90 mb-3 line-clamp-2">{{ image.description|truncatewords:12 }}</p>
+                        {% endif %}
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs opacity-75">{{ image.created_at|date:"M d, Y" }}</span>
+                            <button class="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium hover:bg-white/30 transition-all duration-200" 
+                                    data-image-url="{{ image.image.url }}" 
+                                    data-image-title="{{ image.title|default:'Gallery Image' }}" 
+                                    data-image-description="{{ image.description|default:'' }}"
+                                    onclick="openLightbox(this.dataset.imageUrl, this.dataset.imageTitle, this.dataset.imageDescription);">
+                                <i class="fas fa-expand mr-1"></i>View
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Featured Badge -->
                 {% if image.is_featured %}
-                <div class="absolute top-2 right-2">
-                    <span class="bg-yellow-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
-                        ⭐ Featured
+                <div class="absolute top-3 right-3">
+                    <span class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 py-1 rounded-full font-bold shadow-lg animate-pulse">
+                        ⭐
                     </span>
                 </div>
                 {% endif %}
+                
+                <!-- Category Badge -->
+                {% if image.category %}
+                <div class="absolute top-3 left-3">
+                    <span class="bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full font-medium">
+                        {{ image.category|title }}
+                    </span>
+                </div>
+                {% endif %}
+                
+                <!-- Loading State -->
+                <div class="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse hidden" id="loading-{{ forloop.counter }}">
+                    <div class="flex items-center justify-center">
+                        <i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i>
+                    </div>
+                </div>
             </div>
             {% empty %}
-            <div class="col-span-full text-center py-12">
-                <div class="w-24 h-24 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-images text-3xl text-gray-400 dark:text-gray-500"></i>
+            <div class="col-span-full text-center py-20">
+                <div class="w-32 h-32 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-images text-5xl text-blue-500 dark:text-blue-400"></i>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">No Gallery Images Yet</h3>
-                <p class="text-gray-500 dark:text-gray-500">Check back soon for our latest gallery updates!</p>
+                <h3 class="text-2xl font-bold text-slate-600 dark:text-slate-400 mb-4">No Gallery Images Yet</h3>
+                <p class="text-lg text-slate-500 dark:text-slate-500">Check back soon for our latest gallery updates!</p>
             </div>
             {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Scroll Progress Indicator -->
+            <div class="mt-8">
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div id="scrollProgress" class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
         </div>
         
         <!-- Gallery Pagination -->
-        <div class="flex justify-center items-center space-x-2">
-            <button class="px-4 py-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200">
-                <i class="fas fa-chevron-left"></i>
-            </button>
+        {% if gallery_images.has_other_pages %}
+        <div class="flex justify-center items-center space-x-3 mb-16">
+            {% if gallery_images.has_previous %}
+            <a href="?page={{ gallery_images.previous_page_number }}" class="px-6 py-3 glass-effect text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 transition-all duration-300 rounded-2xl hover:scale-105">
+                <i class="fas fa-chevron-left mr-2"></i>Previous
+            </a>
+            {% endif %}
             
-            <button class="px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold">1</button>
-            <button class="px-4 py-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200">2</button>
-            <button class="px-4 py-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200">3</button>
-            <button class="px-4 py-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200">4</button>
+            <div class="flex space-x-2">
+                {% for num in gallery_images.paginator.page_range %}
+                    {% if gallery_images.number == num %}
+                    <span class="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl font-bold shadow-lg">{{ num }}</span>
+                    {% else %}
+                    <a href="?page={{ num }}" class="px-6 py-3 glass-effect text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 transition-all duration-300 rounded-2xl hover:scale-105">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
             
-            <button class="px-4 py-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200">
-                <i class="fas fa-chevron-right"></i>
-            </button>
+            {% if gallery_images.has_next %}
+            <a href="?page={{ gallery_images.next_page_number }}" class="px-6 py-3 glass-effect text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 transition-all duration-300 rounded-2xl hover:scale-105">
+                Next<i class="fas fa-chevron-right ml-2"></i>
+            </a>
+            {% endif %}
         </div>
+        {% endif %}
         
         <!-- Gallery Categories -->
-        <div class="mt-12 text-center">
-            <div class="flex flex-wrap justify-center gap-4 mb-8">
-                <button class="px-6 py-3 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transition-colors duration-200">
-                    All
+        <div class="text-center">
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-8">Filter by Category</h3>
+            <div class="flex flex-wrap justify-center gap-4">
+                <button class="gallery-filter-btn px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl font-bold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg active" data-category="all">
+                    <i class="fas fa-th mr-2"></i>All
                 </button>
-                <button class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
-                    AI Solutions
+                <button class="gallery-filter-btn px-8 py-4 glass-effect text-slate-700 dark:text-slate-300 rounded-2xl font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 transform hover:scale-105" data-category="ai_solutions">
+                    <i class="fas fa-brain mr-2"></i>AI Solutions
                 </button>
-                <button class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
-                    Team Events
+                <button class="gallery-filter-btn px-8 py-4 glass-effect text-slate-700 dark:text-slate-300 rounded-2xl font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 transform hover:scale-105" data-category="team_events">
+                    <i class="fas fa-users mr-2"></i>Team Events
                 </button>
-                <button class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
-                    Conferences
+                <button class="gallery-filter-btn px-8 py-4 glass-effect text-slate-700 dark:text-slate-300 rounded-2xl font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 transform hover:scale-105" data-category="conferences">
+                    <i class="fas fa-microphone mr-2"></i>Conferences
                 </button>
-                <button class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
-                    Workshops
+                <button class="gallery-filter-btn px-8 py-4 glass-effect text-slate-700 dark:text-slate-300 rounded-2xl font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 transform hover:scale-105" data-category="workshops">
+                    <i class="fas fa-tools mr-2"></i>Workshops
                 </button>
             </div>
         </div>
@@ -197,75 +277,529 @@
 </section>
 
 <!-- Call to Action Section -->
-<section class="py-20 bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 text-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-4xl md:text-5xl font-bold mb-6">
+<section class="py-24 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white relative overflow-hidden">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 tech-pattern opacity-20"></div>
+    
+    <!-- Animated Background Elements -->
+    <div class="absolute inset-0">
+        <div class="absolute top-0 left-0 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float"></div>
+        <div class="absolute bottom-0 right-0 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style="animation-delay: 2s;"></div>
+    </div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+        <h2 class="text-4xl md:text-5xl font-bold mb-8">
             Join Our Next AI Event
         </h2>
-        <p class="text-xl mb-8 text-blue-100 max-w-3xl mx-auto">
+        <p class="text-xl mb-12 text-blue-100 max-w-4xl mx-auto leading-relaxed">
             Don't miss out on the latest AI insights, networking opportunities, and hands-on workshops. Register today and be part of the AI revolution.
         </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{% url 'ai_solution_app:contact_us' %}" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                Contact Us
+        <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <a href="{% url 'ai_solution_app:contact_us' %}" class="btn-primary px-12 py-6 text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105">
+                <i class="fas fa-envelope mr-3"></i>Contact Us
             </a>
-            <a href="{% url 'ai_solution_app:articles_blog' %}" class="border-2 border-white text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white hover:text-blue-900 transition-all duration-300 transform hover:scale-105">
-                Read Our Blog
+            <a href="{% url 'ai_solution_app:articles_blog' %}" class="glass-effect border-2 border-white text-white px-12 py-6 text-xl font-bold rounded-2xl hover:bg-white hover:text-blue-900 transition-all duration-500 transform hover:scale-105">
+                <i class="fas fa-blog mr-3"></i>Read Our Blog
             </a>
         </div>
     </div>
 </section>
 
-<!-- JavaScript for Gallery Functionality -->
+<!-- Lightbox Modal -->
+<div id="lightbox" class="lightbox">
+    <div class="lightbox-content">
+        <button class="lightbox-close" type="button" onclick="closeLightbox();">
+            <i class="fas fa-times"></i>
+        </button>
+        <img id="lightbox-image" class="lightbox-image" src="" alt="" />
+        <div class="lightbox-info">
+            <h3 id="lightbox-title" class="text-xl font-bold mb-2"></h3>
+            <p id="lightbox-description" class="text-gray-600"></p>
+        </div>
+    </div>
+</div>
+
+<!-- Enhanced Gallery Styles -->
+<style>
+/* Modern Scroll Styles */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* Smooth scroll snap for mobile */
+@media (max-width: 1024px) {
+    #galleryScrollContainer {
+        scroll-snap-type: x mandatory;
+        scroll-padding: 1rem;
+    }
+    .gallery-item {
+        scroll-snap-align: start;
+    }
+}
+
+/* Scroll progress animation */
+#scrollProgress {
+    transition: width 0.3s ease;
+}
+
+/* Gallery item hover effects with modern scroll */
+.gallery-item {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gallery-item:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Scroll button animations */
+#scrollLeft, #scrollRight {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#scrollLeft:hover, #scrollRight:hover {
+    transform: scale(1.1);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Fade in animation for filtered items */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+/* Enhanced Gallery Layout */
+.gallery-item {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gallery-item:hover {
+    transform: translateY(-8px) scale(1.02);
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Lightbox Styles */
+.lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.lightbox.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.lightbox-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    background: white;
+    border-radius: 1rem;
+    overflow: hidden;
+    transform: scale(0.8);
+    transition: transform 0.3s ease;
+}
+
+.lightbox.active .lightbox-content {
+    transform: scale(1);
+}
+
+.lightbox-image {
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
+    object-fit: contain;
+}
+
+.lightbox-info {
+    padding: 1.5rem;
+    background: white;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: background 0.3s ease;
+}
+
+.lightbox-close:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+/* Filter button active state */
+.gallery-filter-btn.active {
+    background: linear-gradient(to right, #3b82f6, #8b5cf6) !important;
+    color: white !important;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.masonry-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Image Loading Animation */
+.masonry-item img {
+    opacity: 1;
+    transform: scale(1);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Gallery Filter Animation */
+.masonry-item.filtered-out {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.masonry-item.filtered-in {
+    opacity: 1;
+    transform: scale(1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Lightbox Styles */
+.lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.lightbox.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.lightbox-content {
+    max-width: 90%;
+    max-height: 90%;
+    position: relative;
+}
+
+.lightbox img {
+    width: 100%;
+    height: auto;
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+.lightbox-close {
+    position: absolute;
+    top: -50px;
+    right: 0;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.lightbox-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+</style>
+
+<!-- JavaScript for Enhanced Gallery Functionality -->
 <script>
+// Lightbox functionality
+function openLightbox(imageSrc, title, description) {
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImage = document.getElementById('lightbox-image');
+    const lightboxTitle = document.getElementById('lightbox-title');
+    const lightboxDescription = document.getElementById('lightbox-description');
+    
+    lightboxImage.src = imageSrc;
+    lightboxImage.alt = title;
+    lightboxTitle.textContent = title;
+    lightboxDescription.textContent = description;
+    
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    lightbox.classList.remove('active');
+    document.body.style.overflow = 'auto';
+}
+
+// Close lightbox when clicking outside
+document.addEventListener('click', function(e) {
+    const lightbox = document.getElementById('lightbox');
+    if (e.target === lightbox) {
+        closeLightbox();
+    }
+});
+
+// Close lightbox with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeLightbox();
+    }
+});
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Gallery pagination functionality
+    // Initialize Gallery
+    const gallery = document.getElementById('galleryGrid');
+    const items = document.querySelectorAll('.gallery-item');
+    const scrollContainer = document.getElementById('galleryScrollContainer');
+    const scrollLeftBtn = document.getElementById('scrollLeft');
+    const scrollRightBtn = document.getElementById('scrollRight');
+    const scrollProgress = document.getElementById('scrollProgress');
+    
+    // Modern Scroll Functionality
+    let isScrolling = false;
+    
+    // Scroll buttons functionality
+    if (scrollLeftBtn && scrollRightBtn && scrollContainer) {
+        scrollLeftBtn.addEventListener('click', () => {
+            scrollContainer.scrollBy({
+                left: -300,
+                behavior: 'smooth'
+            });
+        });
+        
+        scrollRightBtn.addEventListener('click', () => {
+            scrollContainer.scrollBy({
+                left: 300,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Update scroll progress
+        scrollContainer.addEventListener('scroll', () => {
+            if (!isScrolling) {
+                isScrolling = true;
+                requestAnimationFrame(updateScrollProgress);
+            }
+        });
+        
+        function updateScrollProgress() {
+            const scrollLeft = scrollContainer.scrollLeft;
+            const scrollWidth = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+            const progress = (scrollLeft / scrollWidth) * 100;
+            
+            if (scrollProgress) {
+                scrollProgress.style.width = Math.min(100, Math.max(0, progress)) + '%';
+            }
+            
+            // Show/hide scroll buttons based on position
+            if (scrollLeft <= 10) {
+                scrollLeftBtn.style.opacity = '0.5';
+                scrollLeftBtn.style.pointerEvents = 'none';
+            } else {
+                scrollLeftBtn.style.opacity = '1';
+                scrollLeftBtn.style.pointerEvents = 'auto';
+            }
+            
+            if (scrollLeft >= scrollWidth - 10) {
+                scrollRightBtn.style.opacity = '0.5';
+                scrollRightBtn.style.pointerEvents = 'none';
+            } else {
+                scrollRightBtn.style.opacity = '1';
+                scrollRightBtn.style.pointerEvents = 'auto';
+            }
+            
+            isScrolling = false;
+        }
+        
+        // Initialize scroll state
+        updateScrollProgress();
+    }
+    
+    // Touch/swipe support for mobile
+    if (scrollContainer) {
+        let startX = 0;
+        let scrollLeft = 0;
+        
+        scrollContainer.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].pageX - scrollContainer.offsetLeft;
+            scrollLeft = scrollContainer.scrollLeft;
+        });
+        
+        scrollContainer.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const x = e.touches[0].pageX - scrollContainer.offsetLeft;
+            const walk = (x - startX) * 2;
+            scrollContainer.scrollLeft = scrollLeft - walk;
+        });
+    }
+    
+    // Image loading optimization
+    const images = document.querySelectorAll('.gallery-item img');
+    images.forEach(img => {
+        img.addEventListener('load', function() {
+            this.classList.add('loaded');
+        });
+    });
+    
+    // Gallery filtering
+    const filterButtons = document.querySelectorAll('.gallery-filter-btn');
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const category = this.dataset.category;
+            
+            // Update active button
+            filterButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'text-white');
+                btn.classList.add('glass-effect', 'text-slate-700', 'dark:text-slate-300');
+            });
+            this.classList.add('active');
+            this.classList.remove('glass-effect', 'text-slate-700', 'dark:text-slate-300');
+            this.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'text-white');
+            
+            // Filter gallery items with smooth animation
+            items.forEach((item, index) => {
+                const itemCategory = item.dataset.category;
+                if (category === 'all' || itemCategory === category) {
+                    item.style.display = 'block';
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateY(20px)';
+                    
+                    // Staggered animation
+                    setTimeout(() => {
+                        item.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                        item.style.opacity = '1';
+                        item.style.transform = 'translateY(0)';
+                        item.classList.add('fade-in');
+                    }, index * 50);
+                } else {
+                    item.style.display = 'none';
+                    item.classList.remove('fade-in');
+                }
+            });
+            
+            // Reset scroll position when filtering
+            if (scrollContainer) {
+                scrollContainer.scrollTo({
+                    left: 0,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+    
+    // Add click handlers to gallery items for lightbox
+    items.forEach(item => {
+        const img = item.querySelector('img');
+        if (img) {
+            img.addEventListener('click', function() {
+                const title = item.querySelector('h3')?.textContent || 'Gallery Image';
+                const description = item.querySelector('p')?.textContent || '';
+                openLightbox(this.src, title, description);
+            });
+        }
+    });
+    
+    // Pagination functionality
     const paginationButtons = document.querySelectorAll('.flex.justify-center button');
-    const galleryGrid = document.querySelector('.grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-4');
     
     paginationButtons.forEach(button => {
         button.addEventListener('click', function() {
             // Remove active state from all buttons
             paginationButtons.forEach(btn => {
-                btn.classList.remove('bg-blue-500', 'text-white');
-                btn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+                btn.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'text-white');
+                btn.classList.add('glass-effect', 'text-slate-600', 'dark:text-slate-300');
             });
             
             // Add active state to clicked button
-            this.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
-            this.classList.add('bg-blue-500', 'text-white');
+            if (this.textContent.trim() !== 'Previous' && this.textContent.trim() !== 'Next') {
+                this.classList.remove('glass-effect', 'text-slate-600', 'dark:text-slate-300');
+                this.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'text-white');
+            }
             
-            // Here you would typically load new gallery items
-            // For now, we'll just show a simple animation
-            galleryGrid.style.opacity = '0.5';
-            setTimeout(() => {
-                galleryGrid.style.opacity = '1';
-            }, 200);
+            // Add loading animation
+            const galleryGrid = document.getElementById('galleryGrid');
+            if (galleryGrid) {
+                galleryGrid.style.opacity = '0.5';
+                setTimeout(() => {
+                    galleryGrid.style.opacity = '1';
+                }, 300);
+            }
         });
     });
     
-    // Gallery category filter functionality
-    const categoryButtons = document.querySelectorAll('.flex.flex-wrap.justify-center button');
-    
-    categoryButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Remove active state from all category buttons
-            categoryButtons.forEach(btn => {
-                btn.classList.remove('bg-blue-500', 'text-white');
-                btn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
-            });
-            
-            // Add active state to clicked button
-            this.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
-            this.classList.add('bg-blue-500', 'text-white');
-            
-            // Here you would typically filter gallery items by category
-            // For now, we'll just show a simple animation
-            galleryGrid.style.transform = 'scale(0.98)';
-            setTimeout(() => {
-                galleryGrid.style.transform = 'scale(1)';
-            }, 200);
+    // Intersection Observer for lazy loading
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target.querySelector('img');
+                if (img && !img.classList.contains('loaded')) {
+                    img.src = img.src; // Trigger load
+                }
+            }
         });
+    });
+    
+    items.forEach(item => {
+        observer.observe(item);
     });
 });
 </script>

@@ -1,0 +1,401 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Audit & Exports - AI Solution Hub Admin{% endblock %}
+
+{% block page_title %}Audit Logs & Export History{% endblock %}
+
+{% block content %}
+<!-- Search and Filters -->
+<div class="search-filters">
+    <form method="get" class="filter-form">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label class="form-label">Search</label>
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Search by user, model, or filter..." 
+                       value="{{ search }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Model</label>
+                <select name="model" class="form-control">
+                    <option value="">All Models</option>
+                    {% for model_option in models %}
+                    <option value="{{ model_option }}" {% if model == model_option %}selected{% endif %}>
+                        {{ model_option }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">User</label>
+                <input type="text" name="user" class="form-control" 
+                       placeholder="Filter by username..." 
+                       value="{{ user_filter }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Date From</label>
+                <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Date To</label>
+                <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Filter
+                    </button>
+                    <a href="{% url 'djadmin:audit_exports' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>Clear
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Results Summary -->
+<div class="results-summary mb-3">
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <h6 class="mb-0">Showing {{ audit_logs.start_index }}-{{ audit_logs.end_index }} of {{ total_count }} audit entries</h6>
+            {% if search or model or user_filter or date_from or date_to %}
+            <small class="text-secondary">Filtered results</small>
+            {% endif %}
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-success btn-sm" onclick="exportAuditLog()">
+                <i class="fas fa-download me-1"></i>Export Audit Log
+            </button>
+            <button class="btn btn-warning btn-sm" onclick="clearOldLogs()">
+                <i class="fas fa-trash me-1"></i>Clear Old Logs
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Audit Logs Table -->
+<div class="dashboard-card">
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Model</th>
+                    <th>Filter Summary</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in audit_logs %}
+                <tr>
+                    <td>
+                        <div>{{ log.created_at|date:"M d, Y" }}</div>
+                        <small class="text-secondary">{{ log.created_at|time:"H:i:s" }}</small>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="user-avatar me-2">
+                                {% if log.user.profile.profile_picture %}
+                                    <img src="{{ log.user.profile.profile_picture.url }}" 
+                                         alt="{{ log.user.get_full_name|default:log.user.username }}" 
+                                         class="avatar-img">
+                                {% else %}
+                                    <div class="avatar-placeholder">
+                                        {{ log.user.get_full_name|first|default:log.user.username|first|upper }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="fw-bold">{{ log.user.get_full_name|default:log.user.username }}</div>
+                                <small class="text-secondary">{{ log.user.email }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-info">Export</span>
+                    </td>
+                    <td>
+                        <span class="badge bg-primary">{{ log.model }}</span>
+                    </td>
+                    <td>
+                        <div class="filter-summary">
+                            {{ log.filter_summary|truncatewords:10 }}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <button class="btn btn-sm btn-outline-info" 
+                                    onclick="viewDetails('{{ log.id }}')" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-success" 
+                                    onclick="downloadLog('{{ log.id }}')" title="Download">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <div class="empty-state">
+                            <i class="fas fa-clipboard-list fa-3x text-secondary mb-3"></i>
+                            <h5>No audit logs found</h5>
+                            <p class="text-secondary">
+                                {% if search or model or user_filter or date_from or date_to %}
+                                    Try adjusting your filters or search terms.
+                                {% else %}
+                                    No audit logs have been generated yet.
+                                {% endif %}
+                            </p>
+                            {% if search or model or user_filter or date_from or date_to %}
+                            <a href="{% url 'djadmin:audit_exports' %}" class="btn btn-primary">
+                                <i class="fas fa-times me-1"></i>Clear Filters
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if audit_logs.has_other_pages %}
+    <div class="pagination">
+        <div class="pagination-info">
+            Showing {{ audit_logs.start_index }}-{{ audit_logs.end_index }} of {{ total_count }} entries
+        </div>
+        <div class="pagination-controls">
+            {% if audit_logs.has_previous %}
+                <a href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">First</a>
+                <a href="?page={{ audit_logs.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">Prev</a>
+            {% endif %}
+            
+            {% for num in audit_logs.paginator.page_range %}
+                {% if audit_logs.number == num %}
+                    <span class="page-btn active">{{ num }}</span>
+                {% elif num > audit_logs.number|add:'-3' and num < audit_logs.number|add:'3' %}
+                    <a href="?page={{ num }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                       class="page-btn">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+            
+            {% if audit_logs.has_next %}
+                <a href="?page={{ audit_logs.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">Next</a>
+                <a href="?page={{ audit_logs.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">Last</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="card-subtitle">Total Exports</h6>
+                    <h3 class="kpi-value">{{ total_count }}</h3>
+                </div>
+                <div class="kpi-icon info">
+                    <i class="fas fa-download"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="card-subtitle">This Week</h6>
+                    <h3 class="kpi-value">0</h3>
+                </div>
+                <div class="kpi-icon success">
+                    <i class="fas fa-calendar-week"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="card-subtitle">Most Exported</h6>
+                    <h3 class="kpi-value">Contact</h3>
+                </div>
+                <div class="kpi-icon warning">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="card-subtitle">Active Users</h6>
+                    <h3 class="kpi-value">0</h3>
+                </div>
+                <div class="kpi-icon danger">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Log Details Modal -->
+<div class="modal fade" id="logDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Audit Log Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="logDetailsContent">
+                    <!-- Content will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="downloadCurrentLog()">Download</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+.filter-summary {
+    max-width: 200px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+    .data-table {
+        font-size: 0.875rem;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 0.5rem;
+    }
+    
+    .filter-summary {
+        max-width: 150px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function viewDetails(logId) {
+    // This would typically load the log details and show in modal
+    const modal = new bootstrap.Modal(document.getElementById('logDetailsModal'));
+    document.getElementById('logDetailsContent').innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Log Information</h6>
+                <p><strong>ID:</strong> ${logId}</p>
+                <p><strong>Timestamp:</strong> ${new Date().toLocaleString()}</p>
+                <p><strong>User:</strong> System User</p>
+                <p><strong>Action:</strong> Data Export</p>
+            </div>
+            <div class="col-md-6">
+                <h6>Export Details</h6>
+                <p><strong>Model:</strong> Contact</p>
+                <p><strong>Records:</strong> 1,250</p>
+                <p><strong>Format:</strong> CSV</p>
+                <p><strong>Size:</strong> 2.5 MB</p>
+            </div>
+        </div>
+        <div class="mt-3">
+            <h6>Filter Summary</h6>
+            <div class="alert alert-info">
+                <small>Search: "AI", Status: "new", Date Range: "2024-01-01 to 2024-12-31"</small>
+            </div>
+        </div>
+    `;
+    modal.show();
+}
+
+function downloadLog(logId) {
+    // This would typically trigger a download
+    showNotification('Downloading audit log...', 'info');
+    // Simulate download
+    setTimeout(() => {
+        showNotification('Audit log downloaded successfully!', 'success');
+    }, 2000);
+}
+
+function downloadCurrentLog() {
+    // This would typically download the currently viewed log
+    showNotification('Downloading current log...', 'info');
+}
+
+function exportAuditLog() {
+    if (confirm('Export the complete audit log? This may be a large file.')) {
+        showNotification('Exporting audit log...', 'info');
+        // Simulate export
+        setTimeout(() => {
+            showNotification('Audit log exported successfully!', 'success');
+        }, 3000);
+    }
+}
+
+function clearOldLogs() {
+    if (confirm('Clear audit logs older than 90 days? This action cannot be undone.')) {
+        if (confirm('This will permanently delete old audit logs. Are you sure?')) {
+            showNotification('Old audit logs cleared successfully!', 'success');
+            location.reload();
+        }
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,240 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Forms - AI Solution Hub Admin{% endblock %}
+{% block page_title %}Forms{% endblock %}
+
+{% block content %}
+<!-- Search and Filters -->
+<div class="search-filters">
+    <form method="get" class="filter-form">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label class="form-label">Search</label>
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Search by name, email, company, or details..." 
+                       value="{{ search }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Form Type</label>
+                <select name="form_type" class="form-control">
+                    <option value="">All Types</option>
+                    {% for ft in form_types %}
+                        {% if ft == 'demo' %}
+                            <option value="{{ ft }}" {% if form_type == ft %}selected{% endif %}>Demo Request</option>
+                        {% elif ft == 'event' %}
+                            <option value="{{ ft }}" {% if form_type == ft %}selected{% endif %}>Event Registration</option>
+                        {% else %}
+                            <option value="{{ ft }}" {% if form_type == ft %}selected{% endif %}>Contact Inquiry</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-control">
+                    <option value="">All Statuses</option>
+                    {% for st in statuses %}
+                    <option value="{{ st }}" {% if status == st %}selected{% endif %}>{{ st|title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Date From</label>
+                <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Date To</label>
+                <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Filter
+                    </button>
+                    <a href="{% url 'djadmin:forms' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>Clear
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Results Summary -->
+<div class="results-summary mb-3">
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <h6 class="mb-0">Showing {{ forms.start_index }}-{{ forms.end_index }} of {{ total_count }} forms</h6>
+            {% if search or form_type or status or date_from or date_to %}
+            <small class="text-secondary">Filtered results</small>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Forms Table -->
+<div class="dashboard-card">
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Company</th>
+                    <th>Form Type</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for form in forms %}
+                <tr>
+                    <td>
+                        <div class="fw-bold">{{ form.name }}</div>
+                        <small class="text-secondary">{{ form.job_title }}</small>
+                    </td>
+                    <td>
+                        <a href="mailto:{{ form.email }}" class="text-decoration-none">
+                            {{ form.email }}
+                        </a>
+                    </td>
+                    <td>{{ form.company }}</td>
+                    <td>
+                        {% if form.form_type == 'demo' %}
+                            <span class="badge bg-primary">
+                                <i class="fas fa-desktop me-1"></i>Demo Request
+                            </span>
+                        {% elif form.form_type == 'event' %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-calendar-check me-1"></i>Event Registration
+                            </span>
+                        {% else %}
+                            <span class="badge bg-info">
+                                <i class="fas fa-envelope me-1"></i>Contact Inquiry
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="status-badge {{ form.status }}">
+                            {{ form.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <div>{{ form.created_at|date:"M d, Y" }}</div>
+                        <small class="text-secondary">{{ form.created_at|time:"H:i" }}</small>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'djadmin:form_detail' form.id %}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <button class="btn btn-sm btn-outline-danger" title="Delete" onclick="confirmDelete('{{ form.id }}', '{{ form.name }}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-success" title="Reply" onclick="replyToForm('{{ form.email }}')">
+                                <i class="fas fa-reply"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-5">
+                        <div class="empty-state">
+                            <i class="fas fa-inbox fa-3x text-secondary mb-3"></i>
+                            <h5>No forms found</h5>
+                            <p class="text-secondary">
+                                {% if search or form_type or status or date_from or date_to %}
+                                    Try adjusting your filters or search terms.
+                                {% else %}
+                                    No forms have been submitted yet.
+                                {% endif %}
+                            </p>
+                            {% if search or form_type or status or date_from or date_to %}
+                            <a href="{% url 'djadmin:forms' %}" class="btn btn-primary">
+                                <i class="fas fa-times me-1"></i>Clear Filters
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Pagination -->
+    {% if forms.has_other_pages %}
+    <div class="pagination">
+        <div class="pagination-info">
+            Showing {{ forms.start_index }}-{{ forms.end_index }} of {{ total_count }} entries
+        </div>
+        <div class="pagination-controls">
+            {% if forms.has_previous %}
+                <a href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" class="page-btn">First</a>
+                <a href="?page={{ forms.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" class="page-btn">Prev</a>
+            {% endif %}
+            {% for num in forms.paginator.page_range %}
+                {% if forms.number == num %}
+                    <span class="page-btn active">{{ num }}</span>
+                {% elif num > forms.number|add:'-3' and num < forms.number|add:'3' %}
+                    <a href="?page={{ num }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" class="page-btn">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if forms.has_next %}
+                <a href="?page={{ forms.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" class="page-btn">Next</a>
+                <a href="?page={{ forms.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" class="page-btn">Last</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-light border-0 shadow-lg">
+            <div class="modal-header border-secondary bg-gradient-to-r from-danger to-warning">
+                <h5 class="modal-title text-light fw-bold">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center">
+                    <i class="fas fa-trash-alt text-danger fs-1 mb-3"></i>
+                    <p class="text-light">Are you sure you want to delete this form submission from <strong class="text-warning" id="deleteFormName"></strong>?</p>
+                    <p class="text-danger fw-semibold">This action cannot be undone.</p>
+                </div>
+            </div>
+            <div class="modal-footer border-secondary bg-gradient-to-r from-dark to-secondary">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <form id="deleteForm" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-lg px-4">
+                        <i class="fas fa-trash me-2"></i>Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+function confirmDelete(formId, formName) {
+    document.getElementById('deleteFormName').textContent = formName;
+    document.getElementById('deleteForm').action = `/admin/forms/${formId}/delete/`;
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    modal.show();
+}
+function replyToForm(email) {
+    window.location.href = 'mailto:' + email;
+}
+</script>
+{% endblock %}

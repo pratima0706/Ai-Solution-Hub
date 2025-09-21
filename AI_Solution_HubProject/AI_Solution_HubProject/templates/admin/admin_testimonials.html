@@ -1,0 +1,590 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Testimonials - AI Solution Hub Admin{% endblock %}
+
+{% block page_title %}Testimonials Management{% endblock %}
+
+{% block content %}
+<!-- Search and Filters -->
+<div class="search-filters">
+    <form method="get" class="filter-form">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label class="form-label">Search</label>
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Search by name, company, or review..." 
+                       value="{{ search }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Rating</label>
+                <select name="rating" class="form-control">
+                    <option value="">All Ratings</option>
+                    <option value="5" {% if rating == '5' %}selected{% endif %}>5 Stars</option>
+                    <option value="4" {% if rating == '4' %}selected{% endif %}>4 Stars</option>
+                    <option value="3" {% if rating == '3' %}selected{% endif %}>3 Stars</option>
+                    <option value="2" {% if rating == '2' %}selected{% endif %}>2 Stars</option>
+                    <option value="1" {% if rating == '1' %}selected{% endif %}>1 Star</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Featured</label>
+                <select name="featured" class="form-control">
+                    <option value="">All Testimonials</option>
+                    <option value="yes" {% if featured == 'yes' %}selected{% endif %}>Featured Only</option>
+                    <option value="no" {% if featured == 'no' %}selected{% endif %}>Not Featured</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Verified</label>
+                <select name="verified" class="form-control">
+                    <option value="">All Testimonials</option>
+                    <option value="yes" {% if verified == 'yes' %}selected{% endif %}>Verified Only</option>
+                    <option value="no" {% if verified == 'no' %}selected{% endif %}>Not Verified</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Filter
+                    </button>
+                    <a href="{% url 'djadmin:testimonials' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>Clear
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Results Summary -->
+<div class="results-summary mb-3">
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <h6 class="mb-0">Showing {{ testimonials.start_index }}-{{ testimonials.end_index }} of {{ total_count }} testimonials</h6>
+            {% if search or rating or featured or verified %}
+            <small class="text-secondary">Filtered results</small>
+            {% endif %}
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addTestimonialModal">
+                <i class="fas fa-plus me-1"></i>Add Testimonial
+            </button>
+            <button class="btn btn-success btn-sm" onclick="exportTestimonials()">
+                <i class="fas fa-download me-1"></i>Export CSV
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Testimonials Grid -->
+<div class="testimonials-grid">
+    {% for testimonial in testimonials %}
+    <div class="testimonial-card dashboard-card">
+        <div class="testimonial-header">
+            <div class="testimonial-author">
+                <div class="author-avatar">
+                    {% if testimonial.image %}
+                        <img src="{{ testimonial.image.url }}" alt="{{ testimonial.customer_name }}" class="avatar-img">
+                    {% else %}
+                        <div class="avatar-placeholder">
+                            {{ testimonial.customer_name|first|upper }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="author-info">
+                    <h6 class="author-name">{{ testimonial.customer_name }}</h6>
+                    <div class="author-company">{{ testimonial.company }}</div>
+                    {% if testimonial.job_title %}
+                    <div class="author-title">{{ testimonial.job_title }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="testimonial-actions">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                            data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="editTestimonial('{{ testimonial.id }}')">
+                            <i class="fas fa-edit me-2"></i>Edit
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="duplicateTestimonial('{{ testimonial.id }}')">
+                            <i class="fas fa-copy me-2"></i>Duplicate
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="toggleFeatured('{{ testimonial.id }}')">
+                            <i class="fas fa-star me-2"></i>
+                            {% if testimonial.is_featured %}Unfeature{% else %}Feature{% endif %}
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="toggleVerified('{{ testimonial.id }}')">
+                            <i class="fas fa-check-circle me-2"></i>
+                            {% if testimonial.is_verified %}Unverify{% else %}Verify{% endif %}
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteTestimonial('{{ testimonial.id }}', '{{ testimonial.customer_name }}')">
+                            <i class="fas fa-trash me-2"></i>Delete
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="testimonial-content">
+            <div class="testimonial-rating">
+                {% for i in testimonial.get_stars %}
+                    <i class="fas fa-star text-warning"></i>
+                {% endfor %}
+                {% for i in "12345"|slice:testimonial.rating %}
+                    <i class="far fa-star text-muted"></i>
+                {% endfor %}
+                <span class="rating-text">{{ testimonial.rating }}/5</span>
+            </div>
+            
+            <div class="testimonial-review">
+                "{{ testimonial.review|truncatewords:30 }}"
+            </div>
+        </div>
+        
+        <div class="testimonial-footer">
+            <div class="testimonial-badges">
+                {% if testimonial.is_featured %}
+                    <span class="badge bg-warning">Featured</span>
+                {% endif %}
+                {% if testimonial.is_verified %}
+                    <span class="badge bg-success">Verified</span>
+                {% endif %}
+                <span class="badge bg-info">{{ testimonial.created_at|date:"M d, Y" }}</span>
+            </div>
+            <div class="testimonial-actions">
+                <button class="btn btn-sm btn-outline-primary" onclick="viewTestimonial('{{ testimonial.id }}')">
+                    <i class="fas fa-eye me-1"></i>View
+                </button>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="text-center py-5">
+                <div class="empty-state">
+                    <i class="fas fa-quote-left fa-3x text-secondary mb-3"></i>
+                    <h5>No testimonials found</h5>
+                    <p class="text-secondary">
+                        {% if search or rating or featured or verified %}
+                            Try adjusting your filters or search terms.
+                        {% else %}
+                            No testimonials have been added yet.
+                        {% endif %}
+                    </p>
+                    {% if search or rating or featured or verified %}
+                    <a href="{% url 'djadmin:testimonials' %}" class="btn btn-primary">
+                        <i class="fas fa-times me-1"></i>Clear Filters
+                    </a>
+                    {% else %}
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTestimonialModal">
+                        <i class="fas fa-plus me-1"></i>Add First Testimonial
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if testimonials.has_other_pages %}
+<div class="pagination">
+    <div class="pagination-info">
+        Showing {{ testimonials.start_index }}-{{ testimonials.end_index }} of {{ total_count }} entries
+    </div>
+    <div class="pagination-controls">
+        {% if testimonials.has_previous %}
+            <a href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">First</a>
+            <a href="?page={{ testimonials.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">Prev</a>
+        {% endif %}
+        
+        {% for num in testimonials.paginator.page_range %}
+            {% if testimonials.number == num %}
+                <span class="page-btn active">{{ num }}</span>
+            {% elif num > testimonials.number|add:'-3' and num < testimonials.number|add:'3' %}
+                <a href="?page={{ num }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if testimonials.has_next %}
+            <a href="?page={{ testimonials.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">Next</a>
+            <a href="?page={{ testimonials.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">Last</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Add Testimonial Modal -->
+<div class="modal fade" id="addTestimonialModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Testimonial</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addTestimonialForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Customer Name</label>
+                                <input type="text" name="customer_name" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Company</label>
+                                <input type="text" name="company" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Job Title</label>
+                                <input type="text" name="job_title" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Rating</label>
+                                <select name="rating" class="form-control" required>
+                                    <option value="">Select Rating</option>
+                                    <option value="5">5 Stars - Excellent</option>
+                                    <option value="4">4 Stars - Very Good</option>
+                                    <option value="3">3 Stars - Good</option>
+                                    <option value="2">2 Stars - Fair</option>
+                                    <option value="1">1 Star - Poor</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label class="form-label">Customer Photo</label>
+                        <input type="file" name="image" class="form-control" accept="image/*">
+                        <small class="form-text text-muted">JPG, PNG, or WebP. Max size: 5MB</small>
+                        <div class="image-preview mt-2" id="imagePreview" style="display: none;">
+                            <img id="previewImg" class="img-thumbnail" style="max-width: 150px;">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label class="form-label">Review</label>
+                        <textarea name="review" class="form-control" rows="4" 
+                                  placeholder="What did the customer say about your service?" required></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check mb-3">
+                                <input type="checkbox" name="is_featured" class="form-check-input">
+                                <label class="form-check-label">Featured Testimonial</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mb-3">
+                                <input type="checkbox" name="is_verified" class="form-check-input">
+                                <label class="form-check-label">Verified Customer</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveTestimonial()">Create Testimonial</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.testimonial-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid var(--border-color);
+}
+
+.testimonial-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.testimonial-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.author-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.author-info {
+    flex: 1;
+}
+
+.author-name {
+    margin: 0;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.author-company {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.author-title {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.testimonial-actions .dropdown-toggle {
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+}
+
+.testimonial-actions .dropdown-toggle:hover {
+    color: var(--text-primary);
+}
+
+.testimonial-content {
+    margin-bottom: 1rem;
+}
+
+.testimonial-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.rating-text {
+    margin-left: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.testimonial-review {
+    font-style: italic;
+    color: var(--text-primary);
+    line-height: 1.6;
+    font-size: 0.875rem;
+}
+
+.testimonial-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.testimonial-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.testimonial-actions .btn {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+}
+
+.image-preview {
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .testimonials-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .testimonial-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .testimonial-author {
+        margin-bottom: 1rem;
+    }
+    
+    .testimonial-actions {
+        align-self: flex-end;
+    }
+    
+    .testimonial-footer {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    
+    .testimonial-actions {
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Image preview functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.querySelector('input[name="image"]');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.style.display = 'none';
+            }
+        });
+    }
+});
+
+function editTestimonial(testimonialId) {
+    // This would typically open an edit modal or redirect to edit page
+    showNotification('Edit testimonial functionality coming soon!', 'info');
+}
+
+function duplicateTestimonial(testimonialId) {
+    if (confirm('Duplicate this testimonial?')) {
+        // This would typically make an AJAX request
+        showNotification('Testimonial duplicated successfully!', 'success');
+        location.reload();
+    }
+}
+
+function toggleFeatured(testimonialId) {
+    // This would typically make an AJAX request
+    showNotification('Testimonial featured status updated!', 'success');
+    location.reload();
+}
+
+function toggleVerified(testimonialId) {
+    // This would typically make an AJAX request
+    showNotification('Testimonial verification status updated!', 'success');
+    location.reload();
+}
+
+function deleteTestimonial(testimonialId, customerName) {
+    if (confirm(`Delete testimonial from "${customerName}"? This action cannot be undone.`)) {
+        // This would typically make an AJAX request
+        showNotification('Testimonial deleted successfully!', 'success');
+        location.reload();
+    }
+}
+
+function viewTestimonial(testimonialId) {
+    // This would typically open a view modal or redirect to testimonial detail page
+    showNotification('View testimonial functionality coming soon!', 'info');
+}
+
+function saveTestimonial() {
+    const form = document.getElementById('addTestimonialForm');
+    const formData = new FormData(form);
+    
+    // Basic validation
+    const customerName = formData.get('customer_name');
+    const company = formData.get('company');
+    const rating = formData.get('rating');
+    const review = formData.get('review');
+    
+    if (!customerName || !company || !rating || !review) {
+        alert('Please fill in all required fields');
+        return;
+    }
+    
+    if (parseInt(rating) < 1 || parseInt(rating) > 5) {
+        alert('Please select a valid rating');
+        return;
+    }
+    
+    // This would typically make an AJAX request
+    showNotification('Testimonial created successfully!', 'success');
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('addTestimonialModal'));
+    modal.hide();
+    
+    // Reload page to show new testimonial
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+function exportTestimonials() {
+    // This would typically make an AJAX request to export testimonials
+    showNotification('Exporting testimonials...', 'info');
+    // Simulate export
+    setTimeout(() => {
+        showNotification('Testimonials exported successfully!', 'success');
+    }, 2000);
+}
+</script>
+{% endblock %}

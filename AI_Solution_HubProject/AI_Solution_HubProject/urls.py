@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.shortcuts import redirect
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
@@ -23,9 +24,23 @@ from Ai_SolutionApp.admin import custom_admin_site
 from Ai_SolutionApp import views
 
 urlpatterns = [
-    path('admin/', custom_admin_site.urls),
+    # Custom Admin Panel
+    path('admin/', include('Ai_SolutionApp.admin_urls')),
+    # Legacy admin-dashboard redirect for backward compatibility
+    path('admin-dashboard/', lambda request: redirect('/admin/')),
+    # Django Admin (fallback)
+    path('django-admin/', admin.site.urls),
     path('', include('Ai_SolutionApp.urls')),
     # Authentication URLs
-    path('accounts/login/', auth_views.LoginView.as_view(template_name='admin/login.html'), name='login'),
+    path('accounts/login/', views.custom_login, name='login'),
     path('accounts/logout/', views.custom_logout, name='logout'),
+    # Password reset URLs (using Django default templates for now)
+    path('accounts/password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('accounts/password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('accounts/reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('accounts/reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 ]
+
+# Serve media files during development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

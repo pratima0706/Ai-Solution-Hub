@@ -4,216 +4,282 @@
 
 {% block content %}
 <!-- Hero Section -->
-<section class="relative bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 text-white py-16">
-    <div class="absolute inset-0 bg-black opacity-20"></div>
+<section class="relative hero-landing hero-landing-overlay py-20">
+    <div class="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-purple-900/10 to-indigo-900/10"></div>
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h1 class="text-4xl md:text-6xl font-bold mb-6">
-            Get in <span class="gradient-text">Touch</span>
+        <div class="inline-block bg-[var(--card)] text-[var(--text)] px-4 py-2 rounded-lg text-sm font-semibold mb-4 border border-[var(--border)]">
+            CONTACT US
+        </div>
+        <h1 class="text-5xl md:text-6xl font-bold mb-6 text-white">
+            Contact us today
         </h1>
-        <p class="text-xl text-indigo-100 max-w-3xl mx-auto">
+        <p class="text-lg text-blue-100 max-w-3xl mx-auto leading-relaxed">
             Ready to transform your business with AI? Let's discuss your project requirements and explore how we can help you achieve your goals.
         </p>
     </div>
 </section>
 
-<!-- Contact Form Section -->
-<section class="py-20 bg-gray-50 dark:bg-gray-800">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <!-- Contact Form -->
-            <div class="bg-white dark:bg-gray-700 rounded-3xl shadow-2xl p-8 border border-gray-200 dark:border-gray-600">
-                <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-                    Send Us a <span class="gradient-text">Message</span>
-                </h2>
-                
-                <form method="post" class="space-y-6">
-                    {% csrf_token %}
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="{{ form.name.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                Full Name <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" 
-                                   name="{{ form.name.name }}" 
-                                   id="{{ form.name.id_for_label }}" 
-                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-800 dark:text-white transition-all duration-200"
-                                   placeholder="Enter your full name"
-                                   required>
-                            {% if form.name.errors %}
-                            <p class="text-red-500 text-sm mt-1">{{ form.name.errors.0 }}</p>
-                            {% endif %}
-                        </div>
-                        
-                        <div>
-                            <label for="{{ form.email.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                Email Address <span class="text-red-500">*</span>
-                            </label>
-                            <input type="email" 
-                                   name="{{ form.email.name }}" 
-                                   id="{{ form.email.id_for_label }}" 
-                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-800 dark:text-white transition-all duration-200"
-                                   placeholder="Enter your email address"
-                                   required>
-                            {% if form.email.errors %}
-                            <p class="text-red-500 text-sm mt-1">{{ form.email.errors.0 }}</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="{{ form.phone.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                Phone Number
-                            </label>
-                            <input type="tel" 
-                                   name="{{ form.phone.name }}" 
-                                   id="{{ form.phone.id_for_label }}" 
-                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-800 dark:text-white transition-all duration-200"
-                                   placeholder="Enter your phone number">
-                            {% if form.phone.errors %}
-                            <p class="text-red-500 text-sm mt-1">{{ form.phone.errors.0 }}</p>
-                            {% endif %}
-                        </div>
-                        
-                        <div>
-                            <label for="{{ form.company.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                Company Name
-                            </label>
-                            <input type="text" 
-                                   name="{{ form.company.name }}" 
-                                   id="{{ form.company.id_for_label }}" 
-                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-800 dark:text-white transition-all duration-200"
-                                   placeholder="Enter your company name">
-                            {% if form.company.errors %}
-                            <p class="text-red-500 text-sm mt-1">{{ form.company.errors.0 }}</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label for="{{ form.subject.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                            Subject <span class="text-red-500">*</span>
-                        </label>
-                        <select name="{{ form.subject.name }}" 
-                                id="{{ form.subject.id_for_label }}" 
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-800 dark:text-white transition-all duration-200"
-                                required>
-                            <option value="">Select a subject</option>
-                            <option value="general">General Inquiry</option>
-                            <option value="services">AI Services</option>
-                            <option value="consultation">Free Consultation</option>
-                            <option value="partnership">Partnership Opportunity</option>
-                            <option value="support">Technical Support</option>
-                            <option value="other">Other</option>
-                        </select>
-                        {% if form.subject.errors %}
-                        <p class="text-red-500 text-sm mt-1">{{ form.subject.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-                    
-                    <div>
-                        <label for="{{ form.message.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                            Message <span class="text-red-500">*</span>
-                        </label>
-                        <textarea name="{{ form.message.name }}" 
-                                  id="{{ form.message.id_for_label }}" 
-                                  rows="6"
-                                  class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-800 dark:text-white transition-all duration-200 resize-none"
-                                  placeholder="Tell us about your project, requirements, or any questions you have..."
-                                  required></textarea>
-                        {% if form.message.errors %}
-                        <p class="text-red-500 text-sm mt-1">{{ form.message.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Honeypot field (hidden) -->
-                    <div class="hidden">
-                        {{ form.honeypot }}
-                    </div>
-                    
-                    <div class="text-center">
-                        <button type="submit" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-12 py-4 rounded-full text-lg font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                            <i class="fas fa-paper-plane mr-2"></i>
-                            Send Message
-                        </button>
-                    </div>
-                </form>
+<!-- Contact Options Section -->
+<section class="py-16 bg-[var(--bg)]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Email Option -->
+            <div class="bg-[var(--card)] rounded-2xl p-8 border border-[var(--border)] hover:shadow-lg transition-all duration-300 text-center group contact-container">
+                <div class="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-envelope text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-[var(--text)] mb-2">Send us a message</h3>
+                <p class="text-[var(--text-secondary)] mb-4">Get in touch with our team for any inquiries or support needs.</p>
+                <a href="mailto:contact@aisolutionhub.com?subject=Inquiry from AI Solution Hub Website&body=Hello, I would like to get in touch regarding..." 
+                   class="text-blue-400 font-semibold hover:text-blue-300 transition-colors inline-flex items-center">
+                    <i class="fas fa-envelope mr-2"></i>
+                    contact@aisolutionhub.com
+                </a>
             </div>
             
-            <!-- Contact Information -->
-            <div class="space-y-8">
-                <div>
-                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-                        Let's <span class="gradient-text">Connect</span>
+            <!-- Phone Option -->
+            <div class="bg-[var(--card)] rounded-2xl p-8 border border-[var(--border)] hover:shadow-lg transition-all duration-300 text-center group contact-container">
+                <div class="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-phone text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-[var(--text)] mb-2">Give us a call</h3>
+                <p class="text-[var(--text-secondary)] mb-4">Speak directly with our experts for immediate assistance.</p>
+                <a href="tel:+441912345678" 
+                   class="text-blue-400 font-semibold hover:text-blue-300 transition-colors inline-flex items-center">
+                    <i class="fas fa-phone mr-2"></i>
+                    +44 191 234 5678
+                </a>
+            </div>
+            
+            <!-- Live Chat Option -->
+            <div class="bg-[var(--card)] rounded-2xl p-8 border border-[var(--border)] hover:shadow-lg transition-all duration-300 text-center group contact-container">
+                <div class="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-600 transition-colors cursor-pointer" onclick="showComingSoonPopup()">
+                    <i class="fas fa-comments text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-[var(--text)] mb-2">Live chat</h3>
+                <p class="text-[var(--text-secondary)] mb-4">Chat with us in real-time for instant support and answers.</p>
+                <button onclick="showComingSoonPopup()" class="text-blue-400 font-semibold hover:text-blue-300 transition-colors cursor-pointer inline-flex items-center">
+                    <i class="fas fa-comments mr-2"></i>
+                    Chat with us →
+                </button>
+            </div>
+            
+            <!-- Address Option -->
+            <div class="bg-[var(--card)] rounded-2xl p-8 border border-[var(--border)] hover:shadow-lg transition-all duration-300 text-center group contact-container">
+                <div class="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-map-marker-alt text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-[var(--text)] mb-2">Visit us</h3>
+                <p class="text-[var(--text-secondary)] mb-4">Come and meet our team at our office location.</p>
+                <a href="https://maps.google.com/?q=Sunderland+SR1+3SD+UK" 
+                   target="_blank"
+                   class="text-blue-400 font-semibold hover:text-blue-300 transition-colors inline-flex items-center">
+                    <i class="fas fa-map-marker-alt mr-2"></i>
+                    Sunderland, UK
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Form Section -->
+<section class="py-16 bg-[var(--bg)]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4"> <!-- Increased gap from 12 to 20 -->
+            <!-- Contact Form -->
+            <div class="backdrop-blur-xl bg-white/10 dark:bg-slate-900/60 rounded-3xl p-16 border border-[var(--border)] shadow-2xl relative overflow-hidden min-w-[420px] max-w-2xl mx-auto"> <!-- Increased p-12 to p-16, set min/max width -->
+                <div class="absolute inset-0 pointer-events-none rounded-3xl" style="background: radial-gradient(ellipse at 80% 0%, rgba(59,130,246,0.10) 0%, transparent 70%), radial-gradient(ellipse at 0% 100%, rgba(139,92,246,0.10) 0%, transparent 70%);"></div>
+                <div class="relative z-10">
+                    <div class="inline-block bg-[var(--card)] text-[var(--text)] px-4 py-2 rounded-lg text-sm font-semibold mb-4 border border-[var(--border)] shadow">
+                        GET IN TOUCH
+                    </div>
+                    <h2 class="text-4xl font-extrabold text-[var(--text)] mb-4 tracking-tight">
+                        Send us a message
                     </h2>
-                    <p class="text-lg text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
-                        We're here to help you navigate the world of AI and find the perfect solutions for your business needs. Reach out to us through any of the channels below.
+                    <p class="text-[var(--text-secondary)] mb-10 text-lg">
+                        Ready to transform your business with AI? Let's discuss your project requirements and explore how we can help you achieve your goals.
                     </p>
+                    <form method="post" class="space-y-8 contact-form" id="contactForm">
+                        {% csrf_token %}
+                        {% if form.non_field_errors %}
+                        <div class="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg">
+                            {% for err in form.non_field_errors %}
+                            <p class="text-sm">{{ err }}</p>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="field-group relative">
+                                <input type="text" name="{{ form.name.name }}" id="{{ form.name.id_for_label }}" class="w-full px-4 py-4 bg-white/80 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-lg text-gray-900 dark:text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 peer" placeholder="Full Name" required />
+                                <label for="{{ form.name.id_for_label }}" class="floating-label">Full name <span class="text-red-500">*</span></label>
+                                {% if form.name.errors %}
+                                <p class="text-red-500 text-sm mt-1">{{ form.name.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="field-group relative">
+                                <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" class="w-full px-4 py-4 bg-white/80 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-lg text-gray-900 dark:text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 peer" placeholder="Email Address" required />
+                                <label for="{{ form.email.id_for_label }}" class="floating-label">Email address <span class="text-red-500">*</span></label>
+                                {% if form.email.errors %}
+                                <p class="text-red-500 text-sm mt-1">{{ form.email.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="field-group relative">
+                                <div class="flex">
+                                    <select id="countryCode" class="w-24 min-w-[80px] max-w-[100px] px-3 py-4 bg-white/80 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-l-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200">
+                                        <option value="+1">🇺🇸 +1</option>
+                                        <option value="+44" selected>🇬🇧 +44</option>
+                                        <option value="+49">🇩🇪 +49</option>
+                                        <option value="+33">🇫🇷 +33</option>
+                                        <option value="+31">🇳🇱 +31</option>
+                                        <option value="+353">🇮🇪 +353</option>
+                                        <option value="+34">🇪🇸 +34</option>
+                                        <option value="+39">🇮🇹 +39</option>
+                                        <option value="+46">🇸🇪 +46</option>
+                                        <option value="+47">🇳🇴 +47</option>
+                                        <option value="+45">🇩🇰 +45</option>
+                                        <option value="+358">🇫🇮 +358</option>
+                                        <option value="+41">🇨🇭 +41</option>
+                                        <option value="+43">🇦🇹 +43</option>
+                                        <option value="+32">🇧🇪 +32</option>
+                                        <option value="+1">🇨🇦 +1</option>
+                                        <option value="+61">🇦🇺 +61</option>
+                                        <option value="+81">🇯🇵 +81</option>
+                                        <option value="+91">🇮🇳 +91</option>
+                                        <option value="+55">🇧🇷 +55</option>
+                                        <option value="+52">🇲🇽 +52</option>
+                                        <option value="+351">🇵🇹 +351</option>
+                                        <option value="+30">🇬🇷 +30</option>
+                                        <option value="+48">🇵🇱 +48</option>
+                                        <option value="+420">🇨🇿 +420</option>
+                                        <option value="+36">🇭🇺 +36</option>
+                                        <option value="+40">🇷🇴 +40</option>
+                                        <option value="+359">🇧🇬 +359</option>
+                                        <option value="+385">🇭🇷 +385</option>
+                                        <option value="+386">🇸🇮 +386</option>
+                                        <option value="+421">🇸🇌 +421</option>
+                                        <option value="+370">🇱🇹 +370</option>
+                                        <option value="+371">🇱🇻 +371</option>
+                                        <option value="+372">🇪🇪 +372</option>
+                                        <option value="+352">🇱🇺 +352</option>
+                                        <option value="+356">🇲🇹 +356</option>
+                                        <option value="+357">🇨🇾 +357</option>
+                                    </select>
+                                    <input type="tel" name="{{ form.phone.name }}" id="{{ form.phone.id_for_label }}" class="flex-1 px-4 py-4 bg-white/80 dark:bg-slate-800/80 border-t border-b border-r border-slate-300 dark:border-slate-700 rounded-r-lg text-gray-900 dark:text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 peer" placeholder="10 digit number" maxlength="10" pattern="[0-9]{10}" required />
+                                </div>
+                                <label for="{{ form.phone.id_for_label }}" class="floating-label">Phone number <span class="text-red-500">*</span></label>
+                                {% if form.phone.errors %}
+                                <p class="text-red-500 text-sm mt-1">{{ form.phone.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="field-group relative">
+                                <input type="text" name="{{ form.company.name }}" id="{{ form.company.id_for_label }}" class="w-full px-4 py-4 bg-white/80 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-lg text-gray-900 dark:text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 peer" placeholder="Company" required />
+                                <label for="{{ form.company.id_for_label }}" class="floating-label">Company <span class="text-red-500">*</span></label>
+                                {% if form.company.errors %}
+                                <p class="text-red-500 text-sm mt-1">{{ form.company.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="field-group relative">
+                                <select name="{{ form.country.name }}" id="{{ form.country.id_for_label }}" class="w-full px-4 py-4 bg-white/80 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 peer" required>
+                                    <option value="" disabled selected class="text-gray-400">Select your country</option>
+                                    <option value="GB">United Kingdom</option>
+                                    <option value="US">United States</option>
+                                    <option value="DE">Germany</option>
+                                    <option value="FR">France</option>
+                                    <option value="NL">Netherlands</option>
+                                    <option value="IE">Ireland</option>
+                                    <option value="ES">Spain</option>
+                                    <option value="IT">Italy</option>
+                                    <option value="SE">Sweden</option>
+                                    <option value="NO">Norway</option>
+                                    <option value="DK">Denmark</option>
+                                    <option value="FI">Finland</option>
+                                    <option value="CH">Switzerland</option>
+                                    <option value="AT">Austria</option>
+                                    <option value="BE">Belgium</option>
+                                    <option value="CA">Canada</option>
+                                    <option value="AU">Australia</option>
+                                    <option value="JP">Japan</option>
+                                    <option value="IN">India</option>
+                                    <option value="BR">Brazil</option>
+                                    <option value="MX">Mexico</option>
+                                    <option value="PT">Portugal</option>
+                                    <option value="GR">Greece</option>
+                                    <option value="PL">Poland</option>
+                                    <option value="CZ">Czech Republic</option>
+                                    <option value="HU">Hungary</option>
+                                    <option value="RO">Romania</option>
+                                    <option value="BG">Bulgaria</option>
+                                    <option value="HR">Croatia</option>
+                                    <option value="SI">Slovenia</option>
+                                    <option value="SK">Slovakia</option>
+                                    <option value="LT">Lithuania</option>
+                                    <option value="LV">Latvia</option>
+                                    <option value="EE">Estonia</option>
+                                    <option value="LU">Luxembourg</option>
+                                    <option value="MT">Malta</option>
+                                    <option value="CY">Cyprus</option>
+                                    <option value="NP">Nepal</option>
+                                    <option value="OTHER">Other (Please specify)</option>
+                                </select>
+                                <label for="{{ form.country.id_for_label }}" class="floating-label">Country <span class="text-red-500">*</span></label>
+                                {% if form.country.errors %}
+                                <p class="text-red-500 text-sm mt-1">{{ form.country.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="field-group relative">
+                                <input type="text" name="{{ form.job_title.name }}" id="{{ form.job_title.id_for_label }}" class="w-full px-4 py-4 bg-white/80 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-lg text-gray-900 dark:text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 peer" placeholder="Job Title" required />
+                                <label for="{{ form.job_title.id_for_label }}" class="floating-label">Job Title <span class="text-red-500">*</span></label>
+                                {% if form.job_title.errors %}
+                                <p class="text-red-500 text-sm mt-1">{{ form.job_title.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <!-- Other Country Input (hidden by default) -->
+                        <div id="otherCountryDiv" class="hidden field-group relative">
+                            <input type="text" name="other_country" id="other_country" class="w-full px-4 py-4 bg-white/80 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-lg text-gray-900 dark:text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 peer" placeholder="Enter your country name" />
+                            <label for="other_country" class="floating-label">Please specify your country <span class="text-red-500">*</span></label>
+                        </div>
+                        <div class="field-group relative">
+                            <textarea name="{{ form.job_details.name }}" id="{{ form.job_details.id_for_label }}" rows="6" class="w-full px-4 py-4 bg-white/80 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-lg text-gray-900 dark:text-white placeholder-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 peer resize-none" placeholder="Message" required></textarea>
+                            <label for="{{ form.job_details.id_for_label }}" class="floating-label">Message <span class="text-red-500">*</span></label>
+                            {% if form.job_details.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ form.job_details.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <!-- Honeypot field (hidden) -->
+                        <div class="hidden">
+                            {{ form.website }}
+                        </div>
+                        <div class="text-center pt-2">
+                            <button type="submit" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-10 py-4 rounded-xl text-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center mx-auto gap-3">
+                                <i class="fas fa-paper-plane"></i>
+                                Send Message
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                
-                <!-- Contact Methods -->
-                <div class="space-y-6">
-                    <div class="flex items-start">
-                        <div class="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
-                            <i class="fas fa-envelope text-white"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Email Us</h3>
-                            <p class="text-gray-600 dark:text-gray-300 mb-2">info@aisolutionhub.com</p>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">We typically respond within 24 hours</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-start">
-                        <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
-                            <i class="fas fa-phone text-white"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Call Us</h3>
-                            <p class="text-gray-600 dark:text-gray-300 mb-2">+1 (555) 123-4567</p>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Mon-Fri: 9:00 AM - 6:00 PM EST</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-start">
-                        <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
-                            <i class="fas fa-map-marker-alt text-white"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Visit Us</h3>
-                            <p class="text-gray-600 dark:text-gray-300 mb-2">123 AI Street, Tech City, TC 12345</p>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">United States</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-start">
-                        <div class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
-                            <i class="fas fa-clock text-white"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Business Hours</h3>
-                            <p class="text-gray-600 dark:text-gray-300 mb-2">Monday - Friday: 9:00 AM - 6:00 PM EST</p>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Weekend consultations available by appointment</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Social Media -->
+            </div>
+            <!-- Social Media Section -->
+            <div class="space-y-20">
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Follow Us</h3>
+                    <h3 class="text-2xl font-bold text-white mb-4">Follow us on social media</h3>
+                    <p class="text-gray-300 mb-6">Stay connected for the latest updates and insights</p>
                     <div class="flex space-x-4">
-                        <a href="#" class="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white hover:scale-110 transition-transform duration-200">
-                            <i class="fab fa-linkedin-in"></i>
+                        <a href="#" class="w-14 h-14 bg-slate-800 hover:bg-blue-600 rounded-full flex items-center justify-center text-white transition-all duration-200 transform hover:scale-110 shadow-lg">
+                            <i class="fab fa-facebook-f text-xl"></i>
                         </a>
-                        <a href="#" class="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center text-white hover:scale-110 transition-transform duration-200">
-                            <i class="fab fa-twitter"></i>
+                        <a href="#" class="w-14 h-14 bg-slate-800 hover:bg-blue-600 rounded-full flex items-center justify-center text-white transition-all duration-200 transform hover:scale-110 shadow-lg">
+                            <i class="fab fa-twitter text-xl"></i>
                         </a>
-                        <a href="#" class="w-12 h-12 bg-gradient-to-r from-pink-500 to-pink-600 rounded-xl flex items-center justify-center text-white hover:scale-110 transition-transform duration-200">
-                            <i class="fab fa-instagram"></i>
+                        <a href="#" class="w-14 h-14 bg-slate-800 hover:bg-blue-600 rounded-full flex items-center justify-center text-white transition-all duration-200 transform hover:scale-110 shadow-lg">
+                            <i class="fab fa-instagram text-xl"></i>
                         </a>
-                        <a href="#" class="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center text-white hover:scale-110 transition-transform duration-200">
-                            <i class="fab fa-youtube"></i>
+                        <a href="#" class="w-14 h-14 bg-slate-800 hover:bg-blue-600 rounded-full flex items-center justify-center text-white transition-all duration-200 transform hover:scale-110 shadow-lg">
+                            <i class="fab fa-linkedin-in text-xl"></i>
                         </a>
                     </div>
                 </div>
@@ -223,106 +289,452 @@
 </section>
 
 <!-- FAQ Section -->
-<section class="py-20 bg-white dark:bg-gray-900">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+<section class="relative py-20 faq-bg">
+    <!-- Background Overlay -->
+    <div class="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-purple-900/80 to-indigo-900/80"></div>
+    
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-                Frequently Asked <span class="gradient-text">Questions</span>
+            <div class="inline-block bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-lg text-sm font-semibold mb-4 border border-white/20">
+                FAQS
+            </div>
+            <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                Frequently asked questions
             </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300">
-                Get quick answers to common questions about working with us.
+            <p class="text-blue-100 text-lg max-w-3xl mx-auto leading-relaxed">
+                Get quick answers to common questions about working with us and our AI solutions.
             </p>
         </div>
         
-        <div class="space-y-6">
-            <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">How quickly can you start working on my project?</h3>
-                <p class="text-gray-600 dark:text-gray-300">We can typically begin project planning within 1-2 weeks of initial contact. The actual start date depends on project complexity and our current capacity.</p>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="space-y-6">
+                <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/15 transition-all duration-300">
+                    <h3 class="text-xl font-bold text-white mb-4">Does AI+ offer a free trial?</h3>
+                    <p class="text-blue-100 leading-relaxed">Yes, we offer a 14-day free trial for all our AI solutions. You can explore our platform and see how it can benefit your business without any commitment.</p>
+                </div>
+                
+                <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/15 transition-all duration-300">
+                    <h3 class="text-xl font-bold text-white mb-4">Do you currently have open positions?</h3>
+                    <p class="text-blue-100 leading-relaxed">We're always looking for talented individuals to join our team. Check our careers page for current openings and opportunities to work with cutting-edge AI technology.</p>
+                </div>
             </div>
-            <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Do you offer free consultations?</h3>
-                <p class="text-gray-600 dark:text-gray-300">Yes! We offer a complimentary 30-minute consultation to discuss your project requirements and explore potential AI solutions for your business.</p>
-            </div>
-            <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">What industries do you specialize in?</h3>
-                <p class="text-gray-600 dark:text-gray-300">We have experience across multiple industries including healthcare, finance, e-commerce, manufacturing, and more. Our AI solutions are adaptable to any sector.</p>
-            </div>
-            <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">How do you ensure data security and privacy?</h3>
-                <p class="text-gray-600 dark:text-gray-300">We implement enterprise-grade security measures including encryption, secure data transmission, and compliance with industry standards like GDPR and HIPAA.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Call to Action Section -->
-<section class="py-20 bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 text-white">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-4xl md:text-5xl font-bold mb-6">
-            Ready to Get Started?
-        </h2>
-        <p class="text-xl mb-8 text-indigo-100 max-w-3xl mx-auto">
-            Don't wait to transform your business with AI. Contact us today and take the first step towards a more intelligent, efficient, and competitive future.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="#contact-form" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                Start Your Project
-            </a>
-            <a href="{% url 'ai_solution_app:services' %}" class="border-2 border-white text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white hover:text-indigo-900 transition-all duration-300 transform hover:scale-105">
-                Explore Services
-            </a>
-        </div>
-    </div>
-</section>
-
-<!-- JavaScript for Form Enhancement -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form');
-    const submitButton = form.querySelector('button[type="submit"]');
-    
-    // Form validation and enhancement
-    form.addEventListener('submit', function(e) {
-        // Show loading state
-        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
-        submitButton.disabled = true;
-        
-        // Simulate form submission (remove this in production)
-        setTimeout(() => {
-            submitButton.innerHTML = '<i class="fas fa-check mr-2"></i>Message Sent!';
-            submitButton.classList.remove('from-indigo-500', 'to-purple-600');
-            submitButton.classList.add('from-green-500', 'to-green-600');
             
-            // Reset form after 3 seconds
-            setTimeout(() => {
-                form.reset();
-                submitButton.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Send Message';
-                submitButton.disabled = false;
-                submitButton.classList.remove('from-green-500', 'to-green-600');
-                submitButton.classList.add('from-indigo-500', 'to-purple-600');
-            }, 3000);
-        }, 2000);
+            <div class="space-y-6">
+                <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/15 transition-all duration-300">
+                    <h3 class="text-xl font-bold text-white mb-4">How quickly can you start working on my project?</h3>
+                    <p class="text-blue-100 leading-relaxed">We can typically begin project planning within 1-2 weeks of initial contact. The actual start date depends on project complexity and our current capacity.</p>
+                </div>
+                
+                <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/15 transition-all duration-300">
+                    <h3 class="text-xl font-bold text-white mb-4">What industries do you specialize in?</h3>
+                    <p class="text-blue-100 leading-relaxed">We have experience across multiple industries including healthcare, finance, e-commerce, manufacturing, and more. Our AI solutions are adaptable to any sector.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Coming Soon Popup Modal -->
+<div id="comingSoonModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl p-8 max-w-md mx-4 text-center shadow-2xl">
+        <div class="w-20 h-20 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-robot text-blue-600 dark:text-blue-400 text-3xl"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Feature Coming Soon!</h3>
+        <p class="text-gray-600 dark:text-gray-300 mb-6">Our AI-powered live chat feature is currently in development. We're working hard to bring you an amazing experience!</p>
+        <div class="flex space-x-4">
+            <button onclick="closeComingSoonPopup()" class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                Close
+            </button>
+            <button onclick="closeComingSoonPopup(); document.getElementById('contactForm').scrollIntoView({behavior: 'smooth'});" class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                Contact Us Instead
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Message Popup -->
+<div id="messagePopup" class="fixed top-4 right-4 z-50 hidden">
+    <div id="messageContent" class="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 max-w-sm border-l-4">
+        <div class="flex items-center">
+            <div id="messageIcon" class="flex-shrink-0 mr-3">
+                <i class="fas fa-check-circle text-green-500 text-xl"></i>
+            </div>
+            <div class="flex-1">
+                <p id="messageText" class="text-sm font-medium text-gray-900 dark:text-white"></p>
+            </div>
+            <button onclick="closeMessagePopup()" class="ml-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Enhanced form styling */
+.contact-form input:focus,
+.contact-form textarea:focus,
+.contact-form select:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.contact-form input.error,
+.contact-form textarea.error,
+.contact-form select.error {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.contact-form .required-asterisk {
+    color: #ef4444;
+    font-weight: bold;
+}
+
+.contact-form .field-group {
+    position: relative;
+}
+
+.contact-form .floating-label {
+    position: absolute;
+    top: 12px;
+    left: 16px;
+    color: #9ca3af;
+    transition: all 0.2s ease;
+    pointer-events: none;
+    background: #1e293b;
+    padding: 0 4px;
+}
+
+.contact-form input:focus + .floating-label,
+.contact-form input:not(:placeholder-shown) + .floating-label,
+.contact-form textarea:focus + .floating-label,
+.contact-form textarea:not(:placeholder-shown) + .floating-label {
+    top: -8px;
+    left: 12px;
+    font-size: 12px;
+    color: #3b82f6;
+}
+
+/* Country dropdown styling */
+.contact-form select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+/* Phone number formatting animation */
+.contact-form input[type="tel"] {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.5px;
+}
+
+/* Success state styling */
+.contact-form input:valid:not(:placeholder-shown),
+.contact-form textarea:valid:not(:placeholder-shown),
+.contact-form select:valid {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Loading state for submit button */
+.contact-form button[type="submit"]:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.contact-form button[type="submit"]:disabled::after {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+    margin-left: 8px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Error message styling */
+.error-message {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* FAQ background image */
+.faq-bg {
+    background-image: url('/static/images/backgrounds/frequentQuesition.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+/* Contact container hover effects */
+.contact-container {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.contact-container:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.dark .contact-container:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Popup functions
+function showComingSoonPopup() {
+    document.getElementById('comingSoonModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeComingSoonPopup() {
+    document.getElementById('comingSoonModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+function showMessagePopup(message, type = 'success') {
+    const popup = document.getElementById('messagePopup');
+    const content = document.getElementById('messageContent');
+    const icon = document.getElementById('messageIcon');
+    const text = document.getElementById('messageText');
+    
+    // Set message text
+    text.textContent = message;
+    
+    // Set icon and colors based on type
+    if (type === 'success') {
+        icon.innerHTML = '<i class="fas fa-check-circle text-green-500 text-xl"></i>';
+        content.className = 'bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 max-w-sm border-l-4 border-green-500';
+    } else {
+        icon.innerHTML = '<i class="fas fa-exclamation-circle text-red-500 text-xl"></i>';
+        content.className = 'bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 max-w-sm border-l-4 border-red-500';
+    }
+    
+    // Show popup
+    popup.classList.remove('hidden');
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        closeMessagePopup();
+    }, 5000);
+}
+
+function closeMessagePopup() {
+    document.getElementById('messagePopup').classList.add('hidden');
+}
+
+// Close popups when clicking outside
+document.addEventListener('click', function(e) {
+    const comingSoonModal = document.getElementById('comingSoonModal');
+    if (e.target === comingSoonModal) {
+        closeComingSoonPopup();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Country selection functionality
+    var countrySelect = document.getElementById('{{ form.country.id_for_label }}');
+    const otherCountryDiv = document.getElementById('otherCountryDiv');
+    const otherCountryInput = document.getElementById('other_country');
+    
+    // Show/hide other country input based on selection
+    countrySelect.addEventListener('change', function() {
+        if (this.value === 'OTHER') {
+            otherCountryDiv.classList.remove('hidden');
+            otherCountryInput.required = true;
+        } else {
+            otherCountryDiv.classList.add('hidden');
+            otherCountryInput.required = false;
+            otherCountryInput.value = '';
+        }
     });
     
-    // Real-time form validation
-    const inputs = form.querySelectorAll('input, textarea, select');
+    // Form validation and styling
+    const form = document.getElementById('contactForm');
+    const inputs = form.querySelectorAll('input[required], textarea[required], select[required]');
+    
+    // Add focus/blur effects for better UX
     inputs.forEach(input => {
+        // Remove placeholder text when focused
+        input.addEventListener('focus', function() {
+            this.classList.add('ring-2', 'ring-blue-500');
+            this.classList.remove('ring-red-500');
+        });
+        
+        // Add validation styling on blur
         input.addEventListener('blur', function() {
             if (this.hasAttribute('required') && !this.value.trim()) {
-                this.classList.add('border-red-500');
-                this.classList.remove('border-gray-300', 'dark:border-gray-600');
+                this.classList.add('ring-red-500', 'border-red-500');
+                this.classList.remove('ring-blue-500');
             } else {
-                this.classList.remove('border-red-500');
-                this.classList.add('border-gray-300', 'dark:border-gray-600');
+                this.classList.remove('ring-red-500', 'border-red-500');
+                this.classList.add('ring-blue-500');
             }
         });
         
+        // Real-time validation as user types
         input.addEventListener('input', function() {
-            if (this.classList.contains('border-red-500') && this.value.trim()) {
-                this.classList.remove('border-red-500');
-                this.classList.add('border-gray-300', 'dark:border-gray-600');
+            if (this.value.trim()) {
+                this.classList.remove('ring-red-500', 'border-red-500');
+                this.classList.add('ring-blue-500');
             }
         });
+    });
+    
+    // Form submission validation
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        let errorMessages = [];
+        
+        // Check all required fields
+        inputs.forEach(input => {
+            if (input.hasAttribute('required') && !input.value.trim()) {
+                input.classList.add('ring-red-500', 'border-red-500');
+                isValid = false;
+                const fieldName = input.previousElementSibling.textContent.replace('*', '').trim();
+                errorMessages.push(`${fieldName} is required`);
+            }
+        });
+        
+        // Special validation for country selection
+        if (countrySelect.value === 'OTHER' && !otherCountryInput.value.trim()) {
+            otherCountryInput.classList.add('ring-red-500', 'border-red-500');
+            isValid = false;
+            errorMessages.push('Please specify your country');
+        }
+        
+        // Email validation
+        const emailInput = document.getElementById('{{ form.email.id_for_label }}');
+        if (emailInput.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
+            emailInput.classList.add('ring-red-500', 'border-red-500');
+            isValid = false;
+            errorMessages.push('Please enter a valid email address');
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            // Show error popup
+            showMessagePopup(errorMessages.join(', '), 'error');
+            // Scroll to first error field
+            const firstError = form.querySelector('.ring-red-500');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        } else {
+            // Combine country code and phone number before submission
+            const countryCode = countryCodeSelect.value;
+            const phoneNumber = phoneInput.value;
+            
+            if (phoneNumber && phoneNumber.length === 10) {
+                // Create a hidden input with the full phone number
+                const fullPhoneInput = document.createElement('input');
+                fullPhoneInput.type = 'hidden';
+                fullPhoneInput.name = 'phone';
+                fullPhoneInput.value = countryCode + phoneNumber;
+                
+                // Remove the original phone input
+                phoneInput.remove();
+                
+                // Add the new input
+                form.appendChild(fullPhoneInput);
+            }
+            // Allow normal submit to server for real validation and messages
+        }
+    });
+    
+    // Country code and phone number functionality
+    // Remove duplicate declaration of countrySelect
+    // const countrySelect = document.getElementById('{{ form.country.id_for_label }}');
+    const countryCodeSelect = document.getElementById('countryCode');
+    const phoneInput = document.getElementById('{{ form.phone.id_for_label }}');
+    
+    // Country to country code mapping
+    const countryCodeMap = {
+        'US': '+1', 'CA': '+1', 'GB': '+44', 'DE': '+49', 'FR': '+33', 'NL': '+31',
+        'IE': '+353', 'ES': '+34', 'IT': '+39', 'SE': '+46', 'NO': '+47', 'DK': '+45',
+        'FI': '+358', 'CH': '+41', 'AT': '+43', 'BE': '+32', 'AU': '+61', 'JP': '+81',
+        'IN': '+91', 'BR': '+55', 'MX': '+52', 'PT': '+351', 'GR': '+30', 'PL': '+48',
+        'CZ': '+420', 'HU': '+36', 'RO': '+40', 'BG': '+359', 'HR': '+385', 'SI': '+386',
+        'SK': '+421', 'LT': '+370', 'LV': '+371', 'EE': '+372', 'LU': '+352', 'MT': '+356', 'CY': '+357'
+    };
+    
+    // Update country code when country changes
+    countrySelect.addEventListener('change', function() {
+        const selectedCountry = this.value;
+        if (countryCodeMap[selectedCountry]) {
+            countryCodeSelect.value = countryCodeMap[selectedCountry];
+        }
+    });
+    
+    // Update country when country code changes
+    countryCodeSelect.addEventListener('change', function() {
+        const selectedCode = this.value;
+        for (const [country, code] of Object.entries(countryCodeMap)) {
+            if (code === selectedCode) {
+                countrySelect.value = country;
+                break;
+            }
+        }
+    });
+    
+    // Format phone number input (only allow digits)
+    phoneInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        if (this.value.length > 10) {
+            this.value = this.value.slice(0, 10);
+        }
+    });
+    
+    // Set initial country code based on selected country
+    if (countrySelect.value && countryCodeMap[countrySelect.value]) {
+        countryCodeSelect.value = countryCodeMap[countrySelect.value];
+    }
+    
+    // Email validation with visual feedback
+    const emailInput = document.getElementById('{{ form.email.id_for_label }}');
+    emailInput.addEventListener('blur', function() {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (this.value && !emailRegex.test(this.value)) {
+            this.classList.add('ring-red-500', 'border-red-500');
+            // Show error message
+            let errorMsg = this.parentNode.querySelector('.email-error');
+            if (!errorMsg) {
+                errorMsg = document.createElement('p');
+                errorMsg.className = 'email-error text-red-500 text-sm mt-1';
+                errorMsg.textContent = 'Please enter a valid email address';
+                this.parentNode.appendChild(errorMsg);
+            }
+        } else {
+            this.classList.remove('ring-red-500', 'border-red-500');
+            const errorMsg = this.parentNode.querySelector('.email-error');
+            if (errorMsg) {
+                errorMsg.remove();
+            }
+        }
     });
 });
 </script>

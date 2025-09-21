@@ -1,64 +1,100 @@
 {% extends 'ai_solution_app/base.html' %}
+{% load static %}
 
 {% block title %}AI Solution Hub - Leading AI Solutions Provider{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
-<section class="relative bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 text-white py-20 overflow-hidden">
-    <div class="absolute inset-0 bg-black opacity-20"></div>
-    <div class="absolute inset-0">
-        <div class="absolute top-0 left-0 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div class="absolute top-0 right-0 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div class="absolute bottom-0 left-0 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden" id="heroSection">
+    <!-- Professional Background with Image -->
+    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat hero-bg-image">
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-blue-900/70 to-indigo-900/80"></div>
     </div>
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            Transform Your Business with
-            <span class="gradient-text">AI Solutions</span>
-        </h1>
-        <p class="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
-            Leading provider of innovative artificial intelligence solutions that drive growth, efficiency, and competitive advantage.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{% url 'ai_solution_app:services' %}" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                Explore Services
-            </a>
-            <a href="{% url 'ai_solution_app:contact_us' %}" class="border-2 border-white text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white hover:text-blue-900 transition-all duration-300 transform hover:scale-105">
-                Get Started
-            </a>
+    
+    <!-- Overlay for better text readability -->
+    <div class="absolute inset-0 bg-gradient-to-br from-slate-900/30 via-blue-900/20 to-indigo-900/30"></div>
+    
+    <!-- Animated Background Elements -->
+    <div class="absolute inset-0">
+        <div class="absolute top-20 left-10 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
+        <div class="absolute top-40 right-20 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style="animation-delay: 2s;"></div>
+        <div class="absolute bottom-20 left-1/4 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style="animation-delay: 4s;"></div>
+    </div>
+    
+    <!-- Floating Tech Icons -->
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute top-1/4 left-1/4 text-6xl text-white opacity-10 animate-float">
+            <i class="fas fa-brain"></i>
+        </div>
+        <div class="absolute top-1/3 right-1/3 text-5xl text-white opacity-10 animate-float" style="animation-delay: 1s;">
+            <i class="fas fa-robot"></i>
+        </div>
+        <div class="absolute bottom-1/3 left-1/3 text-4xl text-white opacity-10 animate-float" style="animation-delay: 3s;">
+            <i class="fas fa-microchip"></i>
+        </div>
+    </div>
+    
+    <div class="absolute inset-x-0 bottom-20 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="animate-slide-in-up">
+                <h1 class="text-5xl md:text-7xl font-bold mb-8 leading-tight text-white">
+                Transform Your Business with
+                    <span class="gradient-text block mt-4">AI Solutions</span>
+                </h1>
+                <p class="text-xl md:text-2xl mb-12 text-blue-100 max-w-4xl mx-auto leading-relaxed">
+                    Leading provider of innovative artificial intelligence solutions that drive growth, efficiency, and competitive advantage for businesses worldwide.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                    <a href="{% url 'ai_solution_app:services' %}" class="btn-primary px-12 py-6 text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105">
+                        <i class="fas fa-rocket mr-3"></i>Explore Services
+                    </a>
+                    <a href="{% url 'ai_solution_app:demo_request' %}" class="glass-effect border-2 border-white text-white px-12 py-6 text-xl font-bold rounded-2xl hover:bg-white hover:text-blue-900 transition-all duration-500 transform hover:scale-105">
+                        <i class="fas fa-calendar-alt mr-3"></i>Schedule Demo
+                    </a>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <i class="fas fa-chevron-down text-2xl text-white opacity-70"></i>
         </div>
     </div>
 </section>
 
 <!-- Featured Services Section -->
-<section class="py-20 bg-gray-50 dark:bg-gray-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+<section class="py-24 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900 relative overflow-hidden">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 tech-pattern opacity-5"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-20">
+            <h2 class="text-4xl md:text-5xl font-bold text-[var(--text)] mb-6">
                 Our <span class="gradient-text">AI Services</span>
             </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p class="text-xl text-[var(--text-secondary)] max-w-4xl mx-auto leading-relaxed">
                 Comprehensive AI solutions tailored to your business needs, from analytics to machine learning implementation.
             </p>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for service in services|slice:":6" %}
-            <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-200 dark:border-gray-600 overflow-hidden">
-                <div class="p-8">
-                    <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6">
-                        <i class="{{ service.icon }} text-2xl text-white"></i>
+            <div class="card-hover bg-[var(--card)] rounded-3xl shadow-xl hover:shadow-2xl border border-[var(--border)] overflow-hidden group">
+                <div class="p-10">
+                    <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300">
+                        <i class="{{ service.icon }} text-3xl text-white"></i>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">{{ service.title }}</h3>
-                    <p class="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">{{ service.description|truncatewords:20 }}</p>
-                    <div class="mb-6">
-                        <span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm font-medium px-3 py-1 rounded-full">
+                    <h3 class="text-2xl font-bold text-[var(--text)] mb-6">{{ service.title }}</h3>
+                    <p class="text-[var(--text-secondary)] mb-8 leading-relaxed text-lg">{{ service.description|truncatewords:25 }}</p>
+                    <div class="mb-8">
+                        <span class="inline-block bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 text-blue-800 dark:text-blue-200 text-sm font-bold px-4 py-2 rounded-full">
                             {{ service.pricing_tier|title }}
                         </span>
                     </div>
-                    <a href="{% url 'ai_solution_app:service_detail' service.id %}" class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold transition-colors duration-200">
+                    <a href="{% url 'ai_solution_app:service_detail' service.id %}" class="inline-flex items-center text-[var(--primary)] hover:text-[var(--secondary)] font-bold transition-all duration-300 text-lg group-hover:translate-x-2">
                         Learn More
-                        <i class="fas fa-arrow-right ml-2"></i>
+                        <i class="fas fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform duration-300"></i>
                     </a>
                 </div>
             </div>
@@ -74,128 +110,238 @@
 </section>
 
 <!-- Featured Solutions Section -->
-<section class="py-20 bg-white dark:bg-gray-900">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+<section class="py-24 bg-[var(--bg)] relative overflow-hidden">
+    <!-- Background Elements -->
+    <div class="absolute top-0 right-0 w-96 h-96 bg-blue-900 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+    <div class="absolute bottom-0 left-0 w-80 h-80 bg-purple-900 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-20">
+            <h2 class="text-5xl md:text-6xl font-bold text-[var(--text)] mb-6">
                 Success <span class="gradient-text">Stories</span>
             </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p class="text-2xl text-[var(--text-secondary)] max-w-4xl mx-auto leading-relaxed">
                 Real-world AI implementations that delivered measurable results for our clients across various industries.
             </p>
         </div>
         
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {% for solution in solutions|slice:":2" %}
-            <div class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-200 dark:border-gray-600">
-                <div class="flex items-center mb-6">
-                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-4">
-                        <i class="fas fa-trophy text-white"></i>
+            <div class="card-hover bg-[var(--card)] rounded-3xl p-10 shadow-2xl border border-[var(--border)] group">
+                <div class="flex items-center mb-8">
+                    <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-trophy text-2xl text-white"></i>
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ solution.title }}</h3>
-                        <p class="text-gray-600 dark:text-gray-300">{{ solution.client_name }} - {{ solution.industry }}</p>
+                        <h3 class="text-2xl font-bold text-[var(--text)] mb-2">{{ solution.title }}</h3>
+                        <p class="text-[var(--text-secondary)] text-lg">{{ solution.client_name }} - {{ solution.industry }}</p>
                     </div>
                 </div>
-                <p class="text-gray-600 dark:text-gray-300 mb-6">{{ solution.description|truncatewords:25 }}</p>
-                <div class="mb-6">
-                    <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Key Results:</h4>
-                    <p class="text-gray-600 dark:text-gray-300">{{ solution.results|truncatewords:15 }}</p>
+                <p class="text-[var(--text-secondary)] mb-8 text-lg leading-relaxed">{{ solution.description|truncatewords:30 }}</p>
+                <div class="mb-8 p-6 bg-[var(--hover)] rounded-2xl border border-[var(--border)]">
+                    <h4 class="font-bold text-[var(--text)] mb-3 text-lg">Key Results:</h4>
+                    <p class="text-[var(--text-secondary)]">{{ solution.results|truncatewords:20 }}</p>
                 </div>
-                <a href="{% url 'ai_solution_app:solution_detail' solution.id %}" class="inline-flex items-center bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-full font-semibold hover:from-purple-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105">
+                <a href="{% url 'ai_solution_app:solution_detail' solution.id %}" class="btn-primary px-8 py-4 rounded-2xl font-bold text-lg group-hover:translate-x-2 transition-all duration-300 inline-flex items-center">
                     View Case Study
-                    <i class="fas fa-arrow-right ml-2"></i>
+                    <i class="fas fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform duration-300"></i>
                 </a>
             </div>
             {% endfor %}
         </div>
         
-        <div class="text-center mt-12">
-            <a href="{% url 'ai_solution_app:past_solutions' %}" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                Explore All Solutions
-            </a>
+        
+    </div>
+</section>
+
+<!-- Featured Gallery Carousel Section -->
+<section class="py-24 bg-[var(--bg)] relative overflow-hidden">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 hero-pattern opacity-10"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-20">
+            <h2 class="text-5xl md:text-6xl font-bold text-[var(--text)] mb-6">
+                Featured <span class="gradient-text">Gallery</span>
+            </h2>
+            <p class="text-2xl text-[var(--text-secondary)] max-w-4xl mx-auto leading-relaxed">
+                Explore our latest AI innovations, team achievements, and breakthrough moments captured in stunning detail.
+            </p>
         </div>
+        
+        <!-- Gallery Carousel - Visual Diary Style -->
+        <div class="relative">
+            <!-- Filter Buttons -->
+            <div class="flex flex-wrap justify-center gap-3 mb-12">
+                <button class="gallery-filter-btn active px-6 py-3 rounded-full border-2 border-blue-600 bg-blue-600 text-white font-medium transition-all duration-300 hover:scale-105" data-category="all">
+                    All
+                </button>
+                <button class="gallery-filter-btn px-6 py-3 rounded-full border-2 border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--primary)] hover:text-[var(--primary)] font-medium transition-all duration-300 hover:scale-105" data-category="ai_solutions">
+                    AI Solutions
+                </button>
+                <button class="gallery-filter-btn px-6 py-3 rounded-full border-2 border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--primary)] hover:text-[var(--primary)] font-medium transition-all duration-300 hover:scale-105" data-category="team_events">
+                    Team Events
+                </button>
+                <button class="gallery-filter-btn px-6 py-3 rounded-full border-2 border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--primary)] hover:text-[var(--primary)] font-medium transition-all duration-300 hover:scale-105" data-category="conferences">
+                    Conferences
+                </button>
+                <button class="gallery-filter-btn px-6 py-3 rounded-full border-2 border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--primary)] hover:text-[var(--primary)] font-medium transition-all duration-300 hover:scale-105" data-category="workshops">
+                    Workshops
+                </button>
+                <button class="gallery-filter-btn px-6 py-3 rounded-full border-2 border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--primary)] hover:text-[var(--primary)] font-medium transition-all duration-300 hover:scale-105" data-category="research">
+                    Research
+                </button>
+            </div>
+            
+            <!-- Visual Diary Style Carousel -->
+            <div class="visual-diary-carousel relative overflow-hidden">
+                <div class="carousel-container relative h-96">
+                    <div class="carousel-track" id="visualDiaryTrack">
+                        {% for image in gallery_images|slice:":8" %}
+                        <div class="carousel-item {% if forloop.first %}active{% elif forloop.counter == 2 %}next{% elif forloop.counter == 3 %}prev{% else %}hidden{% endif %}" data-category="{{ image.category|default:'all' }}">
+                            <div class="image-card transition-all duration-500">
+                                {% if image.image %}
+                                <img src="{{ image.image.url }}" 
+                                     alt="{{ image.title|default:'Gallery Image' }}" 
+                                     class="w-72 h-80 object-cover rounded-2xl shadow-2xl cursor-pointer"
+                                     loading="lazy">
+                                {% else %}
+                                <div class="w-72 h-80 bg-gradient-to-br from-blue-400 via-purple-500 to-indigo-600 rounded-2xl shadow-2xl flex items-center justify-center">
+                                    <i class="fas fa-image text-6xl text-white opacity-50"></i>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Image Overlay -->
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end">
+                                    <div class="text-white p-4 w-full">
+                                        <h3 class="text-lg font-bold mb-2">{{ image.title|default:"Gallery Image" }}</h3>
+                                        {% if image.description %}
+                                        <p class="text-xs opacity-90 mb-2">{{ image.description|truncatewords:10 }}</p>
+                                        {% endif %}
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-xs opacity-75">{{ image.created_at|date:"M d, Y" }}</span>
+                                            {% if image.is_featured %}
+                                            <span class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+                                                ⭐
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="carousel-item active">
+                            <div class="image-card">
+                                <div class="w-72 h-80 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-2xl shadow-2xl flex items-center justify-center">
+                                    <div class="text-center">
+                                        <i class="fas fa-images text-6xl text-blue-500 dark:text-blue-400 mb-4"></i>
+                                        <h3 class="text-lg font-bold text-slate-600 dark:text-slate-400 mb-2">No Gallery Images Yet</h3>
+                                        <p class="text-sm text-slate-500 dark:text-slate-500">Check back soon for our latest gallery updates!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Navigation Controls -->
+                <button class="carousel-nav prev absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white border-2 border-slate-300 rounded-full flex items-center justify-center hover:border-blue-600 hover:bg-blue-50 transition-all duration-300 hover:scale-110">
+                    <i class="fas fa-chevron-left text-slate-600"></i>
+                </button>
+                <button class="carousel-nav next absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white border-2 border-slate-300 rounded-full flex items-center justify-center hover:border-blue-600 hover:bg-blue-50 transition-all duration-300 hover:scale-110">
+                    <i class="fas fa-chevron-right text-slate-600"></i>
+                </button>
+            </div>
+        </div>
+        
+    
     </div>
 </section>
 
 <!-- Customer Testimonials Section -->
-<section class="py-20 bg-gray-50 dark:bg-gray-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+<section class="py-24 bg-[var(--bg)] relative overflow-hidden">
+    <!-- Background Elements -->
+    <div class="absolute top-0 right-0 w-96 h-96 bg-blue-100 dark:bg-blue-900 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+    <div class="absolute bottom-0 left-0 w-80 h-80 bg-purple-100 dark:bg-purple-900 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-20">
+            <h2 class="text-5xl md:text-6xl font-bold text-[var(--text)] mb-6">
                 What Our <span class="gradient-text">Clients Say</span>
             </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p class="text-2xl text-[var(--text-secondary)] max-w-4xl mx-auto leading-relaxed">
                 Don't just take our word for it - hear from the businesses we've transformed with AI solutions.
             </p>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for testimonial in testimonials|slice:":3" %}
-            <div class="bg-white dark:bg-gray-700 rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-200 dark:border-gray-600">
-                <div class="flex items-center mb-6">
-                    <div class="flex text-yellow-400 mb-4">
+            <div class="card-hover bg-[var(--card)] rounded-3xl p-10 shadow-2xl border border-[var(--border)] group">
+                <div class="flex items-center mb-8">
+                    <div class="flex text-yellow-400 mb-4 text-xl">
                         {% for i in testimonial.get_stars %}
                         <i class="fas fa-star"></i>
                         {% endfor %}
                     </div>
                 </div>
-                <blockquote class="text-gray-600 dark:text-gray-300 mb-6 italic">
-                    "{{ testimonial.review|truncatewords:30 }}"
+                <blockquote class="text-[var(--text-secondary)] mb-8 italic text-lg leading-relaxed">
+                    "{{ testimonial.review|truncatewords:35 }}"
                 </blockquote>
                 <div class="flex items-center">
-                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-4">
-                        <i class="fas fa-user text-white"></i>
+                    <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-user text-white text-xl"></i>
                     </div>
                     <div>
-                        <h4 class="font-semibold text-gray-900 dark:text-white">{{ testimonial.customer_name }}</h4>
-                        <p class="text-gray-600 dark:text-gray-300">{{ testimonial.job_title }} at {{ testimonial.company }}</p>
+                        <h4 class="font-bold text-[var(--text)] text-lg">{{ testimonial.customer_name }}</h4>
+                        <p class="text-[var(--text-secondary)]">{{ testimonial.job_title }} at {{ testimonial.company }}</p>
                     </div>
                 </div>
             </div>
             {% endfor %}
         </div>
         
-        <div class="text-center mt-12">
-            <a href="{% url 'ai_solution_app:customer_feedback' %}" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                Read All Reviews
+        <div class="text-center mt-16">
+            <a href="{% url 'ai_solution_app:customer_feedback' %}" class="btn-primary px-12 py-6 text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105">
+                <i class="fas fa-comments mr-3"></i>Read All Reviews
             </a>
         </div>
     </div>
 </section>
 
 <!-- Upcoming Events Section -->
-<section class="py-20 bg-white dark:bg-gray-900">
+<section class="py-20 bg-[var(--bg)]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 class="text-4xl md:text-5xl font-bold text-[var(--text)] mb-4">
                 Upcoming <span class="gradient-text">Events</span>
             </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p class="text-xl text-[var(--text-secondary)] max-w-3xl mx-auto">
                 Join us for exclusive AI insights, workshops, and networking opportunities with industry leaders.
             </p>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for event in events|slice:":3" %}
-            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-blue-200 dark:border-blue-700">
+            <div class="bg-[var(--card)] rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-[var(--border)]">
                 <div class="flex items-center mb-4">
                     <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mr-4">
                         <i class="fas fa-calendar text-white"></i>
                     </div>
                     <div>
-                        <span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm font-medium px-3 py-1 rounded-full">
+                        <span class="inline-block bg-blue-900 text-blue-200 text-sm font-medium px-3 py-1 rounded-full">
                             {{ event.event_type|title }}
                         </span>
                     </div>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">{{ event.title }}</h3>
-                <p class="text-gray-600 dark:text-gray-300 mb-6">{{ event.description|truncatewords:20 }}</p>
+                <h3 class="text-xl font-bold text-[var(--text)] mb-4">{{ event.title }}</h3>
+                <p class="text-[var(--text-secondary)] mb-6">{{ event.description|truncatewords:20 }}</p>
                 <div class="mb-6">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                    <p class="text-sm text-[var(--text-secondary)]">
                         <i class="fas fa-map-marker-alt mr-2"></i>{{ event.location }}
                     </p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                    <p class="text-sm text-[var(--text-secondary)]">
                         <i class="fas fa-clock mr-2"></i>{{ event.start_date|date:"M d, Y" }}
                     </p>
                 </div>
@@ -216,34 +362,41 @@
 </section>
 
 <!-- Latest Articles Section -->
-<section class="py-20 bg-gray-50 dark:bg-gray-800">
+<section class="py-20 bg-[var(--bg)]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 class="text-4xl md:text-5xl font-bold text-[var(--text)] mb-4">
                 Latest <span class="gradient-text">Insights</span>
             </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p class="text-xl text-[var(--text-secondary)] max-w-3xl mx-auto">
                 Stay ahead with expert analysis, industry trends, and practical AI implementation strategies.
             </p>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for article in articles|slice:":3" %}
-            <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-200 dark:border-gray-600 overflow-hidden">
+            <div class="bg-[var(--card)] rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-[var(--border)] overflow-hidden">
                 <div class="p-8">
                     <div class="flex items-center mb-4">
-                        <span class="inline-block bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-sm font-medium px-3 py-1 rounded-full">
+                        <span class="inline-block bg-purple-900 text-purple-200 text-sm font-medium px-3 py-1 rounded-full">
                             {{ article.category|title }}
                         </span>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">{{ article.title }}</h3>
-                    <p class="text-gray-600 dark:text-gray-300 mb-6">{{ article.excerpt|truncatewords:25 }}</p>
+                    <h3 class="text-xl font-bold text-[var(--text)] mb-4">{{ article.title }}</h3>
+                    <p class="text-[var(--text-secondary)] mb-6">{{ article.excerpt|truncatewords:25 }}</p>
                     <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-500 dark:text-gray-400">{{ article.author }}</span>
-                        <a href="{% url 'ai_solution_app:article_detail' article.slug %}" class="inline-flex items-center text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-semibold transition-colors duration-200">
+                        <span class="text-sm text-[var(--text-secondary)]">{{ article.author }}</span>
+                        {% if article.slug %}
+                        <a href="{% url 'ai_solution_app:article_detail' article.slug %}" class="inline-flex items-center text-[var(--primary)] hover:text-[var(--secondary)] font-semibold transition-colors duration-200">
                             Read More
                             <i class="fas fa-arrow-right ml-2"></i>
                         </a>
+                        {% else %}
+                        <span class="inline-flex items-center text-gray-400 font-semibold">
+                            Read More
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </span>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -259,26 +412,196 @@
 </section>
 
 <!-- Call to Action Section -->
-<section class="py-20 bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 text-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-4xl md:text-5xl font-bold mb-6">
+<section class="py-24 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white relative overflow-hidden">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 tech-pattern opacity-20"></div>
+    
+    <!-- Animated Background Elements -->
+    <div class="absolute inset-0">
+        <div class="absolute top-0 left-0 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float"></div>
+        <div class="absolute bottom-0 right-0 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style="animation-delay: 2s;"></div>
+    </div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+        <h2 class="text-5xl md:text-6xl font-bold mb-8">
             Ready to Transform Your Business?
         </h2>
-        <p class="text-xl mb-8 text-blue-100 max-w-3xl mx-auto">
+        <p class="text-2xl mb-12 text-blue-100 max-w-4xl mx-auto leading-relaxed">
             Let's discuss how AI can drive growth, efficiency, and innovation in your organization. Our experts are ready to help you succeed.
         </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{% url 'ai_solution_app:contact_us' %}" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                Get Free Consultation
+        <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <a href="{% url 'ai_solution_app:contact_us' %}" class="btn-primary px-12 py-6 text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105">
+                <i class="fas fa-phone mr-3"></i>Get Free Consultation
             </a>
-            <a href="{% url 'ai_solution_app:services' %}" class="border-2 border-white text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white hover:text-blue-900 transition-all duration-300 transform hover:scale-105">
-                Explore Solutions
+            <a href="{% url 'ai_solution_app:services' %}" class="glass-effect border-2 border-white text-white px-12 py-6 text-xl font-bold rounded-2xl hover:bg-white hover:text-blue-900 transition-all duration-500 transform hover:scale-105">
+                <i class="fas fa-search mr-3"></i>Explore Solutions
             </a>
         </div>
     </div>
 </section>
 
+<!-- Schedule Demo Modal -->
+<div id="scheduleDemoModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 relative">
+        <button id="closeDemoModal" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 text-2xl">&times;</button>
+        <h2 class="text-2xl font-bold mb-6 text-center text-blue-900">Schedule a Demo</h2>
+        <form id="scheduleDemoForm" method="post" action="{% url 'ai_solution_app:schedule_demo' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn-primary w-full mt-4 py-3 rounded-xl font-bold text-lg">Submit</button>
+        </form>
+    </div>
+</div>
+
+<!-- Enhanced Gallery Carousel Styles -->
 <style>
+:root {
+    --hero-bg-image: url('{% static 'images/hero-backgrounds/rightsideimage.jpg' %}');
+}
+
+.hero-bg-image {
+    background-image: var(--hero-bg-image);
+}
+/* Visual Diary Style Gallery Carousel */
+.visual-diary-carousel {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.carousel-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.carousel-track {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.carousel-item {
+    position: absolute;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.6;
+    transform: scale(0.8);
+    z-index: 1;
+}
+
+.carousel-item.active {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+    z-index: 10;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.carousel-item.prev {
+    opacity: 0.5;
+    z-index: 5;
+    left: 20%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+}
+
+.carousel-item.next {
+    opacity: 0.5;
+    z-index: 5;
+    left: 80%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+}
+
+.carousel-item.hidden {
+    display: none;
+}
+
+.image-card {
+    position: relative;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.image-card img {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.image-card:hover img {
+    transform: scale(1.02);
+}
+
+/* Filter Buttons */
+.gallery-filter-btn {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+.gallery-filter-btn.active {
+    background: #3b82f6;
+    border-color: #3b82f6;
+    color: white;
+}
+
+.gallery-filter-btn:hover:not(.active) {
+    border-color: #3b82f6;
+    color: #3b82f6;
+    background: #f8fafc;
+}
+
+/* Navigation Controls */
+.carousel-nav {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    z-index: 20;
+}
+
+.carousel-nav:hover {
+    border-color: #3b82f6;
+    background: #f8fafc;
+    transform: translateY(-50%) scale(1.1);
+}
+
+.carousel-nav:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .image-card img {
+        width: 280px;
+        height: 280px;
+    }
+    
+    .carousel-item.prev {
+        transform: scale(0.75) translateX(50px);
+    }
+    
+    .carousel-item.next {
+        transform: scale(0.75) translateX(-50px);
+    }
+    
+    .gallery-filter-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .image-card img {
+        width: 240px;
+        height: 240px;
+    }
+    
+    .carousel-nav {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+}
+
+/* Background Animations */
 @keyframes blob {
     0% { transform: translate(0px, 0px) scale(1); }
     33% { transform: translate(30px, -50px) scale(1.1); }
@@ -298,4 +621,154 @@
     animation-delay: 4s;
 }
 </style>
+
+<!-- Visual Diary Gallery Carousel JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const carouselTrack = document.getElementById('visualDiaryTrack');
+    const prevButton = document.querySelector('.carousel-nav.prev');
+    const nextButton = document.querySelector('.carousel-nav.next');
+    const filterButtons = document.querySelectorAll('.gallery-filter-btn');
+    const carouselItems = document.querySelectorAll('.carousel-item');
+    
+    let currentSlide = 0;
+    let totalSlides = carouselItems.length;
+    let autoPlayInterval;
+    let currentFilter = 'all';
+    
+    // Initialize carousel
+    function initCarousel() {
+        if (totalSlides === 0) return;
+        
+        // Set up auto-play
+        startAutoPlay();
+        
+        // Add event listeners
+        prevButton.addEventListener('click', goToPrevSlide);
+        nextButton.addEventListener('click', goToNextSlide);
+        
+        // Add filter button listeners
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const category = button.dataset.category;
+                filterByCategory(category);
+                updateFilterButtons(button);
+            });
+        });
+        
+        // Add keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') goToPrevSlide();
+            if (e.key === 'ArrowRight') goToNextSlide();
+        });
+        
+        // Add touch/swipe support
+        let startX = 0;
+        let endX = 0;
+        
+        carouselTrack.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+        });
+        
+        carouselTrack.addEventListener('touchend', (e) => {
+            endX = e.changedTouches[0].clientX;
+            handleSwipe();
+        });
+        
+        function handleSwipe() {
+            const threshold = 50;
+            const diff = startX - endX;
+            
+            if (Math.abs(diff) > threshold) {
+                if (diff > 0) {
+                    goToNextSlide();
+                } else {
+                    goToPrevSlide();
+                }
+            }
+        }
+    }
+    
+    function goToSlide(slideIndex) {
+        currentSlide = slideIndex;
+        updateCarousel();
+        resetAutoPlay();
+    }
+    
+    function goToNextSlide() {
+        currentSlide = (currentSlide + 1) % totalSlides;
+        updateCarousel();
+        resetAutoPlay();
+    }
+    
+    function goToPrevSlide() {
+        currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+        updateCarousel();
+        resetAutoPlay();
+    }
+    
+    function updateCarousel() {
+        // Remove all classes from all items
+        carouselItems.forEach((item, index) => {
+            item.classList.remove('active', 'prev', 'next', 'hidden');
+            
+            if (index === currentSlide) {
+                item.classList.add('active');
+            } else if (index === (currentSlide - 1 + totalSlides) % totalSlides) {
+                item.classList.add('prev');
+            } else if (index === (currentSlide + 1) % totalSlides) {
+                item.classList.add('next');
+            } else {
+                item.classList.add('hidden');
+            }
+        });
+    }
+    
+    function filterByCategory(category) {
+        currentFilter = category;
+        
+        // Show/hide items based on category
+        carouselItems.forEach(item => {
+            const itemCategory = item.dataset.category;
+            
+            if (category === 'all' || itemCategory === category) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Reset to first visible slide
+        currentSlide = 0;
+        updateCarousel();
+    }
+    
+    function updateFilterButtons(activeButton) {
+        filterButtons.forEach(btn => {
+            btn.classList.remove('active');
+        });
+        activeButton.classList.add('active');
+    }
+    
+    function startAutoPlay() {
+        autoPlayInterval = setInterval(goToNextSlide, 6000);
+    }
+    
+    function stopAutoPlay() {
+        clearInterval(autoPlayInterval);
+    }
+    
+    function resetAutoPlay() {
+        stopAutoPlay();
+        startAutoPlay();
+    }
+    
+    // Pause on hover
+    carouselTrack.addEventListener('mouseenter', stopAutoPlay);
+    carouselTrack.addEventListener('mouseleave', startAutoPlay);
+    
+    // Initialize the carousel
+    initCarousel();
+});
+</script>
 {% endblock %}

@@ -1,0 +1,883 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Events - AI Solution Hub Admin{% endblock %}
+
+{% block page_title %}Events Management{% endblock %}
+
+{% block content %}
+<!-- Search and Filters -->
+<div class="search-filters">
+    <form method="get" class="filter-form">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label class="form-label">Search</label>
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Search by title, description, or location..." 
+                       value="{{ search }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Event Type</label>
+                <select name="event_type" class="form-control">
+                    <option value="">All Types</option>
+                    <option value="webinar" {% if event_type == 'webinar' %}selected{% endif %}>Webinar</option>
+                    <option value="conference" {% if event_type == 'conference' %}selected{% endif %}>Conference</option>
+                    <option value="workshop" {% if event_type == 'workshop' %}selected{% endif %}>Workshop</option>
+                    <option value="meetup" {% if event_type == 'meetup' %}selected{% endif %}>Meetup</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Featured</label>
+                <select name="featured" class="form-control">
+                    <option value="">All Events</option>
+                    <option value="yes" {% if featured == 'yes' %}selected{% endif %}>Featured Only</option>
+                    <option value="no" {% if featured == 'no' %}selected{% endif %}>Not Featured</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Timeline</label>
+                <select name="upcoming" class="form-control">
+                    <option value="">All Events</option>
+                    <option value="yes" {% if upcoming == 'yes' %}selected{% endif %}>Upcoming</option>
+                    <option value="no" {% if upcoming == 'no' %}selected{% endif %}>Past Events</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Filter
+                    </button>
+                    <a href="{% url 'djadmin:events' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>Clear
+                    </a>
+                </div>
+            </div>
+        </div>
+<!-- Edit Event Modal -->
+<div class="modal fade" id="editEventModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-light border-0 shadow-lg">
+            <div class="modal-header border-secondary bg-gradient-to-r from-primary to-info">
+                <h5 class="modal-title text-light fw-bold">
+                    <i class="fas fa-edit me-2"></i>Edit Event
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="editEventForm" method="post" action="{% url 'djadmin:events' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update">
+                    <input type="hidden" name="event_id" id="edit_event_id">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-calendar me-2 text-primary"></i>Event Title
+                                </label>
+                                <input type="text" name="title" id="edit_title" class="form-control bg-dark text-light border-secondary" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-tag me-2 text-success"></i>Event Type
+                                </label>
+                                <select name="event_type" id="edit_event_type" class="form-control bg-dark text-light border-secondary" required>
+                                    <option value="webinar">Webinar</option>
+                                    <option value="conference">Conference</option>
+                                    <option value="workshop">Workshop</option>
+                                    <option value="meetup">Meetup</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="form-label text-light fw-semibold">
+                            <i class="fas fa-align-left me-2 text-warning"></i>Description
+                        </label>
+                        <textarea name="description" id="edit_description" class="form-control bg-dark text-light border-secondary" rows="4" required></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-play me-2 text-info"></i>Start Date & Time
+                                </label>
+                                <input type="datetime-local" name="start_date" id="edit_start_date" class="form-control bg-dark text-light border-secondary" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-stop me-2 text-danger"></i>End Date & Time
+                                </label>
+                                <input type="datetime-local" name="end_date" id="edit_end_date" class="form-control bg-dark text-light border-secondary" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-map-marker-alt me-2 text-orange"></i>Location
+                                </label>
+                                <input type="text" name="location" id="edit_location" class="form-control bg-dark text-light border-secondary" placeholder="Physical location or 'Virtual'">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-link me-2 text-purple"></i>Registration Link
+                                </label>
+                                <input type="url" name="registration_link" id="edit_registration_link" class="form-control bg-dark text-light border-secondary" placeholder="https://...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-users me-2 text-cyan"></i>Max Participants
+                                </label>
+                                <input type="number" name="max_participants" id="edit_max_participants" class="form-control bg-dark text-light border-secondary" placeholder="Leave empty for unlimited">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold mb-3">Event Options</label>
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" name="is_virtual" id="edit_is_virtual" class="form-check-input">
+                                    <label class="form-check-label text-light" for="edit_is_virtual">
+                                        <i class="fas fa-video me-2 text-info"></i>Virtual Event
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" name="is_featured" id="edit_is_featured" class="form-check-input">
+                                    <label class="form-check-label text-light" for="edit_is_featured">
+                                        <i class="fas fa-star me-2 text-warning"></i>Featured Event
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="form-label text-light fw-semibold">
+                            <i class="fas fa-image me-2 text-success"></i>Featured Image
+                        </label>
+                        <div class="image-input-tabs border border-secondary rounded">
+                            <ul class="nav nav-tabs border-0" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active bg-primary text-white border-0" data-bs-toggle="tab" data-bs-target="#editEventUploadPane" type="button" role="tab">
+                                        <i class="fas fa-upload me-2"></i>Upload File
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link bg-dark text-light border-0" data-bs-toggle="tab" data-bs-target="#editEventUrlPane" type="button" role="tab">
+                                        <i class="fas fa-link me-2"></i>Image URL
+                                    </button>
+                                </li>
+                            </ul>
+                            <div class="tab-content bg-dark p-3">
+                                <div class="tab-pane fade show active" id="editEventUploadPane" role="tabpanel">
+                                    <input type="file" name="featured_image" class="form-control bg-dark text-light border-secondary" accept="image/*">
+                                    <small class="form-text text-muted mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>JPG, PNG, or WebP. Max size: 10MB
+                                    </small>
+                                </div>
+                                <div class="tab-pane fade" id="editEventUrlPane" role="tabpanel">
+                                    <input type="url" name="featured_image_url" id="edit_featured_image_url" class="form-control bg-dark text-light border-secondary" placeholder="https://example.com/image.jpg">
+                                    <small class="form-text text-muted mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>Enter a direct URL to an image
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary bg-gradient-to-r from-dark to-secondary">
+                <button class="btn btn-outline-light" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button class="btn btn-primary btn-lg px-4" onclick="submitEditEvent()">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+    </form>
+</div>
+
+<!-- Results Summary -->
+<div class="results-summary mb-3">
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <h6 class="mb-0">Showing {{ events.start_index }}-{{ events.end_index }} of {{ total_count }} events</h6>
+            {% if search or event_type or featured or upcoming %}
+            <small class="text-secondary">Filtered results</small>
+            {% endif %}
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                <i class="fas fa-plus me-1"></i>Add Event
+            </button>
+            <button class="btn btn-success btn-sm" onclick="exportEvents()">
+                <i class="fas fa-download me-1"></i>Export CSV
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Events Grid -->
+<div class="events-grid">
+    {% for event in events %}
+    <div class="event-card dashboard-card">
+        <div class="event-header">
+            <div class="event-title">
+                <h6 class="mb-1">{{ event.title }}</h6>
+                <div class="event-meta">
+                    <span class="badge bg-{{ event.event_type|default:'primary' }}">
+                        {{ event.get_event_type_display }}
+                    </span>
+                    {% if event.is_featured %}
+                        <span class="badge bg-warning">Featured</span>
+                    {% endif %}
+                    {% if event.is_upcoming %}
+                        <span class="badge bg-success">Upcoming</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Past</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="event-actions">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                            data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="openEditEventModal('{{ event.id }}')">
+                            <i class="fas fa-edit me-2"></i>Edit
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="duplicateEvent('{{ event.id }}')">
+                            <i class="fas fa-copy me-2"></i>Duplicate
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="toggleFeatured('{{ event.id }}')">
+                            <i class="fas fa-star me-2"></i>
+                            {% if event.is_featured %}Unfeature{% else %}Feature{% endif %}
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteEvent('{{ event.id }}', '{{ event.title }}')">
+                            <i class="fas fa-trash me-2"></i>Delete
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="event-content">
+            <p class="event-description">{{ event.description|truncatewords:20 }}</p>
+            
+            <div class="event-details">
+                <div class="event-detail-item">
+                    <i class="fas fa-calendar-alt text-primary me-2"></i>
+                    <span>{{ event.start_date|date:"M d, Y" }}</span>
+                </div>
+                
+                <div class="event-detail-item">
+                    <i class="fas fa-clock text-primary me-2"></i>
+                    <span>{{ event.start_date|time:"H:i" }} - {{ event.end_date|time:"H:i" }}</span>
+                </div>
+                
+                {% if event.location %}
+                <div class="event-detail-item">
+                    <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                    <span>{{ event.location }}</span>
+                </div>
+                {% endif %}
+                
+                {% if event.is_virtual %}
+                <div class="event-detail-item">
+                    <i class="fas fa-video text-primary me-2"></i>
+                    <span>Virtual Event</span>
+                </div>
+                {% endif %}
+                
+                {% if event.max_participants %}
+                <div class="event-detail-item">
+                    <i class="fas fa-users text-primary me-2"></i>
+                    <span>{{ event.current_participants }}/{{ event.max_participants }} participants</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="event-footer">
+            <div class="event-stats">
+                <small class="text-secondary">
+                    Created {{ event.created_at|timesince }} ago
+                </small>
+            </div>
+            <div class="event-buttons">
+                {% if event.registration_link %}
+                <a href="{{ event.registration_link }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-external-link-alt me-1"></i>Register
+                </a>
+                {% endif %}
+                <button class="btn btn-sm btn-outline-info" onclick="viewEvent('{{ event.id }}')">
+                    <i class="fas fa-eye me-1"></i>View
+                </button>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="text-center py-5">
+                <div class="empty-state">
+                    <i class="fas fa-calendar fa-3x text-secondary mb-3"></i>
+                    <h5>No events found</h5>
+                    <p class="text-secondary">
+                        {% if search or event_type or featured or upcoming %}
+                            Try adjusting your filters or search terms.
+                        {% else %}
+                            No events have been created yet.
+                        {% endif %}
+                    </p>
+                    {% if search or event_type or featured or upcoming %}
+                    <a href="{% url 'djadmin:events' %}" class="btn btn-primary">
+                        <i class="fas fa-times me-1"></i>Clear Filters
+                    </a>
+                    {% else %}
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                        <i class="fas fa-plus me-1"></i>Create First Event
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if events.has_other_pages %}
+<div class="pagination">
+    <div class="pagination-info">
+        Showing {{ events.start_index }}-{{ events.end_index }} of {{ total_count }} entries
+    </div>
+    <div class="pagination-controls">
+        {% if events.has_previous %}
+            <a href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">First</a>
+            <a href="?page={{ events.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">Prev</a>
+        {% endif %}
+        
+        {% for num in events.paginator.page_range %}
+            {% if events.number == num %}
+                <span class="page-btn active">{{ num }}</span>
+            {% elif num > events.number|add:'-3' and num < events.number|add:'3' %}
+                <a href="?page={{ num }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if events.has_next %}
+            <a href="?page={{ events.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">Next</a>
+            <a href="?page={{ events.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">Last</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Add Event Modal -->
+<div class="modal fade" id="addEventModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-light border-0 shadow-lg">
+            <div class="modal-header border-secondary bg-gradient-to-r from-primary to-info">
+                <h5 class="modal-title text-light fw-bold">
+                    <i class="fas fa-plus-circle me-2"></i>Add New Event
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="addEventForm">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-calendar me-2 text-primary"></i>Event Title
+                                </label>
+                                <input type="text" name="title" class="form-control bg-dark text-light border-secondary" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-tag me-2 text-success"></i>Event Type
+                                </label>
+                                <select name="event_type" class="form-control bg-dark text-light border-secondary" required>
+                                    <option value="">Select Type</option>
+                                    <option value="webinar">Webinar</option>
+                                    <option value="conference">Conference</option>
+                                    <option value="workshop">Workshop</option>
+                                    <option value="meetup">Meetup</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mb-4">
+                        <label class="form-label text-light fw-semibold">
+                            <i class="fas fa-align-left me-2 text-warning"></i>Description
+                        </label>
+                        <textarea name="description" class="form-control bg-dark text-light border-secondary" rows="4" required></textarea>
+                    </div>
+                    
+                    <!-- Featured Image Section -->
+                    <div class="form-group mb-4">
+                        <label class="form-label text-light fw-semibold">
+                            <i class="fas fa-image me-2 text-success"></i>Featured Image
+                        </label>
+                        <div class="image-input-tabs border border-secondary rounded">
+                            <ul class="nav nav-tabs border-0" id="eventImageTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active bg-primary text-white border-0" id="eventUpload-tab" data-bs-toggle="tab" data-bs-target="#eventUpload-pane" type="button" role="tab">
+                                        <i class="fas fa-upload me-2"></i>Upload File
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link bg-dark text-light border-0" id="eventUrl-tab" data-bs-toggle="tab" data-bs-target="#eventUrl-pane" type="button" role="tab">
+                                        <i class="fas fa-link me-2"></i>Image URL
+                                    </button>
+                                </li>
+                            </ul>
+                            <div class="tab-content bg-dark p-3" id="eventImageTabContent">
+                                <div class="tab-pane fade show active" id="eventUpload-pane" role="tabpanel">
+                                    <input type="file" name="featured_image" class="form-control bg-dark text-light border-secondary" accept="image/*">
+                                    <small class="form-text text-muted mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>JPG, PNG, or WebP. Max size: 10MB
+                                    </small>
+                                    <div class="image-preview mt-3" id="eventImagePreview" style="display: none;">
+                                        <img id="eventPreviewImg" class="img-thumbnail border-secondary" style="max-width: 200px;">
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="eventUrl-pane" role="tabpanel">
+                                    <input type="url" name="featured_image_url" class="form-control bg-dark text-light border-secondary" placeholder="https://example.com/image.jpg">
+                                    <small class="form-text text-muted mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>Enter a direct URL to an image
+                                    </small>
+                                    <div class="image-preview mt-3" id="eventUrlImagePreview" style="display: none;">
+                                        <img id="eventUrlPreviewImg" class="img-thumbnail border-secondary" style="max-width: 200px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-play me-2 text-info"></i>Start Date & Time
+                                </label>
+                                <input type="datetime-local" name="start_date" class="form-control bg-dark text-light border-secondary" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-stop me-2 text-danger"></i>End Date & Time
+                                </label>
+                                <input type="datetime-local" name="end_date" class="form-control bg-dark text-light border-secondary" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-map-marker-alt me-2 text-orange"></i>Location
+                                </label>
+                                <input type="text" name="location" class="form-control bg-dark text-light border-secondary" 
+                                       placeholder="Physical location or 'Virtual'">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-link me-2 text-purple"></i>Registration Link
+                                </label>
+                                <input type="url" name="registration_link" class="form-control bg-dark text-light border-secondary" 
+                                       placeholder="https://...">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-users me-2 text-cyan"></i>Max Participants
+                                </label>
+                                <input type="number" name="max_participants" class="form-control bg-dark text-light border-secondary" 
+                                       placeholder="Leave empty for unlimited">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold mb-3">Event Options</label>
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" name="is_virtual" class="form-check-input">
+                                    <label class="form-check-label text-light">
+                                        <i class="fas fa-video me-2 text-info"></i>Virtual Event
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" name="is_featured" class="form-check-input">
+                                    <label class="form-check-label text-light">
+                                        <i class="fas fa-star me-2 text-warning"></i>Featured Event
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary bg-gradient-to-r from-dark to-secondary">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary btn-lg px-4" onclick="saveEvent()">
+                    <i class="fas fa-plus me-2"></i>Create Event
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.event-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid var(--border-color);
+}
+
+.event-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.event-title h6 {
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.event-meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.event-actions .dropdown-toggle {
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+}
+
+.event-actions .dropdown-toggle:hover {
+    color: var(--text-primary);
+}
+
+.event-content {
+    margin-bottom: 1rem;
+}
+
+.event-description {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.event-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.event-detail-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.event-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.event-stats {
+    font-size: 0.75rem;
+}
+
+.event-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.event-buttons .btn {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+}
+
+@media (max-width: 768px) {
+    .events-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .event-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .event-actions {
+        margin-top: 0.5rem;
+        align-self: flex-end;
+    }
+    
+    .event-footer {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    
+    .event-buttons {
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function editEvent(eventId) {
+    openEditEventModal(eventId);
+}
+
+function duplicateEvent(eventId) {
+    if (confirm('Duplicate this event?')) {
+        // This would typically make an AJAX request
+        showNotification('Event duplicated successfully!', 'success');
+        location.reload();
+    }
+}
+
+function toggleFeatured(eventId) {
+    // This would typically make an AJAX request
+    showNotification('Event featured status updated!', 'success');
+    location.reload();
+}
+
+function deleteEvent(eventId, eventTitle) {
+    if (confirm(`Delete event "${eventTitle}"? This action cannot be undone.`)) {
+        // This would typically make an AJAX request
+        showNotification('Event deleted successfully!', 'success');
+        location.reload();
+    }
+}
+
+function viewEvent(eventId) {
+    // This would typically open a view modal or redirect to event detail page
+    showNotification('View event functionality coming soon!', 'info');
+}
+
+function saveEvent() {
+    const form = document.getElementById('addEventForm');
+    const formData = new FormData(form);
+    
+    // Basic validation
+    const title = formData.get('title');
+    const startDate = formData.get('start_date');
+    const endDate = formData.get('end_date');
+    
+    if (!title || !startDate || !endDate) {
+        alert('Please fill in all required fields');
+        return;
+    }
+    
+    if (new Date(startDate) >= new Date(endDate)) {
+        alert('End date must be after start date');
+        return;
+    }
+    
+    // Add action to form data
+    formData.append('action', 'create');
+    
+    // Submit form to backend
+    fetch('{% url "djadmin:events" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            showNotification('Event created successfully!', 'success');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addEventModal'));
+            modal.hide();
+            // Reload page to show new event
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            showNotification('Error creating event. Please try again.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error creating event. Please try again.', 'error');
+    });
+}
+
+function openEditEventModal(eventId){
+    // Try to populate from card content (simple approach)
+    document.getElementById('edit_event_id').value = eventId;
+    const modal = new bootstrap.Modal(document.getElementById('editEventModal'));
+    modal.show();
+}
+
+function submitEditEvent(){
+    const form = document.getElementById('editEventForm');
+    form.submit();
+}
+
+function exportEvents() {
+    // This would typically make an AJAX request to export events
+    showNotification('Exporting events...', 'info');
+    // Simulate export
+    setTimeout(() => {
+        showNotification('Events exported successfully!', 'success');
+    }, 2000);
+}
+
+// Set default end date to 1 hour after start date
+document.addEventListener('DOMContentLoaded', function() {
+    const startDateInput = document.querySelector('input[name="start_date"]');
+    const endDateInput = document.querySelector('input[name="end_date"]');
+    
+    if (startDateInput && endDateInput) {
+        startDateInput.addEventListener('change', function() {
+            if (this.value && !endDateInput.value) {
+                const startDate = new Date(this.value);
+                const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // Add 1 hour
+                endDateInput.value = endDate.toISOString().slice(0, 16);
+            }
+        });
+    }
+    
+    // Event image preview functionality
+    const eventImageInput = document.querySelector('input[name="featured_image"]');
+    const eventImagePreview = document.getElementById('eventImagePreview');
+    const eventPreviewImg = document.getElementById('eventPreviewImg');
+    
+    if (eventImageInput) {
+        eventImageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    eventPreviewImg.src = e.target.result;
+                    eventImagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                eventImagePreview.style.display = 'none';
+            }
+        });
+    }
+    
+    // Event URL preview
+    const eventUrlInput = document.querySelector('input[name="featured_image_url"]');
+    const eventUrlImagePreview = document.getElementById('eventUrlImagePreview');
+    const eventUrlPreviewImg = document.getElementById('eventUrlPreviewImg');
+    
+    if (eventUrlInput) {
+        eventUrlInput.addEventListener('input', function(e) {
+            const url = e.target.value.trim();
+            if (url && isValidImageUrl(url)) {
+                eventUrlPreviewImg.src = url;
+                eventUrlPreviewImg.onload = function() {
+                    eventUrlImagePreview.style.display = 'block';
+                };
+                eventUrlPreviewImg.onerror = function() {
+                    eventUrlImagePreview.style.display = 'none';
+                    showNotification('Invalid image URL or image could not be loaded', 'error');
+                };
+            } else {
+                eventUrlImagePreview.style.display = 'none';
+            }
+        });
+    }
+    
+    // Event tab switching - clear other input when switching
+    const eventUploadTab = document.getElementById('eventUpload-tab');
+    const eventUrlTab = document.getElementById('eventUrl-tab');
+    
+    if (eventUploadTab) {
+        eventUploadTab.addEventListener('click', function() {
+            if (eventUrlInput) eventUrlInput.value = '';
+            if (eventUrlImagePreview) eventUrlImagePreview.style.display = 'none';
+        });
+    }
+    
+    if (eventUrlTab) {
+        eventUrlTab.addEventListener('click', function() {
+            if (eventImageInput) eventImageInput.value = '';
+            if (eventImagePreview) eventImagePreview.style.display = 'none';
+        });
+    }
+});
+
+function isValidImageUrl(url) {
+    try {
+        const urlObj = new URL(url);
+        const pathname = urlObj.pathname.toLowerCase();
+        return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(pathname) || 
+               url.includes('unsplash.com') || 
+               url.includes('pixabay.com') ||
+               url.includes('pexels.com');
+    } catch {
+        return false;
+    }
+}
+</script>
+{% endblock %}

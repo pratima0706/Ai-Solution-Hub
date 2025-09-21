@@ -1,0 +1,550 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Users - AI Solution Hub Admin{% endblock %}
+
+{% block page_title %}User Access Management{% endblock %}
+
+{% block content %}
+<!-- Search and Filters -->
+<div class="search-filters">
+    <form method="get" class="filter-form">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label class="form-label">Search</label>
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Search by name, email, or username..." 
+                       value="{{ search }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Role</label>
+                <select name="role" class="form-control">
+                    <option value="">All Roles</option>
+                    {% for role_option in roles %}
+                    <option value="{{ role_option }}" {% if role == role_option %}selected{% endif %}>
+                        {{ role_option|title }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-control">
+                    <option value="">All Statuses</option>
+                    <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Filter
+                    </button>
+                    <a href="{% url 'djadmin:users' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>Clear
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Results Summary -->
+<div class="results-summary mb-3">
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <h6 class="mb-0">Showing {{ users.start_index }}-{{ users.end_index }} of {{ total_count }} users</h6>
+            {% if search or role or status %}
+            <small class="text-secondary">Filtered results</small>
+            {% endif %}
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#inviteUserModal">
+                <i class="fas fa-user-plus me-1"></i>Invite User
+            </button>
+            <button class="btn btn-success btn-sm" onclick="exportUsers()">
+                <i class="fas fa-download me-1"></i>Export CSV
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Users Table -->
+<div class="dashboard-card">
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th width="50">
+                        <input type="checkbox" id="selectAll" class="form-check-input">
+                    </th>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                    <th>Last Login</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user_profile in users %}
+                <tr>
+                    <td>
+                        <input type="checkbox" name="selected_users" value="{{ user_profile.id }}" 
+                               class="form-check-input user-checkbox">
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="user-avatar me-3">
+                                {% if user_profile.profile_picture %}
+                                    <img src="{{ user_profile.profile_picture.url }}" 
+                                         alt="{{ user_profile.user.get_full_name|default:user_profile.user.username }}" 
+                                         class="avatar-img">
+                                {% else %}
+                                    <div class="avatar-placeholder">
+                                        {{ user_profile.user.get_full_name|first|default:user_profile.user.username|first|upper }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="fw-bold">{{ user_profile.user.get_full_name|default:user_profile.user.username }}</div>
+                                <div class="text-secondary">{{ user_profile.user.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-primary">{{ user_profile.role.name|default:"No Role" }}</span>
+                    </td>
+                    <td>{{ user_profile.department|default:"-" }}</td>
+                    <td>
+                        {% if user_profile.is_active %}
+                            <span class="status-badge contacted">Active</span>
+                        {% else %}
+                            <span class="status-badge closed">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div>{{ user_profile.user.last_login|date:"M d, Y"|default:"Never" }}</div>
+                        {% if user_profile.user.last_login %}
+                        <small class="text-secondary">{{ user_profile.user.last_login|time:"H:i" }}</small>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div>{{ user_profile.created_at|date:"M d, Y" }}</div>
+                        <small class="text-secondary">{{ user_profile.created_at|time:"H:i" }}</small>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <button class="btn btn-sm btn-outline-primary" 
+                                    onclick="viewUser('{{ user_profile.id }}')" title="View">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning" 
+                                    onclick="editUser('{{ user_profile.id }}')" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-{% if user_profile.is_active %}danger{% else %}success{% endif %}" 
+                                    onclick="toggleStatus('{{ user_profile.id }}', '{{ user_profile.user.username }}')" 
+                                    title="{% if user_profile.is_active %}Deactivate{% else %}Activate{% endif %}">
+                                <i class="fas fa-{% if user_profile.is_active %}user-times{% else %}user-check{% endif %}"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-5">
+                        <div class="empty-state">
+                            <i class="fas fa-users fa-3x text-secondary mb-3"></i>
+                            <h5>No users found</h5>
+                            <p class="text-secondary">
+                                {% if search or role or status %}
+                                    Try adjusting your filters or search terms.
+                                {% else %}
+                                    No users have been added yet.
+                                {% endif %}
+                            </p>
+                            {% if search or role or status %}
+                            <a href="{% url 'djadmin:users' %}" class="btn btn-primary">
+                                <i class="fas fa-times me-1"></i>Clear Filters
+                            </a>
+                            {% else %}
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inviteUserModal">
+                                <i class="fas fa-user-plus me-1"></i>Invite First User
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if users.has_other_pages %}
+    <div class="pagination">
+        <div class="pagination-info">
+            Showing {{ users.start_index }}-{{ users.end_index }} of {{ total_count }} entries
+        </div>
+        <div class="pagination-controls">
+            {% if users.has_previous %}
+                <a href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">First</a>
+                <a href="?page={{ users.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">Prev</a>
+            {% endif %}
+            
+            {% for num in users.paginator.page_range %}
+                {% if users.number == num %}
+                    <span class="page-btn active">{{ num }}</span>
+                {% elif num > users.number|add:'-3' and num < users.number|add:'3' %}
+                    <a href="?page={{ num }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                       class="page-btn">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+            
+            {% if users.has_next %}
+                <a href="?page={{ users.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">Next</a>
+                <a href="?page={{ users.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">Last</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Invite User Modal -->
+<div class="modal fade" id="inviteUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Invite New User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="inviteUserForm">
+                    {% csrf_token %}
+                    <div class="form-group mb-3">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" name="email" class="form-control" required>
+                        <small class="form-text text-muted">User will receive an invitation email</small>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" name="username" class="form-control" placeholder="auto from email if empty">
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label class="form-label">Role</label>
+                        <select name="role" class="form-control" required>
+                            <option value="">Select Role</option>
+                            <option value="admin">Admin</option>
+                            <option value="content_manager">Content Manager</option>
+                            <option value="events_manager">Events Manager</option>
+                            <option value="support_agent">Support Agent</option>
+                            <option value="analyst">Analyst</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label class="form-label">Department</label>
+                        <input type="text" name="department" class="form-control" 
+                               placeholder="e.g., Marketing, Development, Support">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Temporary Password (optional)</label>
+                        <input type="password" name="password" class="form-control" minlength="8" placeholder="Set now or send reset later">
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label class="form-label">Personal Message (Optional)</label>
+                        <textarea name="message" class="form-control" rows="3" 
+                                  placeholder="Add a personal message to the invitation..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="sendInvite()">Send Invitation</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="profile_id" id="edit_profile_id">
+                    <div class="form-group mb-3">
+                        <label class="form-label">First Name</label>
+                        <input type="text" name="first_name" id="edit_first_name" class="form-control">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" name="last_name" id="edit_last_name" class="form-control">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" id="edit_email" class="form-control">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Department</label>
+                        <input type="text" name="department" id="edit_department" class="form-control">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Role</label>
+                        <select name="role" id="edit_role" class="form-control">
+                            <option value="">No Role</option>
+                            <option value="admin">Admin</option>
+                            <option value="content_manager">Content Manager</option>
+                            <option value="events_manager">Events Manager</option>
+                            <option value="support_agent">Support Agent</option>
+                            <option value="analyst">Analyst</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">New Password (min 8 chars)</label>
+                        <input type="password" name="password" id="edit_password" class="form-control" minlength="8" placeholder="Leave blank to keep">
+                    </div>
+                    <div class="form-group form-check mb-0">
+                        <input type="checkbox" class="form-check-input" id="edit_is_active">
+                        <label class="form-check-label" for="edit_is_active">Active</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveUserEdits()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.user-checkbox {
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .data-table {
+        font-size: 0.875rem;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 0.5rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Select all functionality
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const userCheckboxes = document.querySelectorAll('.user-checkbox');
+    
+    selectAllCheckbox.addEventListener('change', function() {
+        userCheckboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+    });
+    
+    userCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            // Update select all checkbox state
+            const checkedCount = document.querySelectorAll('.user-checkbox:checked').length;
+            const totalCount = userCheckboxes.length;
+            
+            if (checkedCount === 0) {
+                selectAllCheckbox.indeterminate = false;
+                selectAllCheckbox.checked = false;
+            } else if (checkedCount === totalCount) {
+                selectAllCheckbox.indeterminate = false;
+                selectAllCheckbox.checked = true;
+            } else {
+                selectAllCheckbox.indeterminate = true;
+            }
+        });
+    });
+});
+
+function viewUser(userId) {
+    // This would typically open a view modal or redirect to user detail page
+    showNotification('View user functionality coming soon!', 'info');
+}
+
+function editUser(userId) {
+    const csrfToken = document.querySelector('#inviteUserForm input[name="csrfmiddlewaretoken"]').value;
+    fetch('{% url "djadmin:get_user_json" 0 %}'.replace('/0/', `/${userId}/`), {
+        headers: { 'X-CSRFToken': csrfToken }
+    }).then(r => r.json()).then(d => {
+        if (!d.ok) { showNotification('Failed to load user', 'error'); return; }
+        const u = d.user;
+        document.getElementById('edit_profile_id').value = u.id;
+        document.getElementById('edit_first_name').value = u.first_name || '';
+        document.getElementById('edit_last_name').value = u.last_name || '';
+        document.getElementById('edit_email').value = u.email || '';
+        document.getElementById('edit_department').value = u.department || '';
+        document.getElementById('edit_role').value = u.role || '';
+        document.getElementById('edit_is_active').checked = !!u.is_active;
+        new bootstrap.Modal(document.getElementById('editUserModal')).show();
+    }).catch(() => showNotification('Failed to load user', 'error'));
+}
+
+function saveUserEdits() {
+    const form = document.getElementById('editUserForm');
+    const formData = new FormData(form);
+    const profileId = document.getElementById('edit_profile_id').value;
+    // checkbox manual append
+    formData.append('is_active', document.getElementById('edit_is_active').checked ? '1' : '0');
+    fetch('{% url "djadmin:edit_user" 0 %}'.replace('/0/', `/${profileId}/`), {
+        method: 'POST',
+        headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') },
+        body: formData,
+    }).then(r => r.json()).then(d => {
+        if (d.ok) {
+            // Update the table row in place
+            updateRowFromEdit(profileId);
+            showNotification('User updated', 'success');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
+            modal.hide();
+        } else {
+            showNotification(d.error || 'Update failed', 'error');
+        }
+    }).catch(() => showNotification('Update failed', 'error'));
+}
+
+function updateRowFromEdit(profileId) {
+    // Fetch latest data and update row cells
+    const csrfToken = document.querySelector('#inviteUserForm input[name="csrfmiddlewaretoken"]').value;
+    fetch('{% url "djadmin:get_user_json" 0 %}'.replace('/0/', `/${profileId}/`), {
+        headers: { 'X-CSRFToken': csrfToken }
+    }).then(r => r.json()).then(d => {
+        if (!d.ok) return;
+        const u = d.user;
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            const cb = row.querySelector('input.user-checkbox');
+            if (cb && cb.value == profileId) {
+                // name/email
+                const nameCell = row.children[1];
+                const roleCell = row.children[2];
+                const deptCell = row.children[3];
+                const statusCell = row.children[4];
+                const lastLoginCell = row.children[5];
+                const createdCell = row.children[6];
+                if (nameCell) {
+                    const nameDiv = nameCell.querySelector('.fw-bold');
+                    if (nameDiv) nameDiv.textContent = (u.first_name || u.last_name) ? `${u.first_name || ''} ${u.last_name || ''}`.trim() : u.username;
+                    const emailDiv = nameCell.querySelector('.text-secondary');
+                    if (emailDiv) emailDiv.textContent = u.email || '';
+                }
+                if (roleCell) {
+                    const badge = roleCell.querySelector('.badge');
+                    if (badge) badge.textContent = u.role ? u.role.replace('_',' ') : 'No Role';
+                }
+                if (deptCell) deptCell.textContent = u.department || '-';
+                if (statusCell) {
+                    statusCell.innerHTML = u.is_active ? '<span class="status-badge contacted">Active</span>' : '<span class="status-badge closed">Inactive</span>';
+                }
+                if (lastLoginCell) lastLoginCell.querySelector('div').textContent = u.last_login ? u.last_login : 'Never';
+                if (createdCell) createdCell.querySelector('div').textContent = u.created_at || '';
+            }
+        });
+    });
+}
+
+function toggleStatus(userId, username) {
+    if (!confirm(`Toggle status for user "${username}"?`)) return;
+    const csrfToken = document.querySelector('#inviteUserForm input[name="csrfmiddlewaretoken"]').value;
+    fetch('{% url "djadmin:toggle_user_status" 0 %}'.replace('/0/', `/${userId}/`), {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken },
+    }).then(r => r.json()).then(d => {
+        if (d.ok) {
+            showNotification('Status updated', 'success');
+            location.reload();
+        } else {
+            showNotification(d.error || 'Action failed', 'error');
+        }
+    }).catch(() => showNotification('Action failed', 'error'));
+}
+
+function sendInvite() {
+    const form = document.getElementById('inviteUserForm');
+    const formData = new FormData(form);
+    
+    // Basic validation
+    const email = formData.get('email');
+    const role = formData.get('role');
+    
+    if (!email || !role) {
+        alert('Please fill in all required fields');
+        return;
+    }
+    
+    fetch('{% url "djadmin:create_user" %}', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') },
+        body: formData,
+    }).then(r => r.json()).then(d => {
+        if (d.ok) {
+            showNotification('User invited/created successfully!', 'success');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('inviteUserModal'));
+            modal.hide();
+            setTimeout(() => location.reload(), 800);
+        } else {
+            showNotification(d.error || 'Failed to create user', 'error');
+        }
+    }).catch(() => showNotification('Failed to create user', 'error'));
+}
+
+function exportUsers() {
+    const params = new URLSearchParams(window.location.search);
+    window.location.href = '{% url "djadmin:export_users_csv" %}' + (params.toString() ? ('?' + params.toString()) : '');
+}
+</script>
+{% endblock %}

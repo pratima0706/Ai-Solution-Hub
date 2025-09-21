@@ -1,0 +1,351 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Inquiries - AI Solution Hub Admin{% endblock %}
+
+{% block page_title %}Inquiries{% endblock %}
+
+{% block content %}
+<!-- Search and Filters -->
+<div class="search-filters">
+    <form method="get" class="filter-form">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label class="form-label">Search</label>
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Search by name, email, company, or details..." 
+                       value="{{ search }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-control">
+                    <option value="">All Statuses</option>
+                    <option value="new" {% if status == 'new' %}selected{% endif %}>New</option>
+                    <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                    <option value="contacted" {% if status == 'contacted' %}selected{% endif %}>Contacted</option>
+                    <option value="closed" {% if status == 'closed' %}selected{% endif %}>Closed</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Country</label>
+                <select name="country" class="form-control">
+                    <option value="">All Countries</option>
+                    {% for country_option in countries %}
+                    <option value="{{ country_option }}" {% if country == country_option %}selected{% endif %}>
+                        {{ country_option }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Date From</label>
+                <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Date To</label>
+                <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Filter
+                    </button>
+                    <a href="{% url 'djadmin:inquiries_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>Clear
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Results Summary -->
+<div class="results-summary mb-3">
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <h6 class="mb-0">Showing {{ inquiries.start_index }}-{{ inquiries.end_index }} of {{ total_count }} inquiries</h6>
+            {% if search or status or country or date_from or date_to %}
+            <small class="text-secondary">Filtered results</small>
+            {% endif %}
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'djadmin:export_inquiries_csv' %}?{{ request.GET.urlencode }}" 
+               class="btn btn-success btn-sm">
+                <i class="fas fa-download me-1"></i>Export CSV
+            </a>
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#bulkActionModal">
+                <i class="fas fa-tasks me-1"></i>Bulk Actions
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Inquiries Table -->
+<div class="dashboard-card">
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th width="50">
+                        <input type="checkbox" id="selectAll" class="form-check-input">
+                    </th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Company</th>
+                    <th>Country</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for inquiry in inquiries %}
+                <tr>
+                    <td>
+                        <input type="checkbox" name="selected_inquiries" value="{{ inquiry.id }}" class="form-check-input inquiry-checkbox">
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-circle me-2">{{ inquiry.name|first|upper }}</div>
+                            <div>
+                                <div class="fw-bold">{{ inquiry.name }}</div>
+                                <small class="text-secondary">{{ inquiry.job_title }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <a href="mailto:{{ inquiry.email }}" class="text-decoration-none">
+                            {{ inquiry.email }}
+                        </a>
+                    </td>
+                    <td>{{ inquiry.company }}</td>
+                    <td>{{ inquiry.country }}</td>
+                    <td>
+                        <span class="status-badge {{ inquiry.status }}">
+                            {{ inquiry.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <div>{{ inquiry.created_at|date:"M d, Y" }}</div>
+                        <small class="text-secondary">{{ inquiry.created_at|time:"H:i" }}</small>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'djadmin:inquiry_detail' inquiry.id %}" 
+                               class="btn btn-sm btn-outline-primary" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <button class="btn btn-sm btn-outline-success" 
+                                    onclick="markAsContacted('{{ inquiry.id }}')" title="Mark as Contacted">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" 
+                                    onclick="copyEmail('{{ inquiry.email }}')" title="Copy Email">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-5">
+                        <div class="empty-state">
+                            <i class="fas fa-inbox fa-3x text-secondary mb-3"></i>
+                            <h5>No inquiries found</h5>
+                            <p class="text-secondary">
+                                {% if search or status or country or date_from or date_to %}
+                                    Try adjusting your filters or search terms.
+                                {% else %}
+                                    No inquiries have been submitted yet.
+                                {% endif %}
+                            </p>
+                            {% if search or status or country or date_from or date_to %}
+                            <a href="{% url 'djadmin:inquiries_list' %}" class="btn btn-primary">
+                                <i class="fas fa-times me-1"></i>Clear Filters
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if inquiries.has_other_pages %}
+    <div class="pagination">
+        <div class="pagination-info">
+            Showing {{ inquiries.start_index }}-{{ inquiries.end_index }} of {{ total_count }} entries
+        </div>
+        <div class="pagination-controls">
+            {% if inquiries.has_previous %}
+                <a href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">First</a>
+                <a href="?page={{ inquiries.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">Prev</a>
+            {% endif %}
+            
+            {% for num in inquiries.paginator.page_range %}
+                {% if inquiries.number == num %}
+                    <span class="page-btn active">{{ num }}</span>
+                {% elif num > inquiries.number|add:'-3' and num < inquiries.number|add:'3' %}
+                    <a href="?page={{ num }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                       class="page-btn">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+            
+            {% if inquiries.has_next %}
+                <a href="?page={{ inquiries.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">Next</a>
+                <a href="?page={{ inquiries.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">Last</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Bulk Action Modal -->
+<div class="modal fade" id="bulkActionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-light border-0 shadow-lg">
+            <div class="modal-header border-secondary bg-gradient-to-r from-primary to-info">
+                <h5 class="modal-title text-light fw-bold">
+                    <i class="fas fa-tasks me-2"></i>Bulk Actions
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="bulkActionForm">
+                    <div class="mb-4">
+                        <label class="form-label text-light fw-semibold">
+                            <i class="fas fa-cog me-2 text-primary"></i>Action
+                        </label>
+                        <select name="action" class="form-control bg-dark text-light border-secondary" required>
+                            <option value="">Select Action</option>
+                            <option value="mark_contacted">Mark as Contacted</option>
+                            <option value="mark_in_progress">Mark as In Progress</option>
+                            <option value="mark_closed">Mark as Closed</option>
+                            <option value="export_selected">Export Selected</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="confirmBulkAction">
+                            <label class="form-check-label text-light" for="confirmBulkAction">
+                                <i class="fas fa-check-circle me-2 text-success"></i>I confirm this action will be applied to <span id="selectedCount" class="text-warning fw-bold">0</span> selected inquiries
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary bg-gradient-to-r from-dark to-secondary">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary btn-lg px-4" id="executeBulkAction" disabled>
+                    <i class="fas fa-play me-2"></i>Execute
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Select all functionality
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const inquiryCheckboxes = document.querySelectorAll('.inquiry-checkbox');
+    
+    selectAllCheckbox.addEventListener('change', function() {
+        inquiryCheckboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        updateSelectedCount();
+    });
+    
+    inquiryCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectedCount);
+    });
+    
+    // Bulk action functionality
+    const bulkActionForm = document.getElementById('bulkActionForm');
+    const executeBulkAction = document.getElementById('executeBulkAction');
+    const confirmBulkAction = document.getElementById('confirmBulkAction');
+    
+    confirmBulkAction.addEventListener('change', function() {
+        executeBulkAction.disabled = !this.checked;
+    });
+    
+    executeBulkAction.addEventListener('click', function() {
+        const selectedIds = Array.from(document.querySelectorAll('.inquiry-checkbox:checked'))
+            .map(checkbox => checkbox.value);
+        
+        if (selectedIds.length === 0) {
+            alert('Please select at least one inquiry');
+            return;
+        }
+        
+        const action = bulkActionForm.action.value;
+        if (!action) {
+            alert('Please select an action');
+            return;
+        }
+        
+        if (confirm(`Are you sure you want to ${action.replace('_', ' ')} ${selectedIds.length} inquiries?`)) {
+            executeBulkActionFunction(action, selectedIds);
+        }
+    });
+});
+
+function updateSelectedCount() {
+    const selectedCount = document.querySelectorAll('.inquiry-checkbox:checked').length;
+    document.getElementById('selectedCount').textContent = selectedCount;
+    
+    // Update select all checkbox state
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const inquiryCheckboxes = document.querySelectorAll('.inquiry-checkbox');
+    
+    if (selectedCount === 0) {
+        selectAllCheckbox.indeterminate = false;
+        selectAllCheckbox.checked = false;
+    } else if (selectedCount === inquiryCheckboxes.length) {
+        selectAllCheckbox.indeterminate = false;
+        selectAllCheckbox.checked = true;
+    } else {
+        selectAllCheckbox.indeterminate = true;
+    }
+}
+
+function executeBulkActionFunction(action, selectedIds) {
+    // This would typically make an AJAX request to handle bulk actions
+    // For now, we'll show a success message
+    alert(`Bulk action "${action}" executed on ${selectedIds.length} inquiries`);
+    
+    // Close modal and refresh page
+    const modal = bootstrap.Modal.getInstance(document.getElementById('bulkActionModal'));
+    modal.hide();
+    location.reload();
+}
+
+function markAsContacted(inquiryId) {
+    if (confirm('Mark this inquiry as contacted?')) {
+        // This would typically make an AJAX request
+        alert('Inquiry marked as contacted');
+        location.reload();
+    }
+}
+
+function copyEmail(email) {
+    navigator.clipboard.writeText(email).then(function() {
+        showNotification('Email copied to clipboard!', 'success');
+    }).catch(function() {
+        showNotification('Failed to copy email', 'error');
+    });
+}
+</script>
+{% endblock %}

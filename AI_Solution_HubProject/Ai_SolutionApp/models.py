@@ -99,6 +99,8 @@ class Contact(models.Model):
     country = models.CharField(max_length=100)
     job_title = models.CharField(max_length=100)
     job_details = models.TextField()
+    interest = models.CharField(max_length=100, blank=True, null=True, help_text="What the customer is interested in")
+    message = models.TextField(blank=True, null=True, help_text="Additional message from customer")
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=[
         ('new', 'New'),
@@ -106,13 +108,24 @@ class Contact(models.Model):
         ('contacted', 'Contacted'),
         ('closed', 'Closed')
     ], default='new')
+    form_type = models.CharField(max_length=20, choices=[
+        ('contact', 'Contact Inquiry'),
+        ('demo', 'Demo Request'),
+        ('event', 'Event Registration'),
+    ], default='contact', help_text="Type of form submission")
     notes = models.TextField(blank=True, null=True)
     admin_reply_sent = models.BooleanField(default=False, help_text="Mark as true when admin reply email is sent")
+    # Event-specific fields
+    event = models.ForeignKey('Event', on_delete=models.SET_NULL, null=True, blank=True, help_text="Associated event for event registrations")
+    reminder_sent = models.BooleanField(default=False, help_text="Whether reminder email has been sent")
     
     class Meta:
         ordering = ['-created_at']
         verbose_name = 'Contact Inquiry'
         verbose_name_plural = 'Contact Inquiries'
+        permissions = [
+            ("export_contact", "Can export contact inquiries"),
+        ]
     
     def __str__(self):
         return f"{self.name} - {self.company} ({self.created_at.strftime('%Y-%m-%d')})"
@@ -153,6 +166,7 @@ class PastSolution(models.Model):
     solution = models.TextField()
     results = models.TextField()
     image = OptimizedImageField(upload_to='solutions/', blank=True, null=True)
+    image_url = models.URLField(blank=True, null=True, help_text="External image URL as alternative to uploaded image")
     technologies_used = models.JSONField(default=list)
     completion_date = models.DateField()
     is_featured = models.BooleanField(default=False)
@@ -165,6 +179,15 @@ class PastSolution(models.Model):
     
     def __str__(self):
         return f"{self.title} - {self.client_name}"
+    
+    @property
+    def get_image(self) -> str:
+        """Return the image URL (uploaded file or external URL)."""
+        if self.image:
+            return self.image.url
+        elif self.image_url:
+            return self.image_url
+        return ""
 
 
 class Event(models.Model):
@@ -185,6 +208,8 @@ class Event(models.Model):
     registration_link = models.URLField(blank=True, null=True)
     max_participants = models.PositiveIntegerField(blank=True, null=True)
     current_participants = models.PositiveIntegerField(default=0)
+    featured_image = OptimizedImageField(upload_to='events/', blank=True, null=True)
+    featured_image_url = models.URLField(blank=True, null=True, help_text="External image URL as alternative to uploaded image")
     is_featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     
@@ -193,6 +218,15 @@ class Event(models.Model):
     
     def __str__(self):
         return f"{self.title} - {self.start_date.strftime('%Y-%m-%d')}"
+    
+    @property
+    def get_featured_image(self) -> str:
+        """Return the featured image URL (uploaded file or external URL)."""
+        if self.featured_image:
+            return self.featured_image.url
+        elif self.featured_image_url:
+            return self.featured_image_url
+        return ""
     
     @property
     def is_upcoming(self):
@@ -204,22 +238,32 @@ class Event(models.Model):
 
 
 class Gallery(models.Model):
-    """Photo gallery for events and company activities"""
+    """Photo gallery for events and company activities with enhanced image support"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
     image = OptimizedImageField(upload_to='gallery/')
+    thumbnail = OptimizedImageField(upload_to='gallery/thumbnails/', blank=True, null=True)
     category = models.CharField(max_length=100, choices=[
-        ('events', 'Events'),
-        ('team', 'Team'),
+        ('ai_solutions', 'AI Solutions'),
+        ('team_events', 'Team Events'),
+        ('conferences', 'Conferences'),
+        ('workshops', 'Workshops'),
         ('office', 'Office'),
         ('awards', 'Awards'),
+        ('client_meetings', 'Client Meetings'),
+        ('product_demos', 'Product Demos'),
+        ('research', 'Research & Development'),
         ('other', 'Other')
-    ])
+    ], default='other')
     event = models.ForeignKey(Event, on_delete=models.CASCADE, blank=True, null=True)
     is_featured = models.BooleanField(default=False)
+    is_hero_image = models.BooleanField(default=False, help_text="Use as hero background image")
     order = models.PositiveIntegerField(default=0)
+    alt_text = models.CharField(max_length=200, blank=True, help_text="Alt text for accessibility")
+    tags = models.JSONField(default=list, help_text="Tags for filtering and search")
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         ordering = ['order', '-created_at']
@@ -227,6 +271,28 @@ class Gallery(models.Model):
     
     def __str__(self):
         return self.title
+    
+    def save(self, *args, **kwargs):
+        # Auto-generate alt text if not provided
+        if not self.alt_text:
+            self.alt_text = f"{self.title} - AI Solution Hub Gallery"
+        super().save(*args, **kwargs)
+    
+    @property
+    def image_url(self):
+        """Return image URL for templates"""
+        if self.image:
+            return self.image.url
+        return None
+    
+    @property
+    def thumbnail_url(self):
+        """Return thumbnail URL for templates"""
+        if self.thumbnail:
+            return self.thumbnail.url
+        elif self.image:
+            return self.image.url
+        return None
 
 
 class Testimonial(models.Model):
@@ -261,6 +327,7 @@ class Article(models.Model):
     content = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     featured_image = OptimizedImageField(upload_to='articles/', blank=True, null=True)
+    featured_image_url = models.URLField(blank=True, null=True, help_text="External image URL as alternative to uploaded image")
     tags = models.JSONField(default=list)
     category = models.CharField(max_length=100, choices=[
         ('ai_insights', 'AI Insights'),
@@ -283,9 +350,48 @@ class Article(models.Model):
         return self.title
     
     def save(self, *args, **kwargs):
-        if self.is_published and not self.published_at:
-            self.published_at = timezone.now()
+        # Auto-generate slug if empty
+        if not self.slug:
+            from django.utils.text import slugify
+            self.slug = slugify(self.title)
+            
+            # Ensure slug is unique
+            original_slug = self.slug
+            counter = 1
+            while Article.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
+                self.slug = f"{original_slug}-{counter}"
+                counter += 1
+        
+        # Auto-manage published_at timestamp
+        if self.is_published:
+            if not self.published_at:
+                self.published_at = timezone.now()
+        else:
+            # When unpublishing, clear published_at so it behaves as a draft
+            self.published_at = None
         super().save(*args, **kwargs)
+
+    @property
+    def get_featured_image(self) -> str:
+        """Return the featured image URL (uploaded file or external URL)."""
+        if self.featured_image:
+            return self.featured_image.url
+        elif self.featured_image_url:
+            return self.featured_image_url
+        return ""
+    
+    @property
+    def first_image_url(self) -> str:
+        """Return the first image URL found in content (best-effort), or empty string."""
+        try:
+            import re
+            if not self.content:
+                return ""
+            # Search for <img src="..."> first occurrence
+            m = re.search(r'<img[^>]+src=["\']([^"\']+)["\']', self.content, re.IGNORECASE)
+            return m.group(1) if m else ""
+        except Exception:
+            return ""
 
 
 class AdminDashboard(models.Model):
@@ -303,6 +409,31 @@ class AdminDashboard(models.Model):
     
     def __str__(self):
         return self.dashboard_title
+
+
+class NewsletterSubscriber(models.Model):
+    """Newsletter subscription management"""
+    email = models.EmailField(unique=True, help_text="Subscriber email address")
+    subscribed_at = models.DateTimeField(auto_now_add=True, help_text="When the user subscribed")
+    is_active = models.BooleanField(default=True, help_text="Whether the subscription is active")
+    source = models.CharField(max_length=100, default='website', help_text="Where the subscription came from")
+    unsubscribed_at = models.DateTimeField(null=True, blank=True, help_text="When the user unsubscribed")
+    ip_address = models.GenericIPAddressField(null=True, blank=True, help_text="IP address when subscribed")
+    user_agent = models.TextField(blank=True, help_text="Browser information when subscribed")
+    
+    class Meta:
+        verbose_name = "Newsletter Subscriber"
+        verbose_name_plural = "Newsletter Subscribers"
+        ordering = ['-subscribed_at']
+    
+    def __str__(self):
+        return f"{self.email} ({'Active' if self.is_active else 'Inactive'})"
+    
+    def unsubscribe(self):
+        """Mark subscriber as unsubscribed"""
+        self.is_active = False
+        self.unsubscribed_at = timezone.now()
+        self.save()
 
 
 class SiteSettings(models.Model):
@@ -331,3 +462,20 @@ class SiteSettings(models.Model):
         """Get or create site settings singleton"""
         obj, created = cls.objects.get_or_create(pk=cls.objects.first().pk if cls.objects.exists() else None)
         return obj
+
+
+class ExportLog(models.Model):
+    """Audit log for data exports from admin/backoffice"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    model = models.CharField(max_length=150)
+    filter_summary = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Export Log'
+        verbose_name_plural = 'Export Logs'
+
+    def __str__(self):
+        return f"{self.model} export by {self.user or 'system'} at {self.created_at.strftime('%Y-%m-%d %H:%M')}"

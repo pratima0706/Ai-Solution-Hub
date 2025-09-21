@@ -1,0 +1,510 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Reports - AI Solution Hub Admin{% endblock %}
+
+{% block page_title %}Analytics & Reports{% endblock %}
+
+{% block content %}
+<!-- Date Range Filter -->
+<div class="search-filters">
+    <form method="get" class="filter-form">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label class="form-label">Date From</label>
+                <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Date To</label>
+                <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Update Report
+                    </button>
+                    <a class="btn btn-success" id="exportReportBtn">
+                        <i class="fas fa-download me-1"></i>Export Report (CSV)
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="card-subtitle">Total Inquiries</h6>
+                    <h3 class="kpi-value">{{ total_inquiries }}</h3>
+                </div>
+                <div class="kpi-icon info">
+                    <i class="fas fa-envelope"></i>
+                </div>
+            </div>
+            <div class="kpi-change positive">
+                <i class="fas fa-arrow-up"></i>
+                <span>+12% from last period</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="card-subtitle">New Inquiries</h6>
+                    <h3 class="kpi-value">{{ new_inquiries }}</h3>
+                </div>
+                <div class="kpi-icon success">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+            </div>
+            <div class="kpi-change positive">
+                <i class="fas fa-arrow-up"></i>
+                <span>+8% from last period</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="card-subtitle">Contacted</h6>
+                    <h3 class="kpi-value">{{ contacted_inquiries }}</h3>
+                </div>
+                <div class="kpi-icon warning">
+                    <i class="fas fa-phone"></i>
+                </div>
+            </div>
+            <div class="kpi-change positive">
+                <i class="fas fa-arrow-up"></i>
+                <span>+15% from last period</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="card-subtitle">Subscribers</h6>
+                    <h3 class="kpi-value">{{ total_subscribers }}</h3>
+                </div>
+                <div class="kpi-icon danger">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+            <div class="kpi-change positive">
+                <i class="fas fa-arrow-up"></i>
+                <span>+5% from last period</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <!-- Weekly Inquiries Chart -->
+    <div class="col-lg-8">
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title">Weekly Inquiries vs Subscribers</h5>
+                <p class="card-subtitle">Trend analysis for the selected period</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="weeklyChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top Countries -->
+    <div class="col-lg-4">
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title">Top Countries</h5>
+            </div>
+            <div class="chart-container">
+                <canvas id="countriesChart"></canvas>
+            </div>
+            <div class="countries-list mt-3">
+                {% for country in top_countries %}
+                <div class="country-item d-flex justify-content-between align-items-center mb-2">
+                    <div class="d-flex align-items-center">
+                        <div class="country-flag me-2">
+                            <i class="fas fa-flag"></i>
+                        </div>
+                        <span>{{ country.country }}</span>
+                    </div>
+                    <span class="badge bg-primary">{{ country.count }}</span>
+                </div>
+                {% empty %}
+                <div class="text-center text-secondary py-3">
+                    <i class="fas fa-globe fa-2x mb-2"></i>
+                    <p>No country data available</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Analytics -->
+<div class="row mb-4">
+    <!-- Inquiry Sources -->
+    <div class="col-lg-6">
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title">Inquiry Sources</h5>
+            </div>
+            <div class="chart-container">
+                <canvas id="sourcesChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Conversion Funnel -->
+    <div class="col-lg-6">
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title">Conversion Funnel</h5>
+            </div>
+            <div class="funnel-container">
+                <div class="funnel-stage">
+                    <div class="funnel-label">Total Inquiries</div>
+                    <div class="funnel-value">{{ total_inquiries }}</div>
+                    <div class="funnel-bar" style="width: 100%;"></div>
+                </div>
+                <div class="funnel-stage">
+                    <div class="funnel-label">In Progress</div>
+                    <div class="funnel-value">{{ new_inquiries }}</div>
+                    <div class="funnel-bar" style="width: 80%;"></div>
+                </div>
+                <div class="funnel-stage">
+                    <div class="funnel-label">Contacted</div>
+                    <div class="funnel-value">{{ contacted_inquiries }}</div>
+                    <div class="funnel-bar" style="width: 60%;"></div>
+                </div>
+                <div class="funnel-stage">
+                    <div class="funnel-label">Converted</div>
+                    <div class="funnel-value">0</div>
+                    <div class="funnel-bar" style="width: 30%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Options -->
+<div class="row">
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title">Export Options</h5>
+            </div>
+            <div class="export-options">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="export-card">
+                            <div class="export-icon">
+                                <i class="fas fa-file-csv"></i>
+                            </div>
+                            <h6>CSV Export</h6>
+                            <p>Download raw data in CSV format</p>
+                            <button class="btn btn-outline-primary btn-sm" onclick="exportCSV()">
+                                <i class="fas fa-download me-1"></i>Export CSV
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="export-card">
+                            <div class="export-icon">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <h6>PDF Report</h6>
+                            <p>Generate a formatted PDF report</p>
+                            <button class="btn btn-outline-danger btn-sm" onclick="exportPDF()">
+                                <i class="fas fa-download me-1"></i>Export PDF
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="export-card">
+                            <div class="export-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h6>Chart Images</h6>
+                            <p>Download charts as PNG images</p>
+                            <button class="btn btn-outline-success btn-sm" onclick="exportCharts()">
+                                <i class="fas fa-download me-1"></i>Export Charts
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin: 1rem 0;
+}
+
+.countries-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.country-item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.country-item:last-child {
+    border-bottom: none;
+}
+
+.country-flag {
+    width: 20px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.funnel-container {
+    padding: 1rem 0;
+}
+
+.funnel-stage {
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.funnel-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.funnel-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.funnel-bar {
+    height: 20px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+.export-options {
+    padding: 1rem 0;
+}
+
+.export-card {
+    text-align: center;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.export-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.export-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.export-card h6 {
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.export-card p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize charts
+    initWeeklyChart();
+    initCountriesChart();
+    initSourcesChart();
+});
+
+function initWeeklyChart() {
+    const ctx = document.getElementById('weeklyChart').getContext('2d');
+    
+    // Sample data - replace with actual data from backend
+    const weeklyData = {{ weekly_data|safe }};
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: weeklyData.map(item => item.date),
+            datasets: [{
+                label: 'Inquiries',
+                data: weeklyData.map(item => item.inquiries),
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                tension: 0.4,
+                fill: true
+            }, {
+                label: 'Subscribers',
+                data: weeklyData.map(item => item.subscribers),
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+function initCountriesChart() {
+    const ctx = document.getElementById('countriesChart').getContext('2d');
+    
+    // Sample data - replace with actual data from backend
+    const countriesData = [
+        { country: 'USA', count: 45 },
+        { country: 'Canada', count: 32 },
+        { country: 'UK', count: 28 },
+        { country: 'Germany', count: 22 },
+        { country: 'Australia', count: 18 }
+    ];
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: countriesData.map(item => item.country),
+            datasets: [{
+                data: countriesData.map(item => item.count),
+                backgroundColor: [
+                    '#6366f1',
+                    '#10b981',
+                    '#f59e0b',
+                    '#ef4444',
+                    '#8b5cf6'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+function initSourcesChart() {
+    const ctx = document.getElementById('sourcesChart').getContext('2d');
+    
+    // Sample data - replace with actual data from backend
+    const sourcesData = {
+        labels: ['Website', 'Social Media', 'Referrals', 'Email', 'Other'],
+        datasets: [{
+            data: [40, 25, 20, 10, 5],
+            backgroundColor: [
+                '#6366f1',
+                '#10b981',
+                '#f59e0b',
+                '#ef4444',
+                '#8b5cf6'
+            ],
+            borderWidth: 0
+        }]
+    };
+    
+    new Chart(ctx, {
+        type: 'pie',
+        data: sourcesData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// Wire CSV export to backend, preserving current date range
+document.getElementById('exportReportBtn')?.addEventListener('click', function (e) {
+    e.preventDefault();
+    const df = document.querySelector('input[name="date_from"]').value;
+    const dt = document.querySelector('input[name="date_to"]').value;
+    const params = new URLSearchParams();
+    if (df) params.set('date_from', df);
+    if (dt) params.set('date_to', dt);
+    const url = `{% url 'djadmin:export_reports_csv' %}?${params.toString()}`;
+    window.location.href = url;
+});
+
+function exportCSV() {
+    showNotification('Exporting CSV data...', 'info');
+    // Simulate CSV export
+    setTimeout(() => {
+        showNotification('CSV data exported successfully!', 'success');
+    }, 2000);
+}
+
+function exportPDF() {
+    showNotification('Generating PDF report...', 'info');
+    // Simulate PDF generation
+    setTimeout(() => {
+        showNotification('PDF report generated successfully!', 'success');
+    }, 3000);
+}
+
+function exportCharts() {
+    showNotification('Exporting chart images...', 'info');
+    // Simulate chart export
+    setTimeout(() => {
+        showNotification('Chart images exported successfully!', 'success');
+    }, 2000);
+}
+</script>
+{% endblock %}

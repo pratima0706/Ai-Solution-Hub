@@ -1,0 +1,648 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Dashboard - AI Solution Hub Admin{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Welcome Banner -->
+<div class="welcome-banner dashboard-card">
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <h2 class="mb-2">Welcome back, {{ user.get_full_name|default:user.username }}!</h2>
+            <p class="text-secondary mb-0">Track your inquiries, leads, and business metrics here.</p>
+        </div>
+        <div class="welcome-actions">
+            <button class="btn btn-primary me-2">
+                <i class="fas fa-plus me-1"></i>New Inquiry
+            </button>
+            <button class="btn btn-secondary">
+                <i class="fas fa-download me-1"></i>Export Data
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- KPI Cards Row -->
+<div class="row mb-4">
+    <!-- Target Progress Card -->
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="kpi-card primary">
+            <div class="card-header">
+                <h5 class="card-title">Your target is incomplete</h5>
+            </div>
+            <div class="text-center">
+                <div class="progress-circle" data-percentage="48">
+                    <div class="progress-text">48%</div>
+                </div>
+                <p class="text-white-50 mb-3">You have completed 48% of the given target, you can also check your status.</p>
+                <button class="btn btn-light btn-sm">Click here</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Inquiries Card -->
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="kpi-card">
+            <div class="card-header">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="card-subtitle">Total Inquiries</h6>
+                        <h3 class="kpi-value" id="kpiTotalInquiries">{{ total_inquiries|default:"1,024" }}</h3>
+                    </div>
+                    <div class="kpi-icon success">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+                <a href="{% url 'djadmin:inquiries_list' %}" class="text-decoration-none">View All</a>
+                <div class="kpi-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+40% this month</span>
+                </div>
+            </div>
+            <div class="chart-container small">
+                <canvas id="inquiriesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Revenue Card -->
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="kpi-card">
+            <div class="card-header">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="card-subtitle">Total Revenue</h6>
+                        <h3 class="kpi-value">${{ total_revenue|default:"56,562" }}</h3>
+                    </div>
+                    <div class="kpi-icon warning">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+                <a href="{% url 'djadmin:reports' %}" class="text-decoration-none">View All</a>
+                <div class="kpi-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+25% this month</span>
+                </div>
+            </div>
+            <div class="chart-container small">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Second Row -->
+<div class="row mb-4">
+    <!-- Top Inquiries Card -->
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title">Top Inquiries</h5>
+            </div>
+            <div class="top-inquiries-list">
+                {% for inquiry in top_inquiries %}
+                <div class="inquiry-item d-flex align-items-center mb-3">
+                    <div class="inquiry-avatar me-3">
+                        <div class="avatar-circle">
+                            {{ inquiry.name|first|upper }}
+                        </div>
+                    </div>
+                    <div class="inquiry-details flex-grow-1">
+                        <div class="inquiry-name">{{ inquiry.name }}</div>
+                        <div class="inquiry-email text-secondary">{{ inquiry.email }}</div>
+                    </div>
+                    <div class="inquiry-amount">
+                        <span class="badge bg-primary">{{ inquiry.company }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center text-secondary py-3">
+                    <i class="fas fa-inbox fa-2x mb-2"></i>
+                    <p>No inquiries yet</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Conversion Ratio Card -->
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="kpi-card">
+            <div class="card-header">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="card-subtitle">Conversion Ratio</h6>
+                        <h3 class="kpi-value">{{ conversion_ratio|default:"12.08" }}%</h3>
+                    </div>
+                    <div class="kpi-icon info">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+                <a href="{% url 'djadmin:reports' %}" class="text-decoration-none">View All</a>
+                <div class="kpi-change negative">
+                    <i class="fas fa-arrow-down"></i>
+                    <span>-12% this month</span>
+                </div>
+            </div>
+            <div class="chart-container small">
+                <canvas id="conversionChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inquiries By Source Card -->
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title">Inquiries By Source</h5>
+            </div>
+            <div class="chart-container">
+                <canvas id="sourceChart"></canvas>
+            </div>
+            <div class="source-legend mt-3">
+                <div class="legend-item d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center">
+                        <div class="legend-color" style="background-color: var(--primary-color);"></div>
+                        <span>Website</span>
+                    </div>
+                    <span class="fw-bold">{{ website_inquiries|default:"1,624" }}</span>
+                </div>
+                <div class="legend-item d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center">
+                        <div class="legend-color" style="background-color: var(--success-color);"></div>
+                        <span>Social Media</span>
+                    </div>
+                    <span class="fw-bold">{{ social_inquiries|default:"1,267" }}</span>
+                </div>
+                <div class="legend-item d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center">
+                        <div class="legend-color" style="background-color: var(--warning-color);"></div>
+                        <span>Referrals</span>
+                    </div>
+                    <span class="fw-bold">{{ referral_inquiries|default:"1,153" }}</span>
+                </div>
+                <div class="legend-item d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <div class="legend-color" style="background-color: var(--danger-color);"></div>
+                        <span>Other</span>
+                    </div>
+                    <span class="fw-bold">{{ other_inquiries|default:"679" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Third Row -->
+<div class="row mb-4">
+    <!-- Revenue Analytics Card -->
+    <div class="col-lg-8 mb-3">
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title">Revenue Analytics</h5>
+                <p class="card-subtitle">Revenue Analytics with sales & profit (USD)</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="revenueAnalyticsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inquiry Status Card -->
+    <div class="col-lg-4 mb-3">
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title">Inquiry Status</h5>
+            </div>
+            <div class="text-center mb-3">
+                <h2 class="kpi-value">{{ total_inquiries|default:"4,289" }}</h2>
+                <div class="kpi-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>10% compared to last week</span>
+                </div>
+            </div>
+            <div class="status-list">
+                <div class="status-item d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="status-dot" style="background-color: var(--success-color);"></div>
+                        <span>Successful Inquiries</span>
+                    </div>
+                    <span class="fw-bold">{{ successful_inquiries|default:"907" }} inquiries</span>
+                </div>
+                <div class="status-item d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="status-dot" style="background-color: var(--warning-color);"></div>
+                        <span>Pending Inquiries</span>
+                    </div>
+                    <span class="fw-bold">{{ pending_inquiries|default:"1,073" }} inquiries</span>
+                </div>
+                <div class="status-item d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="status-dot" style="background-color: var(--danger-color);"></div>
+                        <span>Rejected Inquiries</span>
+                    </div>
+                    <span class="fw-bold">{{ rejected_inquiries|default:"1,674" }} inquiries</span>
+                </div>
+                <div class="status-item d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <div class="status-dot" style="background-color: var(--primary-color);"></div>
+                        <span>New Inquiries</span>
+                    </div>
+                    <span class="fw-bold">{{ new_inquiries|default:"921" }} inquiries</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fourth Row -->
+<div class="row mb-4">
+    <!-- Weekly Profit Card -->
+    <div class="col-lg-6 mb-3">
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title">Weekly Profit</h5>
+            </div>
+            <div class="chart-container">
+                <canvas id="weeklyProfitChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Card -->
+    <div class="col-lg-6 mb-3">
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title">Recent Activity</h5>
+            </div>
+            <div class="activity-list">
+                {% for activity in recent_activities %}
+                <div class="activity-item d-flex align-items-start mb-3">
+                    <div class="activity-icon me-3">
+                        <i class="fas fa-{{ activity.icon|default:'circle' }} text-primary"></i>
+                    </div>
+                    <div class="activity-content flex-grow-1">
+                        <div class="activity-text">{{ activity.text }}</div>
+                        <div class="activity-time text-secondary">{{ activity.time }}</div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="activity-item d-flex align-items-start mb-3">
+                    <div class="activity-icon me-3">
+                        <i class="fas fa-calendar text-primary"></i>
+                    </div>
+                    <div class="activity-content flex-grow-1">
+                        <div class="activity-text">Update of calendar events & Added new events in next week.</div>
+                        <div class="activity-time text-secondary">4:45PM</div>
+                    </div>
+                </div>
+                <div class="activity-item d-flex align-items-start mb-3">
+                    <div class="activity-icon me-3">
+                        <i class="fas fa-palette text-primary"></i>
+                    </div>
+                    <div class="activity-content flex-grow-1">
+                        <div class="activity-text">New theme for AI Solution Hub Website completed.</div>
+                        <div class="activity-time text-secondary">3 hrs</div>
+                    </div>
+                </div>
+                <div class="activity-item d-flex align-items-start mb-3">
+                    <div class="activity-icon me-3">
+                        <i class="fas fa-tasks text-primary"></i>
+                    </div>
+                    <div class="activity-content flex-grow-1">
+                        <div class="activity-text">Created a New Task today</div>
+                        <div class="activity-time text-secondary">22 hrs</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inquiry Statistics Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title">Inquiry Statistics</h5>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="search-box">
+                        <input type="text" class="form-control" placeholder="Search Here" id="inquirySearch">
+                    </div>
+                    <select class="form-select" id="sortSelect">
+                        <option>Sort By</option>
+                        <option>Name</option>
+                        <option>Date</option>
+                        <option>Status</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="data-table" id="inquiryStatsTable">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" class="form-check-input"></th>
+                            <th>Sales Rep</th>
+                            <th>Category</th>
+                            <th>Email</th>
+                            <th>Location</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inquiry in inquiry_statistics %}
+                        <tr>
+                            <td><input type="checkbox" class="form-check-input"></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-2">{{ inquiry.name|first|upper }}</div>
+                                    {{ inquiry.name }}
+                                </div>
+                            </td>
+                            <td><span class="badge bg-primary">{{ inquiry.category|default:"AI Consulting" }}</span></td>
+                            <td>{{ inquiry.email }}</td>
+                            <td>{{ inquiry.country|default:"USA" }}</td>
+                            <td>{{ inquiry.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-secondary py-4">
+                                <i class="fas fa-inbox fa-2x mb-2"></i>
+                                <p>No inquiry statistics available</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <div class="pagination-info">Showing 5 Entries</div>
+                <div class="pagination-controls">
+                    <a href="#" class="page-btn">Prev</a>
+                    <a href="#" class="page-btn active">1</a>
+                    <a href="#" class="page-btn">2</a>
+                    <a href="#" class="page-btn">next</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.welcome-banner {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border: none;
+}
+
+.welcome-actions .btn {
+    border-radius: 0.5rem;
+}
+
+.avatar-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.inquiry-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.inquiry-item:last-child {
+    border-bottom: none;
+}
+
+.inquiry-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+.inquiry-email {
+    font-size: 0.75rem;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+}
+
+.activity-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: rgba(99, 102, 241, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+}
+
+.activity-text {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.activity-time {
+    font-size: 0.75rem;
+}
+
+.search-box {
+    min-width: 200px;
+}
+
+.page-btn {
+    min-width: 40px;
+    text-align: center;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize charts
+    initDashboardCharts();
+    
+    // Initialize search
+    const searchInput = document.getElementById('inquirySearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            filterInquiryTable(this.value);
+        });
+    }
+});
+
+function initDashboardCharts() {
+    // Inquiries Chart
+    const inquiriesCtx = document.getElementById('inquiriesChart');
+    if (inquiriesCtx) {
+        createLineChart(inquiriesCtx, {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            values: [12, 19, 3, 5, 2, 3],
+            label: 'Inquiries'
+        }, {
+            color: 'var(--success-color)',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)'
+        });
+    }
+    
+    // Revenue Chart
+    const revenueCtx = document.getElementById('revenueChart');
+    if (revenueCtx) {
+        createLineChart(revenueCtx, {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            values: [5, 8, 12, 6, 9, 15],
+            label: 'Revenue'
+        }, {
+            color: 'var(--warning-color)',
+            backgroundColor: 'rgba(245, 158, 11, 0.1)'
+        });
+    }
+    
+    // Conversion Chart
+    const conversionCtx = document.getElementById('conversionChart');
+    if (conversionCtx) {
+        createLineChart(conversionCtx, {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            values: [8, 12, 6, 9, 15, 7],
+            label: 'Conversion'
+        }, {
+            color: 'var(--info-color)',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)'
+        });
+    }
+    
+    // Source Chart
+    const sourceCtx = document.getElementById('sourceChart');
+    if (sourceCtx) {
+        createDoughnutChart(sourceCtx, {
+            labels: ['Website', 'Social Media', 'Referrals', 'Other'],
+            values: [1624, 1267, 1153, 679]
+        }, {
+            colors: ['var(--primary-color)', 'var(--success-color)', 'var(--warning-color)', 'var(--danger-color)']
+        });
+    }
+    
+    // Revenue Analytics Chart
+    const revenueAnalyticsCtx = document.getElementById('revenueAnalyticsChart');
+    if (revenueAnalyticsCtx) {
+        const ctx = revenueAnalyticsCtx.getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Sales',
+                    data: [65, 59, 80, 81, 56, 55, 40, 70, 85, 90, 75, 80],
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Revenue',
+                    data: [28, 48, 40, 19, 86, 27, 90, 60, 45, 70, 55, 65],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Profit',
+                    data: [18, 28, 30, 29, 46, 17, 50, 40, 35, 50, 35, 45],
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    }
+    
+    // Weekly Profit Chart
+    const weeklyProfitCtx = document.getElementById('weeklyProfitChart');
+    if (weeklyProfitCtx) {
+        createBarChart(weeklyProfitCtx, {
+            labels: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+            values: [20, 35, 45, 30, 55, 40, 25],
+            label: 'Profit'
+        }, {
+            backgroundColor: '#6366f1'
+        });
+    }
+}
+
+function filterInquiryTable(searchTerm) {
+    const table = document.getElementById('inquiryStatsTable');
+    const rows = table.querySelectorAll('tbody tr');
+    
+    rows.forEach(function(row) {
+        const text = row.textContent.toLowerCase();
+        const shouldShow = text.includes(searchTerm.toLowerCase());
+        row.style.display = shouldShow ? '' : 'none';
+    });
+}
+</script>
+<script>
+// Lightweight KPI auto-refresh
+async function refreshKpis(){
+    try{
+        const res = await fetch('{% url 'djadmin:kpi_summary' %}', {headers:{'X-Requested-With':'XMLHttpRequest'}});
+        if(!res.ok) return;
+        const data = await res.json();
+        const el = document.getElementById('kpiTotalInquiries');
+        if (el && data.total_inquiries !== undefined){
+            el.textContent = data.total_inquiries;
+        }
+    }catch(e){/* silent */}
+}
+setInterval(refreshKpis, 30000);
+</script>
+{% endblock %}

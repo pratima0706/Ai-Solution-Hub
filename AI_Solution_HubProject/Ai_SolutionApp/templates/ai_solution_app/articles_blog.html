@@ -1,274 +1,258 @@
 {% extends 'ai_solution_app/base.html' %}
 
-{% block title %}Articles & Blog - AI Solution Hub{% endblock %}
+{% block title %}News & Articles - AI Solution Hub{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
-<section class="relative bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 text-white py-16">
-    <div class="absolute inset-0 bg-black opacity-20"></div>
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h1 class="text-4xl md:text-6xl font-bold mb-6">
-            AI <span class="gradient-text">Insights</span> & Blog
+<section class="relative hero-landing hero-landing-overlay py-20">
+    <div class="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-indigo-900/20"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row items-center justify-between">
+            <div class="lg:w-2/3">
+                <div class="inline-block bg-[var(--card)] text-[var(--text)] px-4 py-2 rounded-lg text-sm font-semibold mb-4 border border-[var(--border)]">
+                    BLOG
+                </div>
+                <h1 class="text-5xl md:text-6xl font-bold mb-6 text-white">
+                    News & articles
         </h1>
-        <p class="text-xl text-purple-100 max-w-3xl mx-auto">
+                <p class="text-lg text-blue-100 max-w-2xl leading-relaxed">
             Stay ahead with expert analysis, industry trends, and practical AI implementation strategies from our team of specialists.
         </p>
+            </div>
+            <div class="lg:w-1/3 mt-8 lg:mt-0">
+                <form class="flex" method="get" action="">
+                    <input type="text" name="search" value="{{ search_query|default:'' }}" placeholder="Search for articles" class="flex-1 px-4 py-3 bg-[var(--card)] border border-[var(--border)] rounded-l-lg text-[var(--text)] placeholder-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-r-lg font-semibold transition-colors">
+                        Search
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 </section>
 
-<!-- Featured Article Section -->
-{% if featured_articles %}
-<section class="py-20 bg-gray-50 dark:bg-gray-800">
+<!-- Featured Articles Section (Carousel) -->
+<section class="py-16 bg-[var(--bg)]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-                Featured <span class="gradient-text">Article</span>
-            </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                Our most popular and insightful content that's making waves in the AI industry.
-            </p>
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-3xl font-bold text-[var(--text)]">Featured</h2>
+            <div class="hidden md:flex items-center gap-3">
+                <button id="featPrev" class="w-10 h-10 bg-slate-800 hover:bg-slate-700 rounded-full flex items-center justify-center text-white transition-colors" aria-label="Previous">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button id="featNext" class="w-10 h-10 bg-slate-800 hover:bg-slate-700 rounded-full flex items-center justify-center text-white transition-colors" aria-label="Next">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
         </div>
         
-        {% for article in featured_articles|slice:":1" %}
-        <div class="bg-white dark:bg-gray-700 rounded-3xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-600">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-0">
-                <div class="bg-gradient-to-br from-purple-500 to-pink-600 p-12 flex items-center justify-center">
-                    <div class="text-center text-white">
-                        <i class="fas fa-newspaper text-6xl mb-6 opacity-80"></i>
-                        <h3 class="text-2xl font-bold mb-4">Featured Content</h3>
-                        <p class="text-purple-100">Must-read AI insights</p>
-                    </div>
-                </div>
-                <div class="p-12">
-                    <div class="flex items-center mb-6">
-                        <span class="inline-block bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-sm font-medium px-3 py-1 rounded-full">
-                            {{ article.category|title }}
-                        </span>
-                        <span class="ml-4 text-sm text-gray-500 dark:text-gray-400">
-                            <i class="fas fa-calendar mr-2"></i>{{ article.published_at|date:"M d, Y"|default:article.created_at|date:"M d, Y" }}
-                        </span>
-                    </div>
-                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">{{ article.title }}</h3>
-                    <p class="text-lg text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">{{ article.excerpt }}</p>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center mr-4">
-                                <i class="fas fa-user text-white"></i>
-                            </div>
-                            <div>
-                                <p class="font-semibold text-gray-900 dark:text-white">{{ article.author }}</p>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">AI Specialist</p>
-                            </div>
+        <div id="featWrap" class="relative">
+            <div id="featList" class="overflow-x-auto scroll-smooth snap-x snap-mandatory no-scrollbar">
+                <div class="flex gap-6">
+                {% for article in page_obj.object_list|slice:":12" %}
+                    <div class="snap-start w-[85%] sm:w-[60%] lg:w-[32%] bg-[var(--card)] rounded-2xl p-6 border border-[var(--border)] hover:border-blue-500 transition-colors flex-shrink-0">
+                        <div class="w-full h-40 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg mb-4 overflow-hidden">
+                            {% if article.featured_image %}
+                            <img src="{{ article.featured_image.url }}" alt="{{ article.title }}" class="w-full h-40 object-cover">
+                            {% elif article.first_image_url %}
+                            <img src="{{ article.first_image_url }}" alt="{{ article.title }}" class="w-full h-40 object-cover">
+                            {% endif %}
                         </div>
-                        <a href="{% url 'ai_solution_app:article_detail' article.slug %}" class="bg-gradient-to-r from-purple-500 to-pink-600 text-white px-8 py-4 rounded-full font-semibold hover:from-purple-600 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                            Read Full Article
-                            <i class="fas fa-arrow-right ml-2"></i>
-                        </a>
+                        <div class="text-sm text-[var(--text-secondary)] mb-2">{{ article.category|title }} | {{ article.published_at|date:"M d, Y" }}</div>
+                        <h3 class="text-lg font-bold text-[var(--text)] mb-3 line-clamp-2">{{ article.title }}</h3>
+                        <p class="text-sm text-[var(--text-secondary)] mb-4 line-clamp-2">{{ article.excerpt|default:article.content|truncatewords:25 }}</p>
+                        <a href="{% url 'ai_solution_app:article_detail' article.slug %}" class="inline-flex items-center text-[var(--primary)] hover:text-[var(--secondary)] font-semibold">Read more<i class="fas fa-arrow-right ml-2 text-xs"></i></a>
                     </div>
+                {% endfor %}
                 </div>
             </div>
         </div>
-        {% endfor %}
     </div>
-</section>
-{% endif %}
-
-<!-- All Articles Section -->
-<section class="py-20 bg-white dark:bg-gray-900">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-                Latest <span class="gradient-text">Articles</span>
-            </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                Explore our comprehensive collection of AI insights, tutorials, and industry analysis.
-            </p>
-        </div>
-        
-        <!-- Category Filter -->
-        <div class="flex flex-wrap justify-center gap-4 mb-12">
-            <button class="px-6 py-3 bg-purple-500 text-white rounded-full font-semibold hover:bg-purple-600 transition-colors duration-200">
-                All Articles
-            </button>
-            <button class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
-                AI Insights
-            </button>
-            <button class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
-                Industry News
-            </button>
-            <button class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
-                Case Studies
-            </button>
-            <button class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
-                Technology
-            </button>
-        </div>
-        
-        <!-- Articles Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {% for article in articles %}
-            <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-200 dark:border-gray-600 overflow-hidden">
-                <div class="p-8">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="inline-block bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-sm font-medium px-3 py-1 rounded-full">
-                            {{ article.category|title }}
-                        </span>
-                        <span class="text-sm text-gray-500 dark:text-gray-400">
-                            {{ article.published_at|date:"M d"|default:article.created_at|date:"M d" }}
-                        </span>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">{{ article.title }}</h3>
-                    <p class="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">{{ article.excerpt|truncatewords:25 }}</p>
-                    
-                    <!-- Tags -->
-                    {% if article.tags %}
-                    <div class="flex flex-wrap gap-2 mb-6">
-                        {% for tag in article.tags|slice:":3" %}
-                        <span class="inline-block bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 text-xs px-2 py-1 rounded-full">
-                            #{{ tag }}
-                        </span>
-                        {% endfor %}
-                        {% if article.tags|length > 3 %}
-                        <span class="inline-block bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 text-xs px-2 py-1 rounded-full">
-                            +{{ article.tags|length|add:"-3" }} more
-                        </span>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                    
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center mr-3">
-                                <i class="fas fa-user text-white text-sm"></i>
-                            </div>
-                            <span class="text-sm text-gray-500 dark:text-gray-400">{{ article.author }}</span>
-                        </div>
-                        <a href="{% url 'ai_solution_app:article_detail' article.slug %}" class="inline-flex items-center text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-semibold transition-colors duration-200">
-                            Read More
-                            <i class="fas fa-arrow-right ml-2"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-span-full text-center py-12">
-                <div class="w-24 h-24 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-newspaper text-3xl text-gray-400 dark:text-gray-500"></i>
-                </div>
-                <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">No Articles Available</h3>
-                <p class="text-gray-500 dark:text-gray-500">We're working on new content. Check back soon!</p>
-            </div>
-            {% endfor %}
-        </div>
-        
-        <!-- Load More Button -->
-        {% if articles|length > 6 %}
-        <div class="text-center mt-12">
-            <button class="bg-gradient-to-r from-purple-500 to-pink-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                Load More Articles
-                <i class="fas fa-chevron-down ml-2"></i>
-            </button>
-        </div>
-        {% endif %}
-    </div>
+    <style>
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </section>
 
 <!-- Newsletter Section -->
-<section class="py-20 bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 text-white">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-4xl md:text-5xl font-bold mb-6">
-            Stay Updated with AI Insights
+<section class="py-16 bg-slate-900 relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-t from-blue-900/20 via-purple-900/10 to-transparent"></div>
+    <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+    <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+            Subscribe to our weekly newsletter
         </h2>
-        <p class="text-xl mb-8 text-purple-100 max-w-3xl mx-auto">
-            Subscribe to our newsletter and get the latest AI trends, case studies, and expert insights delivered directly to your inbox.
+        <p class="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
+            Stay ahead with expert analysis, industry trends, and practical AI implementation strategies from our team of specialists.
         </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-            <input type="email" placeholder="Enter your email" class="flex-1 px-6 py-4 rounded-full text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-purple-300">
-            <button class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-8 py-4 rounded-full font-semibold hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+        <form id="newsletterForm" class="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+            {% csrf_token %}
+            <input type="email" name="email" placeholder="Enter your email address" class="flex-1 px-6 py-4 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold transition-colors">
                 Subscribe
             </button>
-        </div>
-        <p class="text-sm text-purple-200 mt-4">No spam, unsubscribe at any time.</p>
+        </form>
+        <div id="newsletterMessage" class="mt-4 text-center text-sm"></div>
     </div>
 </section>
 
-<!-- Call to Action Section -->
-<section class="py-20 bg-gray-50 dark:bg-gray-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-            Ready to Share Your AI Story?
-        </h2>
-        <p class="text-xl mb-8 text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Have insights, case studies, or AI experiences to share? We'd love to feature your content and help you reach our community of AI enthusiasts.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{% url 'ai_solution_app:contact_us' %}" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                Submit Your Article
-            </a>
-            <a href="{% url 'ai_solution_app:contact_us' %}" class="border-2 border-purple-500 text-purple-600 dark:text-purple-400 px-8 py-4 rounded-full text-lg font-semibold hover:bg-purple-500 hover:text-white dark:hover:bg-purple-500 dark:hover:text-white transition-all duration-300 transform hover:scale-105">
-                Become a Contributor
-            </a>
+<!-- Latest Articles Section -->
+<section class="py-16 bg-[var(--bg)]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Left Side - Filters and Social -->
+            <div class="lg:col-span-1">
+                <h2 class="text-3xl font-bold text-[var(--text)] mb-6">Latest articles</h2>
+        
+        <!-- Category Filter -->
+                <div class="space-y-2 mb-8">
+                    <a href="{% url 'ai_solution_app:articles_blog' %}" class="block w-full text-left px-4 py-2 rounded-lg font-semibold {% if not selected_category %}bg-[var(--primary)] text-white{% else %}text-[var(--text-secondary)] hover:text-[var(--text)] hover:bg-[var(--hover)] border border-[var(--border)]{% endif %}">All</a>
+                    <a href="{% url 'ai_solution_app:articles_blog' %}?category=company" class="block w-full text-left px-4 py-2 rounded-lg {% if selected_category == 'company' %}bg-[var(--primary)] text-white{% else %}text-[var(--text-secondary)] hover:text-[var(--text)] hover:bg-[var(--hover)] border border-[var(--border)]{% endif %}">Company</a>
+                    <a href="{% url 'ai_solution_app:articles_blog' %}?category=news" class="block w-full text-left px-4 py-2 rounded-lg {% if selected_category == 'news' %}bg-[var(--primary)] text-white{% else %}text-[var(--text-secondary)] hover:text-[var(--text)] hover:bg-[var(--hover)] border border-[var(--border)]{% endif %}">News</a>
+                    <a href="{% url 'ai_solution_app:articles_blog' %}?category=product" class="block w-full text-left px-4 py-2 rounded-lg {% if selected_category == 'product' %}bg-[var(--primary)] text-white{% else %}text-[var(--text-secondary)] hover:text-[var(--text)] hover:bg-[var(--hover)] border border-[var(--border)]{% endif %}">Product</a>
+        </div>
+        
+                <!-- Social Media -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold text-[var(--text)] mb-4">Follow us on social media</h3>
+                    <p class="text-sm text-[var(--text-secondary)] mb-4">Stay connected for the latest updates</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 bg-[var(--card)] hover:bg-[var(--primary)] rounded-full flex items-center justify-center text-[var(--text)] hover:text-white transition-colors border border-[var(--border)]">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-[var(--card)] hover:bg-[var(--primary)] rounded-full flex items-center justify-center text-[var(--text)] hover:text-white transition-colors border border-[var(--border)]">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-[var(--card)] hover:bg-[var(--primary)] rounded-full flex items-center justify-center text-[var(--text)] hover:text-white transition-colors border border-[var(--border)]">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-[var(--card)] hover:bg-[var(--primary)] rounded-full flex items-center justify-center text-[var(--text)] hover:text-white transition-colors border border-[var(--border)]">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Side - Articles List -->
+            <div class="lg:col-span-3">
+                <!-- Articles List (Accordion) -->
+                <div id="articlesAccordion" class="space-y-2">
+                    {% for article in page_obj.object_list %}
+                    <div class="border-b border-[var(--border)] py-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1 pr-4">
+                                <div class="flex items-center space-x-4 mb-1">
+                                    <span class="text-sm text-[var(--text-secondary)]">{{ article.category|title }}</span>
+                                    <span class="text-sm text-[var(--text-secondary)]">{{ article.published_at|date:"M d, Y" }}</span>
+                                </div>
+                                <h3 class="text-lg font-bold text-[var(--text)]">{{ article.title }}</h3>
+                            </div>
+                            <button class="acc-toggle w-8 h-8 bg-[var(--card)] hover:bg-[var(--hover)] rounded-full flex items-center justify-center text-[var(--text)] transition-colors border border-[var(--border)]" aria-expanded="false">
+                                <i class="fas fa-plus text-sm"></i>
+                            </button>
+                        </div>
+                        <div class="acc-panel hidden mt-3 text-[var(--text-secondary)]">
+                            <p class="mb-3">{{ article.excerpt|default:article.content|truncatewords:40 }}</p>
+                            <a href="{% url 'ai_solution_app:article_detail' article.slug %}" class="inline-flex items-center text-[var(--primary)] hover:text-[var(--secondary)] font-semibold">Read more<i class="fas fa-arrow-right ml-2 text-xs"></i></a>
+                        </div>
+                    </div>
+            {% endfor %}
+        </div>
+        
+                <!-- Pagination -->
+                {% if page_obj.has_other_pages %}
+                <div class="text-center mt-8 flex items-center justify-center gap-2">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700">Prev</a>
+                    {% endif %}
+                    <span class="text-sm text-gray-400">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700">Next</a>
+                    {% endif %}
+        </div>
+        {% endif %}
+    </div>
         </div>
     </div>
 </section>
 
-<!-- JavaScript for Category Filter -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Category filter functionality
-    const categoryButtons = document.querySelectorAll('.flex.flex-wrap.justify-center button');
-    
-    categoryButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Remove active state from all category buttons
-            categoryButtons.forEach(btn => {
-                btn.classList.remove('bg-purple-500', 'text-white');
-                btn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
-            });
-            
-            // Add active state to clicked button
-            this.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
-            this.classList.add('bg-purple-500', 'text-white');
-            
-            // Here you would typically filter articles by category
-            // For now, we'll just show a simple animation
-            const articlesGrid = document.querySelector('.grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3');
-            articlesGrid.style.opacity = '0.5';
-            setTimeout(() => {
-                articlesGrid.style.opacity = '1';
-            }, 200);
-        });
-    });
-    
-    // Newsletter subscription functionality
-    const subscribeButton = document.querySelector('.bg-white.text-purple-900');
-    const emailInput = document.querySelector('input[type="email"]');
-    
-    subscribeButton.addEventListener('click', function() {
-        const email = emailInput.value.trim();
-        if (email && email.includes('@')) {
-            // Show success message
-            this.innerHTML = '<i class="fas fa-check mr-2"></i>Subscribed!';
-            this.classList.remove('bg-white', 'text-purple-900');
-            this.classList.add('bg-green-500', 'text-white');
-            emailInput.value = '';
-            
-            // Reset button after 3 seconds
-            setTimeout(() => {
-                this.innerHTML = 'Subscribe';
-                this.classList.remove('bg-green-500', 'text-white');
-                this.classList.add('bg-white', 'text-purple-900');
-            }, 3000);
-        } else {
-            // Show error
-            emailInput.style.borderColor = '#ef4444';
-            emailInput.placeholder = 'Please enter a valid email';
-            setTimeout(() => {
-                emailInput.style.borderColor = '';
-                emailInput.placeholder = 'Enter your email';
-            }, 3000);
+    // Scroll-snap controls for Featured
+    const list = document.getElementById('featList');
+    const prev = document.getElementById('featPrev');
+    const next = document.getElementById('featNext');
+    if (list && prev && next) {
+        function scrollByCards(dir) {
+            const card = list.querySelector('.snap-start');
+            if (!card) return;
+            const gap = 24; // matches gap-6
+            const width = card.getBoundingClientRect().width + gap;
+            list.scrollBy({ left: dir * width, behavior: 'smooth' });
         }
+        prev.addEventListener('click', () => scrollByCards(-1));
+        next.addEventListener('click', () => scrollByCards(1));
+    }
+
+    const newsletterForm = document.getElementById('newsletterForm');
+    const messageDiv = document.getElementById('newsletterMessage');
+    
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            
+            // Show loading state
+            submitButton.textContent = 'Subscribing...';
+            submitButton.disabled = true;
+            
+            fetch('{% url "ai_solution_app:newsletter_subscribe" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    messageDiv.innerHTML = '<span class="text-green-400">✓ ' + data.message + '</span>';
+                    this.reset();
+        } else {
+                    messageDiv.innerHTML = '<span class="text-red-400">✗ ' + data.message + '</span>';
+                }
+            })
+            .catch(error => {
+                messageDiv.innerHTML = '<span class="text-red-400">✗ An error occurred. Please try again.</span>';
+            })
+            .finally(() => {
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+                
+                // Clear message after 5 seconds
+            setTimeout(() => {
+                    messageDiv.innerHTML = '';
+                }, 5000);
+            });
+        });
+    }
+    // Accordion for latest articles
+    const toggles = document.querySelectorAll('.acc-toggle');
+    toggles.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const expanded = btn.getAttribute('aria-expanded') === 'true';
+            btn.setAttribute('aria-expanded', String(!expanded));
+            const icon = btn.querySelector('i');
+            if (icon) icon.className = expanded ? 'fas fa-plus text-sm' : 'fas fa-minus text-sm';
+            const panel = btn.closest('div').parentElement.querySelector('.acc-panel');
+            if (panel) panel.classList.toggle('hidden');
+        });
     });
 });
 </script>
+
 {% endblock %}

@@ -4,93 +4,119 @@
 
 {% block content %}
 <!-- Hero Section -->
-<section class="relative bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 text-white py-16">
-    <div class="absolute inset-0 bg-black opacity-20"></div>
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h1 class="text-4xl md:text-6xl font-bold mb-6">
-            Our <span class="gradient-text">AI Services</span>
-        </h1>
-        <p class="text-xl text-blue-100 max-w-3xl mx-auto">
-            Comprehensive artificial intelligence solutions designed to transform your business operations, enhance efficiency, and drive innovation across all industries.
-        </p>
+<section class="relative min-h-[50vh] md:min-h-[60vh] flex items-center justify-center overflow-hidden hero-landing hero-landing-overlay py-10 md:py-14">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 tech-pattern opacity-10"></div>
+    
+    <!-- Animated Background Elements -->
+    <div class="absolute inset-0">
+        <div class="absolute top-20 left-10 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
+        <div class="absolute top-40 right-20 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style="animation-delay: 2s;"></div>
+        <div class="absolute bottom-20 left-1/4 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style="animation-delay: 4s;"></div>
+    </div>
+    
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
+        <div class="animate-slide-in-up">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6 md:mb-8 leading-tight text-white">
+                Our <span class="gradient-text">AI Services</span>
+            </h1>
+            <p class="text-lg md:text-xl mb-8 md:mb-10 text-blue-100 max-w-3xl mx-auto leading-relaxed">
+                Comprehensive artificial intelligence solutions designed to transform your business operations, enhance efficiency, and drive innovation across all industries.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                <a href="#services" class="btn-primary px-12 py-6 text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105">
+                    <i class="fas fa-rocket mr-3"></i>Explore Services
+                </a>
+                <a href="{% url 'ai_solution_app:contact_us' %}" class="glass-effect border-2 border-white text-white px-12 py-6 text-xl font-bold rounded-2xl hover:bg-white hover:text-blue-900 transition-all duration-500 transform hover:scale-105">
+                    <i class="fas fa-phone mr-3"></i>Get Consultation
+                </a>
+            </div>
+        </div>
     </div>
 </section>
 
 <!-- Services Overview Section -->
-<section class="py-20 bg-gray-50 dark:bg-gray-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+<section class="py-24 bg-[var(--bg)] relative overflow-hidden">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 tech-pattern opacity-5"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-20">
+            <h2 class="text-4xl md:text-5xl font-bold text-[var(--text)] mb-6">
                 Why Choose Our <span class="gradient-text">AI Services</span>?
             </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p class="text-xl text-[var(--text-secondary)] max-w-4xl mx-auto leading-relaxed">
                 We combine cutting-edge technology with industry expertise to deliver AI solutions that create real business value and competitive advantage.
             </p>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            <div class="text-center">
-                <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <div class="card-hover bg-[var(--card)] rounded-3xl shadow-xl hover:shadow-2xl border border-[var(--border)] p-8 text-center group">
+                <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                     <i class="fas fa-rocket text-3xl text-white"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Rapid Implementation</h3>
-                <p class="text-gray-600 dark:text-gray-300">Get your AI solutions up and running in weeks, not months, with our proven implementation methodology.</p>
+                <h3 class="text-2xl font-bold text-[var(--text)] mb-4">Rapid Implementation</h3>
+                <p class="text-[var(--text-secondary)] leading-relaxed">Get your AI solutions up and running in weeks, not months, with our proven implementation methodology.</p>
             </div>
-            <div class="text-center">
-                <div class="w-20 h-20 bg-gradient-to-r from-green-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <div class="card-hover bg-[var(--card)] rounded-3xl shadow-xl hover:shadow-2xl border border-[var(--border)] p-8 text-center group">
+                <div class="w-20 h-20 bg-gradient-to-r from-green-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                     <i class="fas fa-shield-alt text-3xl text-white"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Enterprise Security</h3>
-                <p class="text-gray-600 dark:text-gray-300">Bank-grade security and compliance standards ensure your data and AI systems are always protected.</p>
+                <h3 class="text-2xl font-bold text-[var(--text)] mb-4">Enterprise Security</h3>
+                <p class="text-[var(--text-secondary)] leading-relaxed">Bank-grade security and compliance standards ensure your data and AI systems are always protected.</p>
             </div>
-            <div class="text-center">
-                <div class="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <div class="card-hover bg-[var(--card)] rounded-3xl shadow-xl hover:shadow-2xl border border-[var(--border)] p-8 text-center group">
+                <div class="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                     <i class="fas fa-headset text-3xl text-white"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">24/7 Support</h3>
-                <p class="text-gray-600 dark:text-gray-300">Round-the-clock technical support and maintenance to keep your AI systems running smoothly.</p>
+                <h3 class="text-2xl font-bold text-[var(--text)] mb-4">24/7 Support</h3>
+                <p class="text-[var(--text-secondary)] leading-relaxed">Round-the-clock technical support and maintenance to keep your AI systems running smoothly.</p>
             </div>
         </div>
     </div>
 </section>
 
 <!-- All Services Section -->
-<section class="py-20 bg-white dark:bg-gray-900">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+<section class="py-24 bg-[var(--bg)] relative overflow-hidden" id="services">
+    <!-- Background Elements -->
+    <div class="absolute top-0 right-0 w-96 h-96 bg-blue-900 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+    <div class="absolute bottom-0 left-0 w-80 h-80 bg-purple-900 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-20">
+            <h2 class="text-4xl md:text-5xl font-bold text-[var(--text)] mb-6">
                 Complete <span class="gradient-text">Service Portfolio</span>
             </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p class="text-xl text-[var(--text-secondary)] max-w-4xl mx-auto leading-relaxed">
                 From data analytics to machine learning implementation, we offer end-to-end AI solutions that scale with your business needs.
             </p>
         </div>
         
-        <!-- Services Grid -->
+        <!-- Services Grid (Server Pagination 2x3) -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {% for service in services %}
-            <div id="{% if 'AI Analytics' in service.title %}ai-analytics{% elif 'Natural Language Processing' in service.title %}nlp{% elif 'Computer Vision' in service.title %}computer-vision{% elif 'AI Consulting' in service.title %}ai-consulting{% elif 'Data Engineering' in service.title %}data-engineering{% endif %}" class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-200 dark:border-gray-600 overflow-hidden">
-                <div class="p-8">
-                    <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6">
-                        <i class="{{ service.icon }} text-2xl text-white"></i>
+            {% for service in page_obj.object_list %}
+            <div id="{% if 'AI Analytics' in service.title %}ai-analytics{% elif 'Natural Language Processing' in service.title %}nlp{% elif 'Computer Vision' in service.title %}computer-vision{% elif 'AI Consulting' in service.title %}ai-consulting{% elif 'Data Engineering' in service.title %}data-engineering{% endif %}" class="card-hover bg-[var(--card)] rounded-3xl shadow-xl hover:shadow-2xl border border-[var(--border)] overflow-hidden group">
+                <div class="p-10">
+                    <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300">
+                        <i class="{{ service.icon }} text-3xl text-white"></i>
                     </div>
                     
-                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">{{ service.title }}</h3>
-                    <p class="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">{{ service.description|truncatewords:25 }}</p>
+                    <h3 class="text-2xl font-bold text-[var(--text)] mb-6">{{ service.title }}</h3>
+                    <p class="text-[var(--text-secondary)] mb-8 leading-relaxed text-lg">{{ service.description|truncatewords:25 }}</p>
                     
                     <!-- Features List -->
                     {% if service.features %}
-                    <div class="mb-6">
-                        <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Key Features:</h4>
+                    <div class="mb-8">
+                        <h4 class="font-bold text-[var(--text)] mb-3 text-lg">Key Features:</h4>
                         <ul class="space-y-2">
                             {% for feature in service.features|slice:":3" %}
-                            <li class="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                            <li class="flex items-center text-sm text-[var(--text-secondary)]">
                                 <i class="fas fa-check text-green-500 mr-2"></i>
                                 {{ feature }}
                             </li>
                             {% endfor %}
                             {% if service.features|length > 3 %}
-                            <li class="text-sm text-gray-500 dark:text-gray-400">
+                            <li class="text-sm text-[var(--text-secondary)]">
                                 +{{ service.features|length|add:"-3" }} more features
                             </li>
                             {% endif %}
@@ -99,35 +125,72 @@
                     {% endif %}
                     
                     <!-- Pricing Tier -->
-                    <div class="mb-6">
-                        <span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm font-medium px-3 py-1 rounded-full">
-                            {{ service.pricing_tier|title }} Tier
+                    <div class="mb-8">
+                        <span class="inline-block bg-gradient-to-r from-blue-900 to-purple-900 text-blue-200 text-sm font-bold px-4 py-2 rounded-full">
+                            {{ service.pricing_tier|title }}
                         </span>
                     </div>
                     
-                    <!-- Action Buttons -->
-                    <div class="flex gap-3">
-                        <a href="{% url 'ai_solution_app:service_detail' service.id %}" class="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-full font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 text-center">
-                            Learn More
+                    <!-- Action Buttons (compact, text-like) -->
+                    <div class="flex gap-4 items-center">
+                        <a href="{% url 'ai_solution_app:service_detail' service.id %}" class="text-[var(--primary)] hover:text-[var(--secondary)] font-semibold inline-flex items-center text-base">
+                            Learn more<i class="fas fa-arrow-right ml-2 text-xs"></i>
                         </a>
-                        <a href="{% url 'ai_solution_app:contact_us' %}" class="flex-1 border-2 border-blue-500 text-blue-600 dark:text-blue-400 px-6 py-3 rounded-full font-semibold hover:bg-blue-500 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white transition-all duration-300 transform hover:scale-105 text-center">
-                            Get Quote
+                        <a href="{% url 'ai_solution_app:contact_us' %}" class="text-[var(--text-secondary)] hover:text-[var(--text)] font-semibold inline-flex items-center text-base">
+                            Get quote<i class="fas fa-chevron-right ml-2 text-xs"></i>
                         </a>
                     </div>
                 </div>
             </div>
             {% empty %}
             <div class="col-span-full text-center py-12">
-                <div class="w-24 h-24 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-cogs text-3xl text-gray-400 dark:text-gray-500"></i>
+                <div class="w-24 h-24 bg-[var(--hover)] rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-cogs text-3xl text-[var(--text-secondary)]"></i>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">Services Coming Soon</h3>
-                <p class="text-gray-500 dark:text-gray-500">We're preparing our AI services. Check back soon!</p>
+                <h3 class="text-xl font-semibold text-[var(--text-secondary)] mb-2">Services Coming Soon</h3>
+                <p class="text-[var(--text-secondary)]">We're preparing our AI services. Check back soon!</p>
             </div>
             {% endfor %}
         </div>
+
+        {% if page_obj.has_other_pages %}
+        <div class="flex items-center justify-center gap-3 mt-10">
+            {% if page_obj.has_previous %}
+            <a class="px-4 py-2 rounded-lg bg-[var(--card)] hover:bg-[var(--hover)] text-[var(--text)] border border-[var(--border)]" href="?page={{ page_obj.previous_page_number }}">Prev</a>
+            {% endif %}
+            <span class="text-sm text-[var(--text-secondary)]">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+            <a class="px-4 py-2 rounded-lg bg-[var(--primary)] hover:bg-[var(--secondary)] text-white" href="?page={{ page_obj.next_page_number }}">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
 </section>
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const track = document.getElementById('servicesTrack');
+    const prev = document.getElementById('svcPrev');
+    const next = document.getElementById('svcNext');
+    if (!track || !prev || !next) return;
+    let index = 0;
+    const slides = Array.from(track.children);
+    const maxIndex = Math.max(0, slides.length - 1);
+    function update() {
+        const width = track.getBoundingClientRect().width;
+        track.style.transform = `translateX(${-index * width}px)`;
+        prev.classList.toggle('opacity-50', index === 0);
+        next.classList.toggle('opacity-50', index === maxIndex);
+    }
+    prev.addEventListener('click', () => { index = Math.max(0, index - 1); update(); });
+    next.addEventListener('click', () => { index = Math.min(maxIndex, index + 1); update(); });
+    window.addEventListener('resize', update);
+    update();
+});
+</script>
+{% endblock %}
 
 <!-- Service Process Section -->
 <section class="py-20 bg-gray-50 dark:bg-gray-800">
@@ -216,49 +279,61 @@
 </section>
 
 <!-- Call to Action Section -->
-<section class="py-20 bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 text-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-4xl md:text-5xl font-bold mb-6">
-            Ready to Transform Your Business with AI?
+<section class="py-24 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white relative overflow-hidden">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 tech-pattern opacity-20"></div>
+    
+    <!-- Animated Background Elements -->
+    <div class="absolute inset-0">
+        <div class="absolute top-0 left-0 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float"></div>
+        <div class="absolute bottom-0 right-0 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style="animation-delay: 2s;"></div>
+    </div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+        <h2 class="text-5xl md:text-6xl font-bold mb-8">
+            Ready to Transform Your Business?
         </h2>
-        <p class="text-xl mb-8 text-blue-100 max-w-3xl mx-auto">
+        <p class="text-2xl mb-12 text-blue-100 max-w-4xl mx-auto leading-relaxed">
             Let's discuss how our AI services can drive growth, efficiency, and innovation in your organization. Our experts are ready to help you succeed.
         </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{% url 'ai_solution_app:contact_us' %}" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                Get Free Consultation
+        <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <a href="{% url 'ai_solution_app:contact_us' %}" class="btn-primary px-12 py-6 text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105">
+                <i class="fas fa-phone mr-3"></i>Get Free Consultation
             </a>
-            <a href="{% url 'ai_solution_app:past_solutions' %}" class="border-2 border-white text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white hover:text-blue-900 transition-all duration-300 transform hover:scale-105">
-                View Case Studies
+            <a href="{% url 'ai_solution_app:past_solutions' %}" class="glass-effect border-2 border-white text-white px-12 py-6 text-xl font-bold rounded-2xl hover:bg-white hover:text-blue-900 transition-all duration-500 transform hover:scale-105">
+                <i class="fas fa-chart-line mr-3"></i>View Case Studies
             </a>
         </div>
     </div>
 </section>
 
 <!-- FAQ Section -->
-<section class="py-20 bg-gray-50 dark:bg-gray-800">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+<section class="py-24 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900 relative overflow-hidden">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 hero-pattern opacity-10"></div>
+    
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-20">
+            <h2 class="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6">
                 Frequently Asked <span class="gradient-text">Questions</span>
             </h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300">
+            <p class="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
                 Get answers to common questions about our AI services and implementation process.
             </p>
         </div>
         
-        <div class="space-y-6">
-            <div class="bg-white dark:bg-gray-700 rounded-2xl p-6 shadow-lg">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">How long does it take to implement an AI solution?</h3>
-                <p class="text-gray-600 dark:text-gray-300">Implementation time varies based on complexity, but most solutions are deployed within 4-12 weeks. We use agile methodologies to ensure rapid delivery without compromising quality.</p>
+        <div class="space-y-8">
+            <div class="card-hover bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-xl hover:shadow-2xl border border-slate-200 dark:border-slate-700 group">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-4">How long does it take to implement an AI solution?</h3>
+                <p class="text-slate-600 dark:text-slate-300 leading-relaxed">Implementation time varies based on complexity, but most solutions are deployed within 4-12 weeks. We use agile methodologies to ensure rapid delivery without compromising quality.</p>
             </div>
-            <div class="bg-white dark:bg-gray-700 rounded-2xl p-6 shadow-lg">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">What kind of support do you provide after implementation?</h3>
-                <p class="text-gray-600 dark:text-gray-300">We provide comprehensive post-implementation support including 24/7 technical assistance, regular maintenance, performance monitoring, and continuous optimization of your AI systems.</p>
+            <div class="card-hover bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-xl hover:shadow-2xl border border-slate-200 dark:border-slate-700 group">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-4">What kind of support do you provide after implementation?</h3>
+                <p class="text-slate-600 dark:text-slate-300 leading-relaxed">We provide comprehensive post-implementation support including 24/7 technical assistance, regular maintenance, performance monitoring, and continuous optimization of your AI systems.</p>
             </div>
-            <div class="bg-white dark:bg-gray-700 rounded-2xl p-6 shadow-lg">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Can you work with our existing data infrastructure?</h3>
-                <p class="text-gray-600 dark:text-gray-300">Absolutely! We design solutions that integrate seamlessly with your existing systems and data infrastructure. We can work with any data format and help optimize your current setup.</p>
+            <div class="card-hover bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-xl hover:shadow-2xl border border-slate-200 dark:border-slate-700 group">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Can you work with our existing data infrastructure?</h3>
+                <p class="text-slate-600 dark:text-slate-300 leading-relaxed">Absolutely! We design solutions that integrate seamlessly with your existing systems and data infrastructure. We can work with any data format and help optimize your current setup.</p>
             </div>
         </div>
     </div>

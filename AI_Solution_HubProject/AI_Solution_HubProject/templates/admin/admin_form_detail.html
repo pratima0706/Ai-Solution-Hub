@@ -1,0 +1,314 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Form Details - AI Solution Hub Admin{% endblock %}
+{% block page_title %}Form Details{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Form Details Card -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clipboard-list me-2"></i>
+                        Form Submission Details
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'djadmin:forms' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Forms
+                        </a>
+                        <a href="mailto:{{ form_submission.email }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-reply me-1"></i>Reply
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label class="info-label">Name</label>
+                            <div class="info-value">{{ form_submission.name }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label class="info-label">Email</label>
+                            <div class="info-value">
+                                <a href="mailto:{{ form_submission.email }}" class="text-decoration-none">
+                                    {{ form_submission.email }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label class="info-label">Phone</label>
+                            <div class="info-value">
+                                <a href="tel:{{ form_submission.phone }}" class="text-decoration-none">
+                                    {{ form_submission.phone }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label class="info-label">Company</label>
+                            <div class="info-value">{{ form_submission.company }}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label class="info-label">Country</label>
+                            <div class="info-value">{{ form_submission.country }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label class="info-label">Job Title</label>
+                            <div class="info-value">{{ form_submission.job_title }}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label class="info-label">Form Type</label>
+                            <div class="info-value">
+                                <span class="badge bg-info">{{ form_submission.form_type|title }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label class="info-label">Status</label>
+                            <div class="info-value">
+                                <span class="status-badge {{ form_submission.status }}">
+                                    {{ form_submission.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label class="info-label">Created</label>
+                            <div class="info-value">
+                                {{ form_submission.created_at|date:"M d, Y H:i" }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label class="info-label">Last Updated</label>
+                            <div class="info-value">
+                                {{ form_submission.created_at|date:"M d, Y H:i" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Form Type Specific Information -->
+                {% if form_submission.form_type == 'demo' %}
+                    <div class="info-group">
+                        <label class="info-label">Demo Interest</label>
+                        <div class="info-value">{{ form_submission.interest|title }}</div>
+                    </div>
+                    
+                    {% if form_submission.message %}
+                    <div class="info-group">
+                        <label class="info-label">Additional Information</label>
+                        <div class="info-value">
+                            <div class="message-content">
+                                {{ form_submission.message|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                {% elif form_submission.form_type == 'event' %}
+                    <div class="info-group">
+                        <label class="info-label">Event Registration</label>
+                        <div class="info-value">
+                            {% if form_submission.event %}
+                                <span class="badge bg-success">{{ form_submission.event.title }}</span>
+                            {% else %}
+                                <span class="text-muted">No specific event</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if form_submission.message %}
+                    <div class="info-group">
+                        <label class="info-label">Additional Information</label>
+                        <div class="info-value">
+                            <div class="message-content">
+                                {{ form_submission.message|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                {% else %}
+                    <!-- Contact form -->
+                    <div class="info-group">
+                        <label class="info-label">Job Title</label>
+                        <div class="info-value">{{ form_submission.job_title }}</div>
+                    </div>
+                    
+                    {% if form_submission.interest %}
+                    <div class="info-group">
+                        <label class="info-label">Interest</label>
+                        <div class="info-value">{{ form_submission.interest|title }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="info-group">
+                        <label class="info-label">Message</label>
+                        <div class="info-value">
+                            <div class="message-content">
+                                {{ form_submission.job_details|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if form_submission.message %}
+                    <div class="info-group">
+                        <label class="info-label">Additional Message</label>
+                        <div class="info-value">
+                            <div class="message-content">
+                                {{ form_submission.message|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Status Update Card -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-edit me-2"></i>
+                    Update Status
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-control">
+                            <option value="new" {% if form_submission.status == 'new' %}selected{% endif %}>New</option>
+                            <option value="in_progress" {% if form_submission.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                            <option value="contacted" {% if form_submission.status == 'contacted' %}selected{% endif %}>Contacted</option>
+                            <option value="closed" {% if form_submission.status == 'closed' %}selected{% endif %}>Closed</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-save me-1"></i>Update Status
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Notes Card -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-sticky-note me-2"></i>
+                    Admin Notes
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Notes</label>
+                        <textarea name="notes" class="form-control" rows="4" 
+                                  placeholder="Add internal notes about this form submission...">{{ form_submission.notes|default:"" }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-save me-1"></i>Save Notes
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Actions Card -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-cogs me-2"></i>
+                    Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="mailto:{{ form_submission.email }}" class="btn btn-outline-primary">
+                        <i class="fas fa-reply me-1"></i>Reply via Email
+                    </a>
+                    <button class="btn btn-outline-danger" onclick="confirmDelete()">
+                        <i class="fas fa-trash me-1"></i>Delete Form
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-light border-0 shadow-lg">
+            <div class="modal-header border-secondary bg-gradient-to-r from-danger to-warning">
+                <h5 class="modal-title text-light fw-bold">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center">
+                    <i class="fas fa-trash-alt text-danger fs-1 mb-3"></i>
+                    <p class="text-light">Are you sure you want to delete this form submission from <strong class="text-warning">{{ form_submission.name }}</strong>?</p>
+                    <p class="text-danger fw-semibold">This action cannot be undone.</p>
+                </div>
+            </div>
+            <div class="modal-footer border-secondary bg-gradient-to-r from-dark to-secondary">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <form method="post" action="{% url 'djadmin:form_delete' form_submission.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-lg px-4">
+                        <i class="fas fa-trash me-2"></i>Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmDelete() {
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    modal.show();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,862 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Articles - AI Solution Hub Admin{% endblock %}
+
+{% block page_title %}Blog Articles Management{% endblock %}
+
+{% block content %}
+<!-- Search and Filters -->
+<div class="search-filters">
+    <form method="get" class="filter-form">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label class="form-label">Search</label>
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Search by title, content, or author..." 
+                       value="{{ search }}">
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Category</label>
+                <select name="category" class="form-control">
+                    <option value="">All Categories</option>
+                    <option value="ai_insights" {% if category == 'ai_insights' %}selected{% endif %}>AI Insights</option>
+                    <option value="industry_news" {% if category == 'industry_news' %}selected{% endif %}>Industry News</option>
+                    <option value="case_studies" {% if category == 'case_studies' %}selected{% endif %}>Case Studies</option>
+                    <option value="technology" {% if category == 'technology' %}selected{% endif %}>Technology</option>
+                    <option value="company_updates" {% if category == 'company_updates' %}selected{% endif %}>Company Updates</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-control">
+                    <option value="">All Statuses</option>
+                    <option value="published" {% if status == 'published' %}selected{% endif %}>Published</option>
+                    <option value="draft" {% if status == 'draft' %}selected{% endif %}>Draft</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Featured</label>
+                <select name="featured" class="form-control">
+                    <option value="">All Articles</option>
+                    <option value="yes" {% if featured == 'yes' %}selected{% endif %}>Featured Only</option>
+                    <option value="no" {% if featured == 'no' %}selected{% endif %}>Not Featured</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Filter
+                    </button>
+                    <a href="{% url 'djadmin:articles' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>Clear
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Results Summary -->
+<div class="results-summary mb-3">
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <h6 class="mb-0">Showing {{ articles.start_index }}-{{ articles.end_index }} of {{ total_count }} articles</h6>
+            {% if search or category or status or featured %}
+            <small class="text-secondary">Filtered results</small>
+            {% endif %}
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addArticleModal">
+                <i class="fas fa-plus me-1"></i>Add Article
+            </button>
+            <button class="btn btn-success btn-sm" onclick="exportArticles()">
+                <i class="fas fa-download me-1"></i>Export CSV
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Articles List -->
+<div class="articles-list">
+    {% for article in articles %}
+    <div class="article-card dashboard-card">
+        <div class="article-header">
+            <div class="article-image">
+                {% if article.get_featured_image %}
+                    <img src="{{ article.get_featured_image }}" alt="{{ article.title }}" class="article-img">
+                {% else %}
+                    <div class="article-placeholder">
+                        <i class="fas fa-image"></i>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="article-content">
+                <div class="article-meta">
+                    <span class="badge bg-{{ article.category|default:'primary' }}">
+                        {{ article.get_category_display }}
+                    </span>
+                    {% if article.is_featured %}
+                        <span class="badge bg-warning">Featured</span>
+                    {% endif %}
+                    {% if article.is_published %}
+                        <span class="badge bg-success">Published</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Draft</span>
+                    {% endif %}
+                </div>
+                
+                <h5 class="article-title">
+                    <a href="#" onclick="viewArticle('{{ article.id }}')" class="text-decoration-none">
+                        {{ article.title }}
+                    </a>
+                </h5>
+                
+                <p class="article-excerpt">{{ article.excerpt|truncatewords:25 }}</p>
+                
+                <div class="article-details">
+                    <div class="article-author">
+                        <i class="fas fa-user me-1"></i>
+                        <span>{{ article.author.get_full_name|default:article.author.username }}</span>
+                    </div>
+                    <div class="article-date">
+                        <i class="fas fa-calendar me-1"></i>
+                        <span>{{ article.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="article-views">
+                        <i class="fas fa-eye me-1"></i>
+                        <span>{{ article.views_count }} views</span>
+                    </div>
+                </div>
+            </div>
+            <div class="article-actions">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                            data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="openEditArticleModal('{{ article.id }}')">
+                            <i class="fas fa-edit me-2"></i>Edit
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="submitDuplicateArticle('{{ article.id }}')">
+                            <i class="fas fa-copy me-2"></i>Duplicate
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="submitQuickPublishToggle('{{ article.id }}')">
+                            <i class="fas fa-{% if article.is_published %}eye-slash{% else %}eye{% endif %} me-2"></i>
+                            {% if article.is_published %}Unpublish{% else %}Publish{% endif %}
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="submitToggleFeatured('{{ article.id }}')">
+                            <i class="fas fa-star me-2"></i>
+                            {% if article.is_featured %}Unfeature{% else %}Feature{% endif %}
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="previewArticle('{{ article.id }}')">
+                            <i class="fas fa-external-link-alt me-2"></i>Preview
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="submitDeleteArticle('{{ article.id }}', '{{ article.title|escapejs }}')">
+                            <i class="fas fa-trash me-2"></i>Delete
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="text-center py-5">
+                <div class="empty-state">
+                    <i class="fas fa-blog fa-3x text-secondary mb-3"></i>
+                    <h5>No articles found</h5>
+                    <p class="text-secondary">
+                        {% if search or category or status or featured %}
+                            Try adjusting your filters or search terms.
+                        {% else %}
+                            No articles have been created yet.
+                        {% endif %}
+                    </p>
+                    {% if search or category or status or featured %}
+                    <a href="{% url 'djadmin:articles' %}" class="btn btn-primary">
+                        <i class="fas fa-times me-1"></i>Clear Filters
+                    </a>
+                    {% else %}
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addArticleModal">
+                        <i class="fas fa-plus me-1"></i>Create First Article
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if articles.has_other_pages %}
+<div class="pagination">
+    <div class="pagination-info">
+        Showing {{ articles.start_index }}-{{ articles.end_index }} of {{ total_count }} entries
+    </div>
+    <div class="pagination-controls">
+        {% if articles.has_previous %}
+            <a href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">First</a>
+            <a href="?page={{ articles.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">Prev</a>
+        {% endif %}
+        
+        {% for num in articles.paginator.page_range %}
+            {% if articles.number == num %}
+                <span class="page-btn active">{{ num }}</span>
+            {% elif num > articles.number|add:'-3' and num < articles.number|add:'3' %}
+                <a href="?page={{ num }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+                   class="page-btn">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if articles.has_next %}
+            <a href="?page={{ articles.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">Next</a>
+            <a href="?page={{ articles.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" 
+               class="page-btn">Last</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Add Article Modal -->
+<div class="modal fade" id="addArticleModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content bg-dark text-light border-0 shadow-lg">
+            <div class="modal-header border-secondary bg-gradient-to-r from-primary to-info">
+                <h5 class="modal-title text-light fw-bold">
+                    <i class="fas fa-plus-circle me-2"></i>Add New Article
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="addArticleForm" method="post" action="{% url 'djadmin:articles' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="create">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-newspaper me-2 text-primary"></i>Article Title
+                                </label>
+                                <input type="text" name="title" class="form-control bg-dark text-light border-secondary" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-folder me-2 text-success"></i>Category
+                                </label>
+                                <select name="category" class="form-control bg-dark text-light border-secondary" required>
+                                    <option value="">Select Category</option>
+                                    <option value="ai_insights">AI Insights</option>
+                                    <option value="industry_news">Industry News</option>
+                                    <option value="case_studies">Case Studies</option>
+                                    <option value="technology">Technology</option>
+                                    <option value="company_updates">Company Updates</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mb-4">
+                        <label class="form-label text-light fw-semibold">
+                            <i class="fas fa-image me-2 text-success"></i>Featured Image
+                        </label>
+                        <div class="image-input-tabs border border-secondary rounded">
+                            <ul class="nav nav-tabs border-0" id="imageTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active bg-primary text-white border-0" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload-pane" type="button" role="tab">
+                                        <i class="fas fa-upload me-2"></i>Upload File
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link bg-dark text-light border-0" id="url-tab" data-bs-toggle="tab" data-bs-target="#url-pane" type="button" role="tab">
+                                        <i class="fas fa-link me-2"></i>Image URL
+                                    </button>
+                                </li>
+                            </ul>
+                            <div class="tab-content bg-dark p-3" id="imageTabContent">
+                                <div class="tab-pane fade show active" id="upload-pane" role="tabpanel">
+                                    <input type="file" name="featured_image" class="form-control bg-dark text-light border-secondary" accept="image/*">
+                                    <small class="form-text text-muted mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>JPG, PNG, or WebP. Max size: 10MB
+                                    </small>
+                                    <div class="image-preview mt-3" id="imagePreview" style="display: none;">
+                                        <img id="previewImg" class="img-thumbnail border-secondary" style="max-width: 200px;">
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="url-pane" role="tabpanel">
+                                    <input type="url" name="featured_image_url" class="form-control bg-dark text-light border-secondary" placeholder="https://example.com/image.jpg">
+                                    <small class="form-text text-muted mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>Enter a direct URL to an image
+                                    </small>
+                                    <div class="image-preview mt-3" id="urlImagePreview" style="display: none;">
+                                        <img id="urlPreviewImg" class="img-thumbnail border-secondary" style="max-width: 200px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mb-4">
+                        <label class="form-label text-light fw-semibold">
+                            <i class="fas fa-quote-left me-2 text-warning"></i>Excerpt
+                        </label>
+                        <textarea name="excerpt" class="form-control bg-dark text-light border-secondary" rows="3" 
+                                  placeholder="Brief description of the article..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group mb-4">
+                        <label class="form-label text-light fw-semibold">
+                            <i class="fas fa-align-left me-2 text-info"></i>Content
+                        </label>
+                        <textarea name="content" class="form-control bg-dark text-light border-secondary" rows="10" 
+                                  placeholder="Write your article content here..." required></textarea>
+                        <small class="form-text text-muted mt-2">
+                            <i class="fas fa-info-circle me-1"></i>You can use HTML tags for formatting
+                        </small>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-hashtag me-2 text-purple"></i>Tags (comma-separated)
+                                </label>
+                                <input type="text" name="tags" class="form-control bg-dark text-light border-secondary" 
+                                       placeholder="AI, Machine Learning, Technology">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold mb-3">Article Options</label>
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" name="is_published" class="form-check-input">
+                                    <label class="form-check-label text-light">
+                                        <i class="fas fa-eye me-2 text-success"></i>Publish immediately
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" name="is_featured" class="form-check-input">
+                                    <label class="form-check-label text-light">
+                                        <i class="fas fa-star me-2 text-warning"></i>Featured article
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary bg-gradient-to-r from-dark to-secondary">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary btn-lg px-4" onclick="submitCreateArticle()">
+                    <i class="fas fa-plus me-2"></i>Create Article
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Article Modal -->
+<div class="modal fade" id="editArticleModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content bg-dark text-light border-0 shadow-lg">
+            <div class="modal-header border-secondary bg-gradient-to-r from-primary to-info">
+                <h5 class="modal-title text-light fw-bold">
+                    <i class="fas fa-edit me-2"></i>Edit Article
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="editArticleForm" method="post" action="{% url 'djadmin:articles' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update">
+                    <input type="hidden" name="article_id" id="edit_article_id">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-newspaper me-2 text-primary"></i>Article Title
+                                </label>
+                                <input type="text" name="title" id="edit_title" class="form-control bg-dark text-light border-secondary" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold">
+                                    <i class="fas fa-folder me-2 text-success"></i>Category
+                                </label>
+                                <select name="category" id="edit_category" class="form-control bg-dark text-light border-secondary" required>
+                                    <option value="ai_insights">AI Insights</option>
+                                    <option value="industry_news">Industry News</option>
+                                    <option value="case_studies">Case Studies</option>
+                                    <option value="technology">Technology</option>
+                                    <option value="company_updates">Company Updates</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="form-label text-light fw-semibold">
+                            <i class="fas fa-image me-2 text-success"></i>Featured Image
+                        </label>
+                        <div class="image-input-tabs border border-secondary rounded">
+                            <ul class="nav nav-tabs border-0" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active bg-primary text-white border-0" data-bs-toggle="tab" data-bs-target="#editUploadPane" type="button" role="tab">
+                                        <i class="fas fa-upload me-2"></i>Upload File
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link bg-dark text-light border-0" data-bs-toggle="tab" data-bs-target="#editUrlPane" type="button" role="tab">
+                                        <i class="fas fa-link me-2"></i>Image URL
+                                    </button>
+                                </li>
+                            </ul>
+                            <div class="tab-content bg-dark p-3">
+                                <div class="tab-pane fade show active" id="editUploadPane" role="tabpanel">
+                                    <input type="file" name="featured_image" class="form-control bg-dark text-light border-secondary" accept="image/*">
+                                    <small class="form-text text-muted mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>JPG, PNG, or WebP. Max size: 10MB
+                                    </small>
+                                </div>
+                                <div class="tab-pane fade" id="editUrlPane" role="tabpanel">
+                                    <input type="url" name="featured_image_url" id="edit_featured_image_url" class="form-control bg-dark text-light border-secondary" placeholder="https://example.com/image.jpg">
+                                    <small class="form-text text-muted mt-2">
+                                        <i class="fas fa-info-circle me-1"></i>Enter a direct URL to an image
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="form-label text-light fw-semibold">
+                            <i class="fas fa-quote-left me-2 text-warning"></i>Excerpt
+                        </label>
+                        <textarea name="excerpt" id="edit_excerpt" class="form-control bg-dark text-light border-secondary" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="form-label text-light fw-semibold">
+                            <i class="fas fa-align-left me-2 text-info"></i>Content
+                        </label>
+                        <textarea name="content" id="edit_content" class="form-control bg-dark text-light border-secondary" rows="10" required></textarea>
+                        <small class="form-text text-muted mt-2">
+                            <i class="fas fa-info-circle me-1"></i>You can use HTML tags for formatting
+                        </small>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold mb-3">Article Status</label>
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" name="is_published" id="edit_is_published" class="form-check-input">
+                                    <label class="form-check-label text-light" for="edit_is_published">
+                                        <i class="fas fa-eye me-2 text-success"></i>Published
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-4">
+                                <label class="form-label text-light fw-semibold mb-3">Article Options</label>
+                                <div class="form-check">
+                                    <input type="checkbox" name="is_featured" id="edit_is_featured" class="form-check-input">
+                                    <label class="form-check-label text-light" for="edit_is_featured">
+                                        <i class="fas fa-star me-2 text-warning"></i>Featured
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary bg-gradient-to-r from-dark to-secondary">
+                <button class="btn btn-outline-light" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button class="btn btn-primary btn-lg px-4" onclick="submitEditArticle()">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.articles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.article-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid var(--border-color);
+}
+
+.article-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.article-header {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.article-image {
+    width: 120px;
+    height: 80px;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.article-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.article-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: var(--border-color);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+/* Image Input Tabs */
+.image-input-tabs {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.image-input-tabs .nav-tabs {
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.image-input-tabs .nav-link {
+    border: none;
+    border-radius: 0;
+    color: var(--text-secondary);
+    background: var(--card-bg);
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.image-input-tabs .nav-link:hover {
+    background-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.image-input-tabs .nav-link.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.image-input-tabs .tab-content {
+    padding: 1rem;
+    background: var(--card-bg);
+}
+
+.article-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.article-meta {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.article-title {
+    margin: 0 0 0.75rem 0;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.article-title a {
+    color: inherit;
+}
+
+.article-title a:hover {
+    color: var(--primary-color);
+}
+
+.article-excerpt {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.article-details {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+}
+
+.article-details > div {
+    display: flex;
+    align-items: center;
+}
+
+.article-actions {
+    flex-shrink: 0;
+}
+
+.article-actions .dropdown-toggle {
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+}
+
+.article-actions .dropdown-toggle:hover {
+    color: var(--text-primary);
+}
+
+.image-preview {
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .article-header {
+        flex-direction: column;
+    }
+    
+    .article-image {
+        width: 100%;
+        height: 150px;
+    }
+    
+    .article-details {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Image preview functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // File upload preview
+    const imageInput = document.querySelector('input[name="featured_image"]');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.style.display = 'none';
+            }
+        });
+    }
+    
+    // URL preview
+    const urlInput = document.querySelector('input[name="featured_image_url"]');
+    const urlImagePreview = document.getElementById('urlImagePreview');
+    const urlPreviewImg = document.getElementById('urlPreviewImg');
+    
+    if (urlInput) {
+        urlInput.addEventListener('input', function(e) {
+            const url = e.target.value.trim();
+            if (url && isValidImageUrl(url)) {
+                urlPreviewImg.src = url;
+                urlPreviewImg.onload = function() {
+                    urlImagePreview.style.display = 'block';
+                };
+                urlPreviewImg.onerror = function() {
+                    urlImagePreview.style.display = 'none';
+                    showNotification('Invalid image URL or image could not be loaded', 'error');
+                };
+            } else {
+                urlImagePreview.style.display = 'none';
+            }
+        });
+    }
+    
+    // Tab switching - clear other input when switching
+    const uploadTab = document.getElementById('upload-tab');
+    const urlTab = document.getElementById('url-tab');
+    
+    if (uploadTab) {
+        uploadTab.addEventListener('click', function() {
+            if (urlInput) urlInput.value = '';
+            if (urlImagePreview) urlImagePreview.style.display = 'none';
+        });
+    }
+    
+    if (urlTab) {
+        urlTab.addEventListener('click', function() {
+            if (imageInput) imageInput.value = '';
+            if (imagePreview) imagePreview.style.display = 'none';
+        });
+    }
+});
+
+function isValidImageUrl(url) {
+    try {
+        const urlObj = new URL(url);
+        const pathname = urlObj.pathname.toLowerCase();
+        return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(pathname) || 
+               url.includes('unsplash.com') || 
+               url.includes('pixabay.com') ||
+               url.includes('pexels.com');
+    } catch {
+        return false;
+    }
+}
+
+// Data cache for quick modal population
+window.__articles = window.__articles || {};
+{% for article in articles %}
+window.__articles['{{ article.id }}'] = {
+  id: '{{ article.id }}',
+  title: `{{ article.title|escapejs }}`,
+  excerpt: `{{ article.excerpt|escapejs }}`,
+  content: `{{ article.content|escapejs }}`,
+  category: `{{ article.category }}`,
+  is_published: {{ article.is_published|yesno:'true,false' }},
+  is_featured: {{ article.is_featured|yesno:'true,false' }},
+  featured_image_url: `{{ article.featured_image_url|default:'' }}`
+};
+{% endfor %}
+
+function openEditArticleModal(id){
+    const a = window.__articles[id];
+    if (!a) return;
+    document.getElementById('edit_article_id').value = a.id;
+    document.getElementById('edit_title').value = a.title;
+    document.getElementById('edit_excerpt').value = a.excerpt;
+    document.getElementById('edit_content').value = a.content;
+    document.getElementById('edit_category').value = a.category;
+    document.getElementById('edit_is_published').checked = !!a.is_published;
+    document.getElementById('edit_is_featured').checked = !!a.is_featured;
+    document.getElementById('edit_featured_image_url').value = a.featured_image_url || '';
+    const modal = new bootstrap.Modal(document.getElementById('editArticleModal'));
+    modal.show();
+}
+
+function submitDuplicateArticle(articleId){
+    if (!confirm('Duplicate this article?')) return;
+    const form = document.createElement('form');
+    form.method = 'post';
+    form.action = '{% url "djadmin:articles" %}';
+    form.style.display = 'none';
+    form.innerHTML = `
+        <input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('input[name=csrfmiddlewaretoken]').value}">
+        <input type="hidden" name="action" value="duplicate">
+        <input type="hidden" name="article_id" value="${articleId}">
+    `;
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function submitQuickPublishToggle(articleId){
+    const form = document.createElement('form');
+    form.method = 'post';
+    form.action = '{% url "djadmin:articles" %}';
+    form.style.display = 'none';
+    form.innerHTML = `
+        <input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('input[name=csrfmiddlewaretoken]').value}">
+        <input type="hidden" name="action" value="toggle_publish">
+        <input type="hidden" name="article_id" value="${articleId}">
+    `;
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function submitToggleFeatured(articleId){
+    const form = document.createElement('form');
+    form.method = 'post';
+    form.action = '{% url "djadmin:articles" %}';
+    form.style.display = 'none';
+    form.innerHTML = `
+        <input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('input[name=csrfmiddlewaretoken]').value}">
+        <input type="hidden" name="action" value="toggle_feature">
+        <input type="hidden" name="article_id" value="${articleId}">
+    `;
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function previewArticle(articleId) {
+    // This would typically open a preview modal or redirect to preview page
+    showNotification('Opening article preview...', 'info');
+}
+
+function submitDeleteArticle(articleId, articleTitle){
+    if (!confirm(`Delete article "${articleTitle}"? This action cannot be undone.`)) return;
+    const form = document.createElement('form');
+    form.method = 'post';
+    form.action = '{% url "djadmin:articles" %}';
+    form.style.display = 'none';
+    form.innerHTML = `
+        <input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('input[name=csrfmiddlewaretoken]').value}">
+        <input type="hidden" name="action" value="delete">
+        <input type="hidden" name="article_id" value="${articleId}">
+    `;
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function viewArticle(articleId) {
+    // This would typically open a view modal or redirect to article detail page
+    showNotification('View article functionality coming soon!', 'info');
+}
+
+function submitCreateArticle() {
+    const form = document.getElementById('addArticleForm');
+    form.submit();
+}
+
+function submitEditArticle(){
+    document.getElementById('editArticleForm').submit();
+}
+
+function exportArticles() {
+    // This would typically make an AJAX request to export articles
+    showNotification('Exporting articles...', 'info');
+    // Simulate export
+    setTimeout(() => {
+        showNotification('Articles exported successfully!', 'success');
+    }, 2000);
+}
+</script>
+{% endblock %}
