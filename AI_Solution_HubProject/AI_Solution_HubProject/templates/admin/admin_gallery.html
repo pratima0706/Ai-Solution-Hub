@@ -46,7 +46,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-search me-1"></i>Filter
                     </button>
-                    <a href="{% url 'djadmin:gallery' %}" class="btn btn-secondary">
+                    <a href="{% url 'admin:gallery' %}" class="btn btn-secondary">
                         <i class="fas fa-times me-1"></i>Clear
                     </a>
                 </div>
@@ -159,7 +159,7 @@
                         {% endif %}
                     </p>
                     {% if search or category or featured %}
-                    <a href="{% url 'djadmin:gallery' %}" class="btn btn-primary">
+                    <a href="{% url 'admin:gallery' %}" class="btn btn-primary">
                         <i class="fas fa-times me-1"></i>Clear Filters
                     </a>
                     {% else %}
@@ -554,7 +554,7 @@ function deleteImage(imageId, imageTitle) {
         formData.append('gallery_id', imageId);
         formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
         
-        fetch('{% url "djadmin:delete_gallery_image" %}', {
+        fetch('{% url "admin:delete_gallery_image" %}', {
             method: 'POST',
             body: formData
         })
@@ -579,7 +579,7 @@ function toggleFeatured(imageId) {
     formData.append('gallery_id', imageId);
     formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
     
-    fetch('{% url "djadmin:toggle_gallery_featured" %}', {
+    fetch('{% url "admin:toggle_gallery_featured" %}', {
         method: 'POST',
         body: formData
     })
@@ -637,7 +637,7 @@ function uploadImage() {
     uploadBtn.disabled = true;
     
     // Make AJAX request
-    fetch('{% url "djadmin:add_gallery_image" %}', {
+    fetch('{% url "admin:add_gallery_image" %}', {
         method: 'POST',
         body: formData,
         headers: {

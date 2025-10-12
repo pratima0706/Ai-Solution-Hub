@@ -468,7 +468,7 @@ def events(request):
                     
                     event.save()
                     messages.success(request, f'Event "{event.title}" updated successfully')
-                    return redirect('djadmin:events')
+                    return redirect('admin:events')
                     
                 except Event.DoesNotExist:
                     messages.error(request, 'Event not found')
@@ -481,7 +481,7 @@ def events(request):
                     event_title = event.title
                     event.delete()
                     messages.success(request, f'Event "{event_title}" deleted successfully')
-                    return redirect('djadmin:events')
+                    return redirect('admin:events')
                 except Event.DoesNotExist:
                     messages.error(request, 'Event not found')
         
@@ -1923,7 +1923,7 @@ def export_subscribers_csv(request):
         
     except Exception as e:
         messages.error(request, f'Error exporting subscribers: {str(e)}')
-        return redirect('djadmin:subscribers')
+        return redirect('admin:subscribers')
 
 @login_required
 @user_passes_test(is_admin_user)
@@ -2000,7 +2000,7 @@ def form_detail(request, form_id):
                 form_submission.status = new_status
                 form_submission.save()
                 messages.success(request, f'Form status updated to {new_status}')
-                return redirect('djadmin:form_detail', form_id=form_id)
+                return redirect('admin:form_detail', form_id=form_id)
             
             # Handle notes update
             notes = request.POST.get('notes')
@@ -2008,7 +2008,7 @@ def form_detail(request, form_id):
                 form_submission.notes = notes
                 form_submission.save()
                 messages.success(request, 'Notes updated successfully')
-                return redirect('djadmin:form_detail', form_id=form_id)
+                return redirect('admin:form_detail', form_id=form_id)
         
         context = {
             'form_submission': form_submission,
@@ -2018,7 +2018,7 @@ def form_detail(request, form_id):
         
     except Exception as e:
         messages.error(request, f'Error loading form: {str(e)}')
-        return redirect('djadmin:forms')
+        return redirect('admin:forms')
 
 @login_required
 @user_passes_test(is_admin_user)
@@ -2030,9 +2030,9 @@ def form_delete(request, form_id):
             form_name = form_submission.name
             form_submission.delete()
             messages.success(request, f'Form submission from {form_name} deleted successfully')
-            return redirect('djadmin:forms')
+            return redirect('admin:forms')
         except Exception as e:
             messages.error(request, f'Error deleting form: {str(e)}')
-            return redirect('djadmin:forms')
+            return redirect('admin:forms')
     else:
-        return redirect('djadmin:forms')
+        return redirect('admin:forms')

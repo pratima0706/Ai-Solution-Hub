@@ -170,7 +170,7 @@ class AISolutionHubAdminSite(admin.AdminSite):
             return super().index(request, ctx)
 
 # Create our custom admin site instance
-custom_admin_site = AISolutionHubAdminSite(name='admin')
+custom_admin_site = AISolutionHubAdminSite(name='custom_admin')
 
 # Admin functions are handled through the existing admin actions and views
 

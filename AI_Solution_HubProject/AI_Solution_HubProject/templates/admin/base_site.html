@@ -37,19 +37,19 @@
                     <div class="menu-section-title">MAIN</div>
                     <ul class="menu-list">
                         <li class="menu-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-                            <a href="{% url 'djadmin:dashboard' %}" class="menu-link">
+                            <a href="{% url 'admin:dashboard' %}" class="menu-link">
                                 <i class="fas fa-tachometer-alt menu-icon"></i>
                                 <span class="menu-text">Dashboard</span>
                             </a>
                         </li>
                         <li class="menu-item {% if request.resolver_match.url_name == 'inquiries_list' %}active{% endif %}">
-                            <a href="{% url 'djadmin:inquiries_list' %}" class="menu-link">
+                            <a href="{% url 'admin:inquiries_list' %}" class="menu-link">
                                 <i class="fas fa-envelope menu-icon"></i>
                                 <span class="menu-text">Inquiries</span>
                             </a>
                         </li>
                         <li class="menu-item {% if request.resolver_match.url_name == 'subscribers' %}active{% endif %}">
-                            <a href="{% url 'djadmin:subscribers' %}" class="menu-link">
+                            <a href="{% url 'admin:subscribers' %}" class="menu-link">
                                 <i class="fas fa-users menu-icon"></i>
                                 <span class="menu-text">Subscribers</span>
                             </a>
@@ -62,43 +62,43 @@
                     <div class="menu-section-title">CONTENT</div>
                     <ul class="menu-list">
                         <li class="menu-item {% if request.resolver_match.url_name == 'events' %}active{% endif %}">
-                            <a href="{% url 'djadmin:events' %}" class="menu-link">
+                            <a href="{% url 'admin:events' %}" class="menu-link">
                                 <i class="fas fa-calendar-alt menu-icon"></i>
                                 <span class="menu-text">Events</span>
                             </a>
                         </li>
                         <li class="menu-item {% if request.resolver_match.url_name == 'gallery' %}active{% endif %}">
-                            <a href="{% url 'djadmin:gallery' %}" class="menu-link">
+                            <a href="{% url 'admin:gallery' %}" class="menu-link">
                                 <i class="fas fa-images menu-icon"></i>
                                 <span class="menu-text">Gallery</span>
                             </a>
                         </li>
                         <li class="menu-item {% if request.resolver_match.url_name == 'testimonials' %}active{% endif %}">
-                            <a href="{% url 'djadmin:testimonials' %}" class="menu-link">
+                            <a href="{% url 'admin:testimonials' %}" class="menu-link">
                                 <i class="fas fa-quote-left menu-icon"></i>
                                 <span class="menu-text">Testimonials</span>
                             </a>
                         </li>
                         <li class="menu-item {% if request.resolver_match.url_name == 'articles' %}active{% endif %}">
-                            <a href="{% url 'djadmin:articles' %}" class="menu-link">
+                            <a href="{% url 'admin:articles' %}" class="menu-link">
                                 <i class="fas fa-blog menu-icon"></i>
                                 <span class="menu-text">Articles</span>
                             </a>
                         </li>
                         <li class="menu-item {% if request.resolver_match.url_name == 'services' %}active{% endif %}">
-                            <a href="{% url 'djadmin:services' %}" class="menu-link">
+                            <a href="{% url 'admin:services' %}" class="menu-link">
                                 <i class="fas fa-cogs menu-icon"></i>
                                 <span class="menu-text">Services</span>
                             </a>
                         </li>
                         <li class="menu-item {% if request.resolver_match.url_name == 'past_solutions' %}active{% endif %}">
-                            <a href="{% url 'djadmin:past_solutions' %}" class="menu-link">
+                            <a href="{% url 'admin:past_solutions' %}" class="menu-link">
                                 <i class="fas fa-project-diagram menu-icon"></i>
                                 <span class="menu-text">Past Solutions</span>
                             </a>
                         </li>
                         <li class="menu-item {% if request.resolver_match.url_name == 'forms' %}active{% endif %}">
-                            <a href="{% url 'djadmin:forms' %}" class="menu-link">
+                            <a href="{% url 'admin:forms' %}" class="menu-link">
                                 <i class="fas fa-clipboard-list menu-icon"></i>
                                 <span class="menu-text">Forms</span>
                             </a>
@@ -111,25 +111,25 @@
                     <div class="menu-section-title">MANAGEMENT</div>
                     <ul class="menu-list">
                         <li class="menu-item {% if request.resolver_match.url_name == 'site_settings' %}active{% endif %}">
-                            <a href="{% url 'djadmin:site_settings' %}" class="menu-link">
+                            <a href="{% url 'admin:site_settings' %}" class="menu-link">
                                 <i class="fas fa-cog menu-icon"></i>
                                 <span class="menu-text">Site Settings</span>
                             </a>
                         </li>
                         <li class="menu-item {% if request.resolver_match.url_name == 'users' %}active{% endif %}">
-                            <a href="{% url 'djadmin:users' %}" class="menu-link">
+                            <a href="{% url 'admin:users' %}" class="menu-link">
                                 <i class="fas fa-user-shield menu-icon"></i>
                                 <span class="menu-text">Users</span>
                             </a>
                         </li>
                         <li class="menu-item {% if request.resolver_match.url_name == 'audit_exports' %}active{% endif %}">
-                            <a href="{% url 'djadmin:audit_exports' %}" class="menu-link">
+                            <a href="{% url 'admin:audit_exports' %}" class="menu-link">
                                 <i class="fas fa-clipboard-list menu-icon"></i>
                                 <span class="menu-text">Audit & Exports</span>
                             </a>
                         </li>
                         <li class="menu-item {% if request.resolver_match.url_name == 'reports' %}active{% endif %}">
-                            <a href="{% url 'djadmin:reports' %}" class="menu-link">
+                            <a href="{% url 'admin:reports' %}" class="menu-link">
                                 <i class="fas fa-chart-bar menu-icon"></i>
                                 <span class="menu-text">Reports</span>
                             </a>
@@ -198,10 +198,10 @@
                                 <i class="fas fa-chevron-down"></i>
                             </button>
                             <div class="dropdown-menu" id="userDropdownMenu">
-                                <a href="{% url 'djadmin:profile' %}" class="dropdown-item">
+                                <a href="{% url 'admin:profile' %}" class="dropdown-item">
                                     <i class="fas fa-user me-2"></i>My Profile
                                 </a>
-                                <a href="{% url 'djadmin:site_settings' %}" class="dropdown-item">
+                                <a href="{% url 'admin:site_settings' %}" class="dropdown-item">
                                     <i class="fas fa-cog me-2"></i>Settings
                                 </a>
                                 <div class="dropdown-divider"></div>

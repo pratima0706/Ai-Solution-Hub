@@ -49,7 +49,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-search me-1"></i>Filter
                     </button>
-                    <a href="{% url 'djadmin:articles' %}" class="btn btn-secondary">
+                    <a href="{% url 'admin:articles' %}" class="btn btn-secondary">
                         <i class="fas fa-times me-1"></i>Clear
                     </a>
                 </div>
@@ -178,7 +178,7 @@
                         {% endif %}
                     </p>
                     {% if search or category or status or featured %}
-                    <a href="{% url 'djadmin:articles' %}" class="btn btn-primary">
+                    <a href="{% url 'admin:articles' %}" class="btn btn-primary">
                         <i class="fas fa-times me-1"></i>Clear Filters
                     </a>
                     {% else %}
@@ -237,7 +237,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
-                <form id="addArticleForm" method="post" action="{% url 'djadmin:articles' %}" enctype="multipart/form-data">
+                <form id="addArticleForm" method="post" action="{% url 'admin:articles' %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="create">
                     <div class="row">
@@ -378,7 +378,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
-                <form id="editArticleForm" method="post" action="{% url 'djadmin:articles' %}" enctype="multipart/form-data">
+                <form id="editArticleForm" method="post" action="{% url 'admin:articles' %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="update">
                     <input type="hidden" name="article_id" id="edit_article_id">
@@ -777,7 +777,7 @@ function submitDuplicateArticle(articleId){
     if (!confirm('Duplicate this article?')) return;
     const form = document.createElement('form');
     form.method = 'post';
-    form.action = '{% url "djadmin:articles" %}';
+    form.action = '{% url "admin:articles" %}';
     form.style.display = 'none';
     form.innerHTML = `
         <input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('input[name=csrfmiddlewaretoken]').value}">
@@ -791,7 +791,7 @@ function submitDuplicateArticle(articleId){
 function submitQuickPublishToggle(articleId){
     const form = document.createElement('form');
     form.method = 'post';
-    form.action = '{% url "djadmin:articles" %}';
+    form.action = '{% url "admin:articles" %}';
     form.style.display = 'none';
     form.innerHTML = `
         <input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('input[name=csrfmiddlewaretoken]').value}">
@@ -805,7 +805,7 @@ function submitQuickPublishToggle(articleId){
 function submitToggleFeatured(articleId){
     const form = document.createElement('form');
     form.method = 'post';
-    form.action = '{% url "djadmin:articles" %}';
+    form.action = '{% url "admin:articles" %}';
     form.style.display = 'none';
     form.innerHTML = `
         <input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('input[name=csrfmiddlewaretoken]').value}">
@@ -825,7 +825,7 @@ function submitDeleteArticle(articleId, articleTitle){
     if (!confirm(`Delete article "${articleTitle}"? This action cannot be undone.`)) return;
     const form = document.createElement('form');
     form.method = 'post';
-    form.action = '{% url "djadmin:articles" %}';
+    form.action = '{% url "admin:articles" %}';
     form.style.display = 'none';
     form.innerHTML = `
         <input type="hidden" name="csrfmiddlewaretoken" value="${document.querySelector('input[name=csrfmiddlewaretoken]').value}">

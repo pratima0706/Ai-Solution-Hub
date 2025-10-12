@@ -3,9 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Solution Hub - provider of innovative AI solutions, articles, case studies, and events for digital transformation." />
+    <meta name="keywords" content="AI solutions, artificial intelligence, machine learning, data analytics, AI consulting, automation" />
+    <meta name="author" content="AI Solution Hub" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://aisolutionhub.com/" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://aisolutionhub.com/" />
+    <meta property="og:title" content="{% block og_title %}AI Solution Hub - Leading AI Solutions Provider{% endblock %}" />
+    <meta property="og:description" content="{% block og_description %}Transform your business with innovative AI solutions. Leading provider of artificial intelligence services, consulting, and implementation.{% endblock %}" />
+    <meta property="og:image" content="https://aisolutionhub.com/static/images/hero-backgrounds/rightsideimage.jpg" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://aisolutionhub.com/" />
+    <meta property="twitter:title" content="{% block twitter_title %}AI Solution Hub - Leading AI Solutions Provider{% endblock %}" />
+    <meta property="twitter:description" content="{% block twitter_description %}Transform your business with innovative AI solutions. Leading provider of artificial intelligence services, consulting, and implementation.{% endblock %}" />
+    <meta property="twitter:image" content="https://aisolutionhub.com/static/images/hero-backgrounds/rightsideimage.jpg" />
+    
+    <!-- Preconnect to external domains for faster loading -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    
     <title>{% block title %}AI Solution Hub{% endblock %}</title>
+    <!-- Tailwind CDN (DO NOT USE DEFER FOR TAILWIND) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        // Suppress Tailwind CDN production warning
+        const originalWarn = console.warn;
+        console.warn = function(message) {
+            if (message && message.includes('cdn.tailwindcss.com should not be used in production')) {
+                return; // Suppress this specific warning
+            }
+            originalWarn.apply(console, arguments);
+        };
+        
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {50: '#eff6ff',100:'#dbeafe',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8',900:'#1e3a8a'}
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    <style>
+        @font-face {
+            font-family: 'Font Awesome 6 Free';
+            font-display: swap;
+        }
+    </style>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -70,6 +124,8 @@
         /* Smaller Font Sizes - Consistent with Reference Design */
         html {
             font-size: 14px; /* Base font size reduced from 16px */
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
         }
         
         body {
@@ -154,6 +210,7 @@
         
         .glass-effect {
             background: rgba(255, 255, 255, 0.08);
+            -webkit-backdrop-filter: blur(20px);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
@@ -161,6 +218,8 @@
         
         .dark .glass-effect {
             background: rgba(15, 23, 42, 0.8);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(148, 163, 184, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
@@ -392,8 +451,8 @@
 <body class="theme-transition min-h-screen">
     <!-- Floating AI Chat Icon -->
     <div class="floating-chat">
-        <button id="chatToggle" class="btn-primary p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-500 hover:scale-110 animate-pulse-glow">
-            <i class="fas fa-robot text-2xl"></i>
+        <button id="chatToggle" class="btn-primary p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-500 hover:scale-110 animate-pulse-glow" aria-label="Open AI Assistant Chat" title="Open AI Assistant Chat">
+            <i class="fas fa-robot text-2xl" aria-hidden="true"></i>
         </button>
     </div>
 
@@ -402,8 +461,8 @@
         <div class="p-8">
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-xl font-bold gradient-text">AI Assistant</h3>
-                <button id="closeChat" class="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors duration-200">
-                    <i class="fas fa-times text-xl"></i>
+                <button id="closeChat" class="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors duration-200" aria-label="Close AI Assistant Chat" title="Close AI Assistant Chat">
+                    <i class="fas fa-times text-xl" aria-hidden="true"></i>
                 </button>
             </div>
             <div class="text-center py-8">
@@ -437,14 +496,14 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <!-- Theme Toggle Button -->
-                    <button id="themeToggle" class="glass-effect p-3 rounded-full hover:scale-110 transition-all duration-300">
-                        <i class="fas fa-sun text-yellow-500 dark:hidden text-lg"></i>
-                        <i class="fas fa-moon text-blue-400 hidden dark:block text-lg"></i>
+                    <button id="themeToggle" class="glass-effect p-3 rounded-full hover:scale-110 transition-all duration-300" aria-label="Toggle Dark/Light Theme" title="Toggle Dark/Light Theme">
+                        <i class="fas fa-sun text-yellow-500 dark:hidden text-lg" aria-hidden="true"></i>
+                        <i class="fas fa-moon text-blue-400 hidden dark:block text-lg" aria-hidden="true"></i>
                     </button>
                     
                     <!-- Mobile Menu Button -->
-                    <button id="mobileMenuBtn" class="md:hidden text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200">
-                        <i class="fas fa-bars text-xl"></i>
+                    <button id="mobileMenuBtn" class="md:hidden text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200" aria-label="Toggle Mobile Menu" title="Toggle Mobile Menu">
+                        <i class="fas fa-bars text-xl" aria-hidden="true"></i>
                     </button>
                 </div>
             </div>
@@ -481,14 +540,17 @@
                     <h3 class="text-2xl font-bold mb-6 gradient-text">AI Solution Hub</h3>
                     <p class="text-slate-300 leading-relaxed mb-6">Leading provider of innovative AI solutions for businesses worldwide. Transforming industries through cutting-edge artificial intelligence.</p>
                     <div class="flex space-x-4">
-                        <a href="#" class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors duration-200">
-                            <i class="fab fa-twitter"></i>
+                        <a href="#" rel="noopener" class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors duration-200">
+                            <i class="fab fa-twitter" aria-hidden="true"></i>
+                            <span class="sr-only">Twitter</span>
                         </a>
-                        <a href="#" class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors duration-200">
-                            <i class="fab fa-linkedin"></i>
+                        <a href="#" rel="noopener" class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors duration-200">
+                            <i class="fab fa-linkedin" aria-hidden="true"></i>
+                            <span class="sr-only">LinkedIn</span>
                         </a>
-                        <a href="#" class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors duration-200">
-                            <i class="fab fa-github"></i>
+                        <a href="#" rel="noopener" class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors duration-200">
+                            <i class="fab fa-github" aria-hidden="true"></i>
+                            <span class="sr-only">GitHub</span>
                         </a>
                     </div>
                 </div>

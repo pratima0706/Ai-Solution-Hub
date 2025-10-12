@@ -51,7 +51,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-search me-1"></i>Filter
                     </button>
-                    <a href="{% url 'djadmin:inquiries_list' %}" class="btn btn-secondary">
+                    <a href="{% url 'admin:inquiries_list' %}" class="btn btn-secondary">
                         <i class="fas fa-times me-1"></i>Clear
                     </a>
                 </div>
@@ -70,7 +70,7 @@
             {% endif %}
         </div>
         <div class="d-flex gap-2">
-            <a href="{% url 'djadmin:export_inquiries_csv' %}?{{ request.GET.urlencode }}" 
+            <a href="{% url 'admin:export_inquiries_csv' %}?{{ request.GET.urlencode }}" 
                class="btn btn-success btn-sm">
                 <i class="fas fa-download me-1"></i>Export CSV
             </a>
@@ -132,7 +132,7 @@
                     </td>
                     <td>
                         <div class="d-flex gap-1">
-                            <a href="{% url 'djadmin:inquiry_detail' inquiry.id %}" 
+                            <a href="{% url 'admin:inquiry_detail' inquiry.id %}" 
                                class="btn btn-sm btn-outline-primary" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </a>
@@ -161,7 +161,7 @@
                                 {% endif %}
                             </p>
                             {% if search or status or country or date_from or date_to %}
-                            <a href="{% url 'djadmin:inquiries_list' %}" class="btn btn-primary">
+                            <a href="{% url 'admin:inquiries_list' %}" class="btn btn-primary">
                                 <i class="fas fa-times me-1"></i>Clear Filters
                             </a>
                             {% endif %}

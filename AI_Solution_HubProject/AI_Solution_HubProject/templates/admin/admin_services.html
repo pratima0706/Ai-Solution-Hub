@@ -39,7 +39,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-search me-1"></i>Filter
                     </button>
-                    <a href="{% url 'djadmin:services' %}" class="btn btn-secondary">
+                    <a href="{% url 'admin:services' %}" class="btn btn-secondary">
                         <i class="fas fa-times me-1"></i>Clear
                     </a>
                 </div>
@@ -167,7 +167,7 @@
                         {% endif %}
                     </p>
                     {% if search or pricing_tier or featured %}
-                    <a href="{% url 'djadmin:services' %}" class="btn btn-primary">
+                    <a href="{% url 'admin:services' %}" class="btn btn-primary">
                         <i class="fas fa-times me-1"></i>Clear Filters
                     </a>
                     {% else %}

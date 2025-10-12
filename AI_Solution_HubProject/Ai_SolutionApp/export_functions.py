@@ -98,7 +98,7 @@ def export_gallery_csv(request):
         
     except Exception as e:
         messages.error(request, f'Error exporting gallery: {str(e)}')
-        return redirect('djadmin:gallery')
+        return redirect('admin:gallery')
 
 @login_required
 @user_passes_test(is_content_manager)
@@ -172,7 +172,7 @@ def export_testimonials_csv(request):
         
     except Exception as e:
         messages.error(request, f'Error exporting testimonials: {str(e)}')
-        return redirect('djadmin:testimonials')
+        return redirect('admin:testimonials')
 
 @login_required
 @user_passes_test(is_content_manager)
@@ -248,7 +248,7 @@ def export_articles_csv(request):
         
     except Exception as e:
         messages.error(request, f'Error exporting articles: {str(e)}')
-        return redirect('djadmin:articles')
+        return redirect('admin:articles')
 
 @login_required
 @user_passes_test(is_content_manager)
@@ -317,7 +317,7 @@ def export_services_csv(request):
         
     except Exception as e:
         messages.error(request, f'Error exporting services: {str(e)}')
-        return redirect('djadmin:services')
+        return redirect('admin:services')
 
 @login_required
 @user_passes_test(is_content_manager)
@@ -390,4 +390,4 @@ def export_past_solutions_csv(request):
         
     except Exception as e:
         messages.error(request, f'Error exporting past solutions: {str(e)}')
-        return redirect('djadmin:past_solutions')
+        return redirect('admin:past_solutions')

@@ -479,7 +479,7 @@ document.getElementById('exportReportBtn')?.addEventListener('click', function (
     const params = new URLSearchParams();
     if (df) params.set('date_from', df);
     if (dt) params.set('date_to', dt);
-    const url = `{% url 'djadmin:export_reports_csv' %}?${params.toString()}`;
+    const url = `{% url 'admin:export_reports_csv' %}?${params.toString()}`;
     window.location.href = url;
 });
 

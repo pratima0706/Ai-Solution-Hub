@@ -57,7 +57,7 @@
                 </div>
             </div>
             <div class="d-flex align-items-center justify-content-between">
-                <a href="{% url 'djadmin:inquiries_list' %}" class="text-decoration-none">View All</a>
+                <a href="{% url 'admin:inquiries_list' %}" class="text-decoration-none">View All</a>
                 <div class="kpi-change positive">
                     <i class="fas fa-arrow-up"></i>
                     <span>+40% this month</span>
@@ -84,7 +84,7 @@
                 </div>
             </div>
             <div class="d-flex align-items-center justify-content-between">
-                <a href="{% url 'djadmin:reports' %}" class="text-decoration-none">View All</a>
+                <a href="{% url 'admin:reports' %}" class="text-decoration-none">View All</a>
                 <div class="kpi-change positive">
                     <i class="fas fa-arrow-up"></i>
                     <span>+25% this month</span>
@@ -146,7 +146,7 @@
                 </div>
             </div>
             <div class="d-flex align-items-center justify-content-between">
-                <a href="{% url 'djadmin:reports' %}" class="text-decoration-none">View All</a>
+                <a href="{% url 'admin:reports' %}" class="text-decoration-none">View All</a>
                 <div class="kpi-change negative">
                     <i class="fas fa-arrow-down"></i>
                     <span>-12% this month</span>
@@ -173,28 +173,28 @@
                         <div class="legend-color" style="background-color: var(--primary-color);"></div>
                         <span>Website</span>
                     </div>
-                    <span class="fw-bold">{{ website_inquiries|default:"1,624" }}</span>
+                    <span class="fw-bold">{{ website_inquiries|default:"5" }}</span>
                 </div>
                 <div class="legend-item d-flex align-items-center justify-content-between mb-2">
                     <div class="d-flex align-items-center">
                         <div class="legend-color" style="background-color: var(--success-color);"></div>
                         <span>Social Media</span>
                     </div>
-                    <span class="fw-bold">{{ social_inquiries|default:"1,267" }}</span>
+                    <span class="fw-bold">{{ social_inquiries|default:"4" }}</span>
                 </div>
                 <div class="legend-item d-flex align-items-center justify-content-between mb-2">
                     <div class="d-flex align-items-center">
                         <div class="legend-color" style="background-color: var(--warning-color);"></div>
                         <span>Referrals</span>
                     </div>
-                    <span class="fw-bold">{{ referral_inquiries|default:"1,153" }}</span>
+                    <span class="fw-bold">{{ referral_inquiries|default:"2" }}</span>
                 </div>
                 <div class="legend-item d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center">
                         <div class="legend-color" style="background-color: var(--danger-color);"></div>
                         <span>Other</span>
                     </div>
-                    <span class="fw-bold">{{ other_inquiries|default:"679" }}</span>
+                    <span class="fw-bold">{{ other_inquiries|default:"1" }}</span>
                 </div>
             </div>
         </div>
@@ -554,9 +554,9 @@ function initDashboardCharts() {
     if (sourceCtx) {
         createDoughnutChart(sourceCtx, {
             labels: ['Website', 'Social Media', 'Referrals', 'Other'],
-            values: [1624, 1267, 1153, 679]
+            values: [5, 4, 2, 1]
         }, {
-            colors: ['var(--primary-color)', 'var(--success-color)', 'var(--warning-color)', 'var(--danger-color)']
+            colors: ['#6366f1', '#10b981', '#f59e0b', '#ef4444']
         });
     }
     
@@ -632,13 +632,15 @@ function filterInquiryTable(searchTerm) {
 </script>
 <script>
 // Lightweight KPI auto-refresh
-async function refreshKpis(){
-    try{
-        const res = await fetch('{% url 'djadmin:kpi_summary' %}', {headers:{'X-Requested-With':'XMLHttpRequest'}});
-        if(!res.ok) return;
+async function refreshKpis() {
+    try {
+        const res = await fetch("{% url 'admin:kpi_summary' %}", {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        if (!res.ok) return;
         const data = await res.json();
         const el = document.getElementById('kpiTotalInquiries');
-        if (el && data.total_inquiries !== undefined){
+        if (el && data.total_inquiries !== undefined) {
             el.textContent = data.total_inquiries;
         }
     }catch(e){/* silent */}

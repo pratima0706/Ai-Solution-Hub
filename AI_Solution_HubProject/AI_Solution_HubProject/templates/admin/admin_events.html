@@ -48,7 +48,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-search me-1"></i>Filter
                     </button>
-                    <a href="{% url 'djadmin:events' %}" class="btn btn-secondary">
+                    <a href="{% url 'admin:events' %}" class="btn btn-secondary">
                         <i class="fas fa-times me-1"></i>Clear
                     </a>
                 </div>
@@ -65,7 +65,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
-                <form id="editEventForm" method="post" action="{% url 'djadmin:events' %}" enctype="multipart/form-data">
+                <form id="editEventForm" method="post" action="{% url 'admin:events' %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="update">
                     <input type="hidden" name="event_id" id="edit_event_id">
@@ -347,7 +347,7 @@
                         {% endif %}
                     </p>
                     {% if search or event_type or featured or upcoming %}
-                    <a href="{% url 'djadmin:events' %}" class="btn btn-primary">
+                    <a href="{% url 'admin:events' %}" class="btn btn-primary">
                         <i class="fas fa-times me-1"></i>Clear Filters
                     </a>
                     {% else %}
@@ -742,7 +742,7 @@ function saveEvent() {
     formData.append('action', 'create');
     
     // Submit form to backend
-    fetch('{% url "djadmin:events" %}', {
+    fetch('{% url "admin:events" %}', {
         method: 'POST',
         body: formData,
         headers: {

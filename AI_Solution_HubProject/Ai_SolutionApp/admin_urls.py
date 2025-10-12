@@ -2,7 +2,7 @@ from django.urls import path
 from . import admin_views
 from .admin import custom_admin_site
 
-app_name = 'djadmin'
+app_name = 'admin'
 
 urlpatterns = [
     # Login

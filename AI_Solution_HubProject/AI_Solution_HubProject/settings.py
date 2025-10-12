@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-afz71_oqc*q--eui*z_p7=md7^j8p)23xtc$&z-ogej(-)h@0z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') else []
 
 
 # Application definition
@@ -131,6 +131,35 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'Static',
 ]
+
+# Optimize static files for production
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+
+# Add compression for static files
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+
+# Security and caching headers for optimization
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_REFERRER_POLICY = "same-origin"
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+X_FRAME_OPTIONS = "DENY"
+
+# HTTPS Configuration (only active in production)
+USE_HTTPS = os.getenv('USE_HTTPS', 'False').lower() == 'true'
+SECURE_SSL_REDIRECT = USE_HTTPS and not DEBUG
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') if USE_HTTPS else None
+SECURE_HSTS_SECONDS = 31536000 if USE_HTTPS and not DEBUG else 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = USE_HTTPS and not DEBUG
+SECURE_HSTS_PRELOAD = USE_HTTPS and not DEBUG
+
+# Additional HTTPS Security Settings
+SECURE_REDIRECT_EXEMPT = []  # URLs that should not be redirected to HTTPS
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin' if USE_HTTPS else None
 
 # Media files (User uploaded content)
 MEDIA_URL = '/media/'

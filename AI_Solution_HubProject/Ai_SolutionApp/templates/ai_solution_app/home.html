@@ -8,6 +8,7 @@
 <section class="relative min-h-screen flex items-center justify-center overflow-hidden" id="heroSection">
     <!-- Professional Background with Image -->
     <div class="absolute inset-0 bg-cover bg-center bg-no-repeat hero-bg-image">
+        <img src="{% static 'images/hero-backgrounds/rightsideimage.jpg' %}" alt="AI Solutions Hero" style="display: none" fetchpriority="high">
         <div class="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-blue-900/70 to-indigo-900/80"></div>
     </div>
     
@@ -17,8 +18,8 @@
     <!-- Animated Background Elements -->
     <div class="absolute inset-0">
         <div class="absolute top-20 left-10 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
-        <div class="absolute top-40 right-20 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style="animation-delay: 2s;"></div>
-        <div class="absolute bottom-20 left-1/4 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style="animation-delay: 4s;"></div>
+        <div class="absolute top-40 right-20 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style="animation-delay: 2s"></div>
+        <div class="absolute bottom-20 left-1/4 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style="animation-delay: 4s"></div>
     </div>
     
     <!-- Floating Tech Icons -->
@@ -26,10 +27,10 @@
         <div class="absolute top-1/4 left-1/4 text-6xl text-white opacity-10 animate-float">
             <i class="fas fa-brain"></i>
         </div>
-        <div class="absolute top-1/3 right-1/3 text-5xl text-white opacity-10 animate-float" style="animation-delay: 1s;">
+        <div class="absolute top-1/3 right-1/3 text-5xl text-white opacity-10 animate-float" style="animation-delay: 1s">
             <i class="fas fa-robot"></i>
         </div>
-        <div class="absolute bottom-1/3 left-1/3 text-4xl text-white opacity-10 animate-float" style="animation-delay: 3s;">
+        <div class="absolute bottom-1/3 left-1/3 text-4xl text-white opacity-10 animate-float" style="animation-delay: 3s">
             <i class="fas fa-microchip"></i>
         </div>
     </div>
@@ -38,7 +39,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div class="animate-slide-in-up">
                 <h1 class="text-5xl md:text-7xl font-bold mb-8 leading-tight text-white">
-                Transform Your Business with
+                    Transform Your Business with
                     <span class="gradient-text block mt-4">AI Solutions</span>
                 </h1>
                 <p class="text-xl md:text-2xl mb-12 text-blue-100 max-w-4xl mx-auto leading-relaxed">
@@ -54,18 +55,16 @@
                 </div>
             </div>
         </div>
-        </div>
+    </div>
 
-        <!-- Scroll Indicator -->
-        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <i class="fas fa-chevron-down text-2xl text-white opacity-70"></i>
-        </div>
+    <!-- Scroll Indicator -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <i class="fas fa-chevron-down text-2xl text-white opacity-70"></i>
     </div>
 </section>
 
 <!-- Featured Services Section -->
 <section class="py-24 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900 relative overflow-hidden">
-    <!-- Background Pattern -->
     <div class="absolute inset-0 tech-pattern opacity-5"></div>
     
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -93,8 +92,8 @@
                         </span>
                     </div>
                     <a href="{% url 'ai_solution_app:service_detail' service.id %}" class="inline-flex items-center text-[var(--primary)] hover:text-[var(--secondary)] font-bold transition-all duration-300 text-lg group-hover:translate-x-2">
-                        Learn More
-                        <i class="fas fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform duration-300"></i>
+                        Learn More About {{ service.title }}
+                        <i class="fas fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform duration-300" aria-hidden="true"></i>
                     </a>
                 </div>
             </div>
@@ -106,51 +105,6 @@
                 View All Services
             </a>
         </div>
-    </div>
-</section>
-
-<!-- Featured Solutions Section -->
-<section class="py-24 bg-[var(--bg)] relative overflow-hidden">
-    <!-- Background Elements -->
-    <div class="absolute top-0 right-0 w-96 h-96 bg-blue-900 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
-    <div class="absolute bottom-0 left-0 w-80 h-80 bg-purple-900 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
-    
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div class="text-center mb-20">
-            <h2 class="text-5xl md:text-6xl font-bold text-[var(--text)] mb-6">
-                Success <span class="gradient-text">Stories</span>
-            </h2>
-            <p class="text-2xl text-[var(--text-secondary)] max-w-4xl mx-auto leading-relaxed">
-                Real-world AI implementations that delivered measurable results for our clients across various industries.
-            </p>
-        </div>
-        
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {% for solution in solutions|slice:":2" %}
-            <div class="card-hover bg-[var(--card)] rounded-3xl p-10 shadow-2xl border border-[var(--border)] group">
-                <div class="flex items-center mb-8">
-                    <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-300">
-                        <i class="fas fa-trophy text-2xl text-white"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-2xl font-bold text-[var(--text)] mb-2">{{ solution.title }}</h3>
-                        <p class="text-[var(--text-secondary)] text-lg">{{ solution.client_name }} - {{ solution.industry }}</p>
-                    </div>
-                </div>
-                <p class="text-[var(--text-secondary)] mb-8 text-lg leading-relaxed">{{ solution.description|truncatewords:30 }}</p>
-                <div class="mb-8 p-6 bg-[var(--hover)] rounded-2xl border border-[var(--border)]">
-                    <h4 class="font-bold text-[var(--text)] mb-3 text-lg">Key Results:</h4>
-                    <p class="text-[var(--text-secondary)]">{{ solution.results|truncatewords:20 }}</p>
-                </div>
-                <a href="{% url 'ai_solution_app:solution_detail' solution.id %}" class="btn-primary px-8 py-4 rounded-2xl font-bold text-lg group-hover:translate-x-2 transition-all duration-300 inline-flex items-center">
-                    View Case Study
-                    <i class="fas fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform duration-300"></i>
-                </a>
-            </div>
-            {% endfor %}
-        </div>
-        
-        
     </div>
 </section>
 
@@ -247,11 +201,11 @@
                 </div>
                 
                 <!-- Navigation Controls -->
-                <button class="carousel-nav prev absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white border-2 border-slate-300 rounded-full flex items-center justify-center hover:border-blue-600 hover:bg-blue-50 transition-all duration-300 hover:scale-110">
-                    <i class="fas fa-chevron-left text-slate-600"></i>
+                <button class="carousel-nav prev absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white border-2 border-slate-300 rounded-full flex items-center justify-center hover:border-blue-600 hover:bg-blue-50 transition-all duration-300 hover:scale-110" aria-label="Previous Gallery Image" title="Previous Gallery Image">
+                    <i class="fas fa-chevron-left text-slate-600" aria-hidden="true"></i>
                 </button>
-                <button class="carousel-nav next absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white border-2 border-slate-300 rounded-full flex items-center justify-center hover:border-blue-600 hover:bg-blue-50 transition-all duration-300 hover:scale-110">
-                    <i class="fas fa-chevron-right text-slate-600"></i>
+                <button class="carousel-nav next absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white border-2 border-slate-300 rounded-full flex items-center justify-center hover:border-blue-600 hover:bg-blue-50 transition-all duration-300 hover:scale-110" aria-label="Next Gallery Image" title="Next Gallery Image">
+                    <i class="fas fa-chevron-right text-slate-600" aria-hidden="true"></i>
                 </button>
             </div>
         </div>
@@ -388,13 +342,13 @@
                         <span class="text-sm text-[var(--text-secondary)]">{{ article.author }}</span>
                         {% if article.slug %}
                         <a href="{% url 'ai_solution_app:article_detail' article.slug %}" class="inline-flex items-center text-[var(--primary)] hover:text-[var(--secondary)] font-semibold transition-colors duration-200">
-                            Read More
-                            <i class="fas fa-arrow-right ml-2"></i>
+                            Read More About {{ article.title }}
+                            <i class="fas fa-arrow-right ml-2" aria-hidden="true"></i>
                         </a>
                         {% else %}
                         <span class="inline-flex items-center text-gray-400 font-semibold">
-                            Read More
-                            <i class="fas fa-arrow-right ml-2"></i>
+                            Read More About {{ article.title }}
+                            <i class="fas fa-arrow-right ml-2" aria-hidden="true"></i>
                         </span>
                         {% endif %}
                     </div>
@@ -452,6 +406,7 @@
         </form>
     </div>
 </div>
+
 
 <!-- Enhanced Gallery Carousel Styles -->
 <style>
@@ -540,14 +495,14 @@
 }
 
 .gallery-filter-btn.active {
-    background: #3b82f6;
-    border-color: #3b82f6;
+    background: #1d4ed8;
+    border-color: #1d4ed8;
     color: white;
 }
 
 .gallery-filter-btn:hover:not(.active) {
-    border-color: #3b82f6;
-    color: #3b82f6;
+    border-color: #1d4ed8;
+    color: #1d4ed8;
     background: #f8fafc;
 }
 

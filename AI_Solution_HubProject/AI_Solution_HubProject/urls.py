@@ -20,10 +20,48 @@ from django.shortcuts import redirect
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
+from django.http import HttpResponse
+from django.contrib.sitemaps.views import sitemap
 from Ai_SolutionApp.admin import custom_admin_site
 from Ai_SolutionApp import views
+from Ai_SolutionApp.sitemap import StaticViewSitemap, ServiceSitemap, PastSolutionSitemap, EventSitemap, ArticleSitemap
+
+def robots_txt(request):
+    """Serve robots.txt to fix 404 error"""
+    content = """User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /django-admin/
+Sitemap: https://aisolutionhub.com/sitemap.xml
+"""
+    return HttpResponse(content, content_type='text/plain')
+
+def chrome_devtools_json(request):
+    """Handle Chrome DevTools requests to prevent 404 errors"""
+    return HttpResponse('{}', content_type='application/json')
+
+def favicon_ico(request):
+    """Handle favicon.ico requests to prevent 404 errors"""
+    return HttpResponse('', content_type='image/x-icon')
+
+# Sitemap configuration
+sitemaps = {
+    'static': StaticViewSitemap,
+    'services': ServiceSitemap,
+    'solutions': PastSolutionSitemap,
+    'events': EventSitemap,
+    'articles': ArticleSitemap,
+}
 
 urlpatterns = [
+    # Fix 404 errors
+    path('robots.txt', robots_txt, name='robots_txt'),
+    path('.well-known/appspecific/com.chrome.devtools.json', chrome_devtools_json, name='chrome_devtools'),
+    path('favicon.ico', favicon_ico, name='favicon'),
+    
+    # Sitemap for SEO
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    
     # Custom Admin Panel
     path('admin/', include('Ai_SolutionApp.admin_urls')),
     # Legacy admin-dashboard redirect for backward compatibility

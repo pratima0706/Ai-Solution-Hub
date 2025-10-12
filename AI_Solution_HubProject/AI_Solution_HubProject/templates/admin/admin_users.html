@@ -41,7 +41,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-search me-1"></i>Filter
                     </button>
-                    <a href="{% url 'djadmin:users' %}" class="btn btn-secondary">
+                    <a href="{% url 'admin:users' %}" class="btn btn-secondary">
                         <i class="fas fa-times me-1"></i>Clear
                     </a>
                 </div>
@@ -167,7 +167,7 @@
                                 {% endif %}
                             </p>
                             {% if search or role or status %}
-                            <a href="{% url 'djadmin:users' %}" class="btn btn-primary">
+                            <a href="{% url 'admin:users' %}" class="btn btn-primary">
                                 <i class="fas fa-times me-1"></i>Clear Filters
                             </a>
                             {% else %}
@@ -418,7 +418,7 @@ function viewUser(userId) {
 
 function editUser(userId) {
     const csrfToken = document.querySelector('#inviteUserForm input[name="csrfmiddlewaretoken"]').value;
-    fetch('{% url "djadmin:get_user_json" 0 %}'.replace('/0/', `/${userId}/`), {
+    fetch('{% url "admin:get_user_json" 0 %}'.replace('/0/', `/${userId}/`), {
         headers: { 'X-CSRFToken': csrfToken }
     }).then(r => r.json()).then(d => {
         if (!d.ok) { showNotification('Failed to load user', 'error'); return; }
@@ -440,7 +440,7 @@ function saveUserEdits() {
     const profileId = document.getElementById('edit_profile_id').value;
     // checkbox manual append
     formData.append('is_active', document.getElementById('edit_is_active').checked ? '1' : '0');
-    fetch('{% url "djadmin:edit_user" 0 %}'.replace('/0/', `/${profileId}/`), {
+    fetch('{% url "admin:edit_user" 0 %}'.replace('/0/', `/${profileId}/`), {
         method: 'POST',
         headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') },
         body: formData,
@@ -460,7 +460,7 @@ function saveUserEdits() {
 function updateRowFromEdit(profileId) {
     // Fetch latest data and update row cells
     const csrfToken = document.querySelector('#inviteUserForm input[name="csrfmiddlewaretoken"]').value;
-    fetch('{% url "djadmin:get_user_json" 0 %}'.replace('/0/', `/${profileId}/`), {
+    fetch('{% url "admin:get_user_json" 0 %}'.replace('/0/', `/${profileId}/`), {
         headers: { 'X-CSRFToken': csrfToken }
     }).then(r => r.json()).then(d => {
         if (!d.ok) return;
@@ -500,7 +500,7 @@ function updateRowFromEdit(profileId) {
 function toggleStatus(userId, username) {
     if (!confirm(`Toggle status for user "${username}"?`)) return;
     const csrfToken = document.querySelector('#inviteUserForm input[name="csrfmiddlewaretoken"]').value;
-    fetch('{% url "djadmin:toggle_user_status" 0 %}'.replace('/0/', `/${userId}/`), {
+    fetch('{% url "admin:toggle_user_status" 0 %}'.replace('/0/', `/${userId}/`), {
         method: 'POST',
         headers: { 'X-CSRFToken': csrfToken },
     }).then(r => r.json()).then(d => {
@@ -526,7 +526,7 @@ function sendInvite() {
         return;
     }
     
-    fetch('{% url "djadmin:create_user" %}', {
+    fetch('{% url "admin:create_user" %}', {
         method: 'POST',
         headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') },
         body: formData,
@@ -544,7 +544,7 @@ function sendInvite() {
 
 function exportUsers() {
     const params = new URLSearchParams(window.location.search);
-    window.location.href = '{% url "djadmin:export_users_csv" %}' + (params.toString() ? ('?' + params.toString()) : '');
+    window.location.href = '{% url "admin:export_users_csv" %}' + (params.toString() ? ('?' + params.toString()) : '');
 }
 </script>
 {% endblock %}
