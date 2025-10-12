@@ -278,6 +278,10 @@ def contact_us(request):
             contact.form_type = 'contact'  # Ensure form_type is set
             contact.save()
             
+            # Add success message
+            from django.contrib import messages
+            messages.success(request, 'Thank you for your inquiry! We will get back to you within 24 hours.')
+            
             # Send confirmation email to customer
             try:
                 customer_subject = f'Thank you for contacting AI Solution Hub, {contact.name}!'
@@ -301,7 +305,7 @@ AI Solution Hub Team
                 send_mail(
                     customer_subject,
                     customer_message,
-                    settings.DEFAULT_FROM_EMAIL,
+                    'AI Solution Hub <contact@aisolutionhub.com>',
                     [contact.email],
                     fail_silently=False,
                 )
@@ -333,7 +337,7 @@ Please review and respond within 24 hours.
                 send_mail(
                     admin_subject,
                     admin_message,
-                    settings.DEFAULT_FROM_EMAIL,
+                    'AI Solution Hub <contact@aisolutionhub.com>',
                     [admin_email],
                     fail_silently=False,
                 )
@@ -341,7 +345,7 @@ Please review and respond within 24 hours.
                 # Log the error but don't fail the form submission
                 print(f"Failed to send admin email: {e}")
             
-            return redirect('contact_us')
+            return redirect('/contact/')
         # No messages.error here; errors will be shown inline in the template
     else:
         form = ContactForm(initial={'form_type': 'contact'})
@@ -483,7 +487,7 @@ AI Solution Hub Team
                 send_mail(
                     customer_subject,
                     customer_message,
-                    settings.DEFAULT_FROM_EMAIL,
+                    'AI Solution Hub <contact@aisolutionhub.com>',
                     [demo.email],
                     fail_silently=False,
                 )
@@ -515,7 +519,7 @@ Please review and respond within 24-48 hours.
                 send_mail(
                     admin_subject,
                     admin_message,
-                    settings.DEFAULT_FROM_EMAIL,
+                    'AI Solution Hub <contact@aisolutionhub.com>',
                     [admin_email],
                     fail_silently=False,
                 )
@@ -596,7 +600,7 @@ AI Solution Hub Team
                 send_mail(
                     customer_subject,
                     customer_message,
-                    settings.DEFAULT_FROM_EMAIL,
+                    'AI Solution Hub <contact@aisolutionhub.com>',
                     [registration.email],
                     fail_silently=False,
                 )
@@ -623,7 +627,7 @@ Total participants for this event: {event.current_participants}
                 send_mail(
                     admin_subject,
                     admin_message,
-                    settings.DEFAULT_FROM_EMAIL,
+                    'AI Solution Hub <contact@aisolutionhub.com>',
                     [admin_email],
                     fail_silently=False,
                 )

@@ -133,11 +133,12 @@
         
         <div class="testimonial-content">
             <div class="testimonial-rating">
-                {% for i in testimonial.get_stars %}
-                    <i class="fas fa-star text-warning"></i>
-                {% endfor %}
-                {% for i in "12345"|slice:testimonial.rating %}
-                    <i class="far fa-star text-muted"></i>
+                {% for _ in "12345" %}
+                    {% if forloop.counter <= testimonial.rating %}
+                        <i class="fas fa-star text-warning"></i>
+                    {% else %}
+                        <i class="far fa-star text-muted"></i>
+                    {% endif %}
                 {% endfor %}
                 <span class="rating-text">{{ testimonial.rating }}/5</span>
             </div>

@@ -1,5 +1,4 @@
-// AI Solution Hub Admin Panel JavaScript
-// Handles sidebar, theme switching, dropdowns, and other interactive elements
+
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize all admin functionality

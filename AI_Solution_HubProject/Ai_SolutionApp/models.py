@@ -93,7 +93,7 @@ class Contact(models.Model):
     ])
     email = models.EmailField()
     phone = models.CharField(max_length=20, validators=[
-        RegexValidator(regex=r'^[\+]?[1-9][\d]{0,15}$', message='Enter a valid phone number')
+        RegexValidator(regex=r'^[\+]?[0-9][\d\s\-\(\)]{0,20}$', message='Enter a valid phone number')
     ])
     company = models.CharField(max_length=100)
     country = models.CharField(max_length=100)

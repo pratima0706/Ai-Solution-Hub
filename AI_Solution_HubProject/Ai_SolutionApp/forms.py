@@ -38,7 +38,7 @@ class ContactForm(forms.ModelForm):
         }),
         validators=[
             RegexValidator(
-                regex=r'^[\+]?[1-9][\d]{0,15}$',
+                regex=r'^[\+]?[0-9][\d\s\-\(\)]{0,20}$',
                 message='Enter a valid phone number'
             )
         ]
@@ -219,14 +219,14 @@ class DemoRequestForm(forms.ModelForm):
     
     phone = forms.CharField(
         max_length=20,
-        required=False,
+        required=True,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': '+44 191 234 5678'
         }),
         validators=[
             RegexValidator(
-                regex=r'^[\+]?[1-9][\d]{0,15}$',
+                regex=r'^[\+]?[0-9][\d\s\-\(\)]{0,20}$',
                 message='Enter a valid phone number'
             )
         ]
@@ -234,7 +234,7 @@ class DemoRequestForm(forms.ModelForm):
     
     company = forms.CharField(
         max_length=100,
-        required=False,
+        required=True,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Your Company Name'
@@ -414,7 +414,7 @@ class EventRegistrationForm(forms.ModelForm):
         }),
         validators=[
             RegexValidator(
-                regex=r'^[\+]?[1-9][\d]{0,15}$',
+                regex=r'^[\+]?[0-9][\d\s\-\(\)]{0,20}$',
                 message='Enter a valid phone number'
             )
         ]

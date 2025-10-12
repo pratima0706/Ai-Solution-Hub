@@ -16,6 +16,8 @@ from .models import (
     Article, NewsletterSubscriber, UserProfile, UserRole, ExportLog, SiteSettings
 )
 from django.contrib.auth.models import User
+from django.core.mail import send_mail
+from django.contrib.auth.forms import PasswordResetForm
 from .admin import custom_admin_site
 from .export_functions import (
     export_gallery_csv, export_testimonials_csv, export_articles_csv, 
@@ -1348,10 +1350,14 @@ def create_user(request):
         department = request.POST.get('department', '').strip()
         first_name = request.POST.get('first_name', '').strip()
         last_name = request.POST.get('last_name', '').strip()
-        username = request.POST.get('username', (email.split('@')[0] if email else '')).strip()
+        # If username is blank or missing, derive from email prefix
+        username = request.POST.get('username', '').strip()
+        if not username and email:
+            username = email.split('@')[0]
         temp_password = request.POST.get('password', '')
 
-        if not email or not role_name or not username:
+        # Require email and role; username will be auto-generated when absent
+        if not email or not role_name:
             return JsonResponse({'ok': False, 'error': 'Missing required fields'}, status=400)
 
         if User.objects.filter(username=username).exists():
@@ -1382,6 +1388,31 @@ def create_user(request):
             department=department or None,
             is_active=True,
         )
+
+        # Send invitation email
+        try:
+            login_url = request.build_absolute_uri('/admin/login/')
+            if temp_password and len(temp_password) >= 8:
+                # Send credentials email
+                subject = 'Your AI Solution Hub Admin Access'
+                message = (
+                    f"Hello {first_name or username},\n\n"
+                    f"An account has been created for you on the AI Solution Hub Admin Panel.\n\n"
+                    f"Username: {username}\n"
+                    f"Temporary Password: {temp_password}\n\n"
+                    f"Login here: {login_url}\n\n"
+                    f"For security, please change your password after logging in.\n\n"
+                    f"If you did not expect this, please contact an administrator."
+                )
+                send_mail(subject, message, None, [email], fail_silently=False)
+            else:
+                # Trigger password reset email to let the user set their password securely
+                reset_form = PasswordResetForm(data={'email': email})
+                if reset_form.is_valid():
+                    reset_form.save(request=request, use_https=request.is_secure())
+        except Exception:
+            # Do not fail user creation if email sending fails; the admin UI will still show success
+            pass
 
         return JsonResponse({'ok': True, 'profile_id': profile.id})
     except Exception as e:
