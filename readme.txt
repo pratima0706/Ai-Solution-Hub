@@ -111,7 +111,6 @@ python manage.py test
 ## Contact & Links
 **Project by:** Pratima Neupane  
 **Email:** pratimaneupane0706@gmail.com  
-
 ---
 
 > *Developed for CET 333 Product Development – ISMT Level 6 (3rd Trimester).*
