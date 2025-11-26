@@ -2,12 +2,24 @@
 
 {% block title %}Past Solutions & Case Studies - AI Solution Hub{% endblock %}
 
+{% block extra_css %}
+<style>
+.scrollbar-hide {
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar { 
+    display: none;  /* Safari and Chrome */
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Hero Section -->
 <section class="relative min-h-[70vh] md:min-h-[80vh] flex items-center justify-center hero-landing hero-landing-overlay py-12 md:py-14">
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl md:text-6xl font-bold mb-6 text-white">
-            Success <span class="gradient-text">Stories</span>
+            Past <span class="gradient-text">Solutions</span>
         </h1>
         <p class="text-xl text-blue-100 max-w-3xl mx-auto">
             Real-world AI implementations that delivered measurable results and transformed businesses across various industries.
@@ -17,61 +29,96 @@
 
 <!-- Featured Solutions Section -->
 {% if featured_solutions %}
-<section class="py-20 bg-[var(--bg)]">
+<section class="py-12 bg-[var(--bg)]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold text-[var(--text)] mb-4">
+        <div class="text-center mb-8">
+            <h2 class="text-2xl md:text-3xl font-bold text-[var(--text)] mb-3">
                 Featured <span class="gradient-text">Case Studies</span>
             </h2>
-            <p class="text-xl text-[var(--text-secondary)] max-w-3xl mx-auto">
-                Our most impactful AI solutions that showcase the transformative power of artificial intelligence in real business scenarios.
+            <p class="text-lg text-[var(--text-secondary)] max-w-2xl mx-auto">
+                Key AI solutions that delivered exceptional results.
             </p>
         </div>
         
-        {% for solution in featured_solutions|slice:":1" %}
-        <div class="bg-[var(--card)] rounded-3xl shadow-2xl overflow-hidden border border-[var(--border)]">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-0">
-                <div class="bg-gradient-to-br from-green-500 to-blue-600 p-12 flex items-center justify-center">
-                    <div class="text-center text-white">
-                        <i class="fas fa-trophy text-6xl mb-6 opacity-80"></i>
-                        <h3 class="text-2xl font-bold mb-4">Featured Success Story</h3>
-                        <p class="text-green-100">Exceptional results achieved</p>
-                    </div>
-                </div>
-                <div class="p-12">
-                    <div class="flex items-center mb-6">
-                        <span class="inline-block bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm font-medium px-3 py-1 rounded-full">
-                            {{ solution.industry }}
-                        </span>
-                        <span class="ml-4 text-sm text-[color:var(--text-secondary)]/80">
-                            <i class="fas fa-calendar mr-2"></i>{{ solution.completion_date|date:"M d, Y" }}
-                        </span>
-                    </div>
-                    <h3 class="text-3xl font-bold text-[var(--text)] mb-6 leading-tight">{{ solution.title }}</h3>
-                    <p class="text-lg text-[var(--text-secondary)] mb-8 leading-relaxed">{{ solution.description|truncatewords:30 }}</p>
-                    <div class="mb-8">
-                        <h4 class="font-semibold text-[var(--text)] mb-3">Key Results:</h4>
-                        <p class="text-[var(--text-secondary)]">{{ solution.results|truncatewords:20 }}</p>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center mr-4">
-                                <i class="fas fa-building text-white"></i>
+        <!-- Case Studies Cards with Horizontal Scroll -->
+        <div class="relative">
+            <div class="overflow-x-auto scrollbar-hide pb-4">
+                <div class="flex gap-6 min-w-max">
+                    {% for solution in featured_solutions %}
+                    <div class="bg-[var(--card)] rounded-2xl shadow-lg overflow-hidden border border-[var(--border)] min-w-[320px] max-w-[380px] flex-shrink-0">
+                        <div class="grid grid-cols-1">
+                            <!-- Image Section -->
+                            <div class="bg-gradient-to-br from-purple-500 to-pink-500 p-6 flex items-center justify-center min-h-[150px]">
+                                {% if solution.get_image %}
+                                <img src="{{ solution.get_image }}" alt="{{ solution.title }}" class="w-full h-full object-cover rounded-t-3xl">
+                                {% else %}
+                                <div class="text-center text-white">
+                                    <i class="fas fa-trophy text-4xl mb-3 opacity-80"></i>
+                                    <h3 class="text-lg font-bold mb-1">Case Study</h3>
+                                    <p class="text-purple-100 text-sm">Proven results</p>
+                                </div>
+                                {% endif %}
                             </div>
-                            <div>
-                                <p class="font-semibold text-[var(--text)]">{{ solution.client_name }}</p>
-                                <p class="text-sm text-[var(--text-secondary)]">{{ solution.industry }} Industry</p>
+                            
+                            <!-- Content Section -->
+                            <div class="p-6">
+                                <div class="flex items-center mb-4">
+                                    <span class="inline-block bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-sm font-medium px-3 py-1 rounded-full">
+                                        {{ solution.industry }}
+                                    </span>
+                                    <span class="ml-4 text-sm text-[color:var(--text-secondary)]/80">
+                                        <i class="fas fa-calendar mr-2"></i>{{ solution.completion_date|date:"M d, Y" }}
+                                    </span>
+                                </div>
+                                
+                                <h3 class="text-xl font-bold text-[var(--text)] mb-3 leading-tight">{{ solution.title }}</h3>
+                                <p class="text-[var(--text-secondary)] mb-4 leading-relaxed text-sm">{{ solution.description|truncatewords:20 }}</p>
+                                
+                                <!-- Challenge Summary -->
+                                <div class="mb-4">
+                                    <h4 class="font-semibold text-[var(--text)] mb-1 text-sm">Challenge:</h4>
+                                    <p class="text-xs text-[var(--text-secondary)]">{{ solution.challenge|truncatewords:12 }}</p>
+                                </div>
+                                
+                                <!-- Results Summary -->
+                                <div class="mb-4">
+                                    <h4 class="font-semibold text-[var(--text)] mb-1 text-sm">Results:</h4>
+                                    <p class="text-xs text-[var(--text-secondary)]">{{ solution.results|truncatewords:12 }}</p>
+                                </div>
+                                
+                                <!-- Client Info -->
+                                <div class="flex items-center mb-4">
+                                    <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas fa-building text-white text-xs"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-[var(--text)] text-xs">{{ solution.client_name }}</p>
+                                        <p class="text-xs text-[var(--text-secondary)]">{{ solution.industry }} Industry</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Action Button -->
+                                <a href="{% url 'ai_solution_app:solution_detail' solution.id %}" class="w-full inline-block bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 text-center text-sm cursor-pointer border-0 focus:outline-none focus:ring-2 focus:ring-purple-300">
+                                    View case study
+                                    <i class="fas fa-arrow-right ml-2"></i>
+                                </a>
                             </div>
                         </div>
-                        <a href="{% url 'ai_solution_app:solution_detail' solution.id %}" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full font-semibold hover:from-green-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                            View Full Case Study
-                            <i class="fas fa-arrow-right ml-2"></i>
-                        </a>
                     </div>
+                    {% endfor %}
                 </div>
             </div>
+            
+            <!-- Scroll Indicators -->
+            <div class="flex justify-center mt-4 space-x-2">
+                <button class="scroll-left-btn w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white hover:from-purple-600 hover:to-pink-600 transition-all duration-200 border-0 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="scroll-right-btn w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white hover:from-purple-600 hover:to-pink-600 transition-all duration-200 border-0 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
         </div>
-        {% endfor %}
     </div>
 </section>
 {% endif %}
@@ -107,98 +154,98 @@
             </button>
         </div>
         
-        <!-- Solutions Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {% for solution in solutions %}
-            <div class="bg-[var(--card)] rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-[var(--border)] overflow-hidden">
-                <div class="p-8">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="inline-block bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm font-medium px-3 py-1 rounded-full">
-                            {{ solution.industry }}
-                        </span>
-                        {% if solution.is_featured %}
-                        <span class="inline-block bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-sm font-medium px-3 py-1 rounded-full">
-                            Featured
-                        </span>
-                        {% endif %}
-                    </div>
-                    
-                    <h3 class="text-xl font-bold text-[var(--text)] mb-4 leading-tight">{{ solution.title }}</h3>
-                    <p class="text-[var(--text-secondary)] mb-6 leading-relaxed">{{ solution.description|truncatewords:20 }}</p>
-                    
-                    <!-- Challenge Summary -->
-                    <div class="mb-6">
-                        <h4 class="font-semibold text-[var(--text)] mb-2">Challenge:</h4>
-                        <p class="text-sm text-[var(--text-secondary)]">{{ solution.challenge|truncatewords:15 }}</p>
-                    </div>
-                    
-                    <!-- Results Summary -->
-                    <div class="mb-6">
-                        <h4 class="font-semibold text-[var(--text)] mb-2">Results:</h4>
-                        <p class="text-sm text-[var(--text-secondary)]">{{ solution.results|truncatewords:12 }}</p>
-                    </div>
-                    
-                    <!-- Technologies Used -->
-                    {% if solution.technologies_used %}
-                    <div class="mb-6">
-                        <h4 class="font-semibold text-[var(--text)] mb-2">Technologies:</h4>
-                        <div class="flex flex-wrap gap-2">
-                            {% for tech in solution.technologies_used|slice:":3" %}
-                            <span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded-full">
-                                {{ tech }}
-                            </span>
-                            {% endfor %}
-                            {% if solution.technologies_used|length > 3 %}
-                            <span class="inline-block bg-[var(--hover)] text-[var(--text-secondary)] text-xs px-2 py-1 rounded-full">
-                                +{{ solution.technologies_used|length|add:"-3" }} more
-                            </span>
+        <!-- Solutions Carousel -->
+        <div class="relative">
+            <button class="all-solutions-left-btn absolute left-0 top-1/2 z-10 transform -translate-y-1/2 w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white hover:from-purple-600 hover:to-pink-600 transition-all duration-200 border-0 shadow-lg hover:shadow-xl">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="all-solutions-carousel overflow-x-auto scrollbar-hide pb-4">
+                <div class="flex gap-6 min-w-max">
+                    {% for solution in solutions %}
+                    <div class="bg-[var(--card)] rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-[var(--border)] overflow-hidden min-w-[350px] max-w-[400px] flex-shrink-0">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="inline-block bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-sm font-medium px-3 py-1 rounded-full">
+                                    {{ solution.industry }}
+                                </span>
+                                {% if solution.is_featured %}
+                                <span class="inline-block bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-sm font-medium px-3 py-1 rounded-full">
+                                    Featured
+                                </span>
+                                {% endif %}
+                            </div>
+                            
+                            <h3 class="text-lg font-bold text-[var(--text)] mb-3 leading-tight">{{ solution.title }}</h3>
+                            <p class="text-[var(--text-secondary)] mb-4 leading-relaxed text-sm">{{ solution.description|truncatewords:18 }}</p>
+                            
+                            <!-- Challenge Summary -->
+                            <div class="mb-4">
+                                <h4 class="font-semibold text-[var(--text)] mb-1 text-sm">Challenge:</h4>
+                                <p class="text-xs text-[var(--text-secondary)]">{{ solution.challenge|truncatewords:12 }}</p>
+                            </div>
+                            
+                            <!-- Results Summary -->
+                            <div class="mb-4">
+                                <h4 class="font-semibold text-[var(--text)] mb-1 text-sm">Results:</h4>
+                                <p class="text-xs text-[var(--text-secondary)]">{{ solution.results|truncatewords:10 }}</p>
+                            </div>
+                            
+                            <!-- Technologies Used -->
+                            {% if solution.technologies_used %}
+                            <div class="mb-4">
+                                <h4 class="font-semibold text-[var(--text)] mb-1 text-sm">Technologies:</h4>
+                                <div class="flex flex-wrap gap-1">
+                                    {% for tech in solution.technologies_used|slice:":2" %}
+                                    <span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded-full">
+                                        {{ tech }}
+                                    </span>
+                                    {% endfor %}
+                                    {% if solution.technologies_used|length > 2 %}
+                                    <span class="inline-block bg-[var(--hover)] text-[var(--text-secondary)] text-xs px-2 py-1 rounded-full">
+                                        +{{ solution.technologies_used|length|add:"-2" }} more
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
                             {% endif %}
+                            
+                            <!-- Client Info -->
+                            <div class="flex items-center mb-4">
+                                <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-3">
+                                    <i class="fas fa-building text-white text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-[var(--text)] text-xs">{{ solution.client_name }}</p>
+                                    <p class="text-xs text-[var(--text-secondary)]">{{ solution.completion_date|date:"M Y" }}</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Action Links -->
+                            <div class="flex gap-4 text-sm">
+                                <a href="{% url 'ai_solution_app:solution_detail' solution.id %}" class="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-semibold cursor-pointer transition-colors duration-200">
+                                    Learn more
+                                </a>
+                                <a href="{% url 'ai_solution_app:contact_us' %}" class="text-pink-600 dark:text-pink-400 hover:text-pink-800 dark:hover:text-pink-300 font-semibold cursor-pointer transition-colors duration-200">
+                                    Get similar solution
+                                </a>
+                            </div>
                         </div>
                     </div>
-                    {% endif %}
-                    
-                    <!-- Client Info -->
-                    <div class="flex items-center mb-6">
-                        <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center mr-3">
-                            <i class="fas fa-building text-white text-sm"></i>
+                    {% empty %}
+                    <div class="min-w-[350px] text-center py-12">
+                        <div class="w-24 h-24 bg-[var(--hover)] rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-trophy text-3xl text-[var(--text-secondary)]"></i>
                         </div>
-                        <div>
-                            <p class="font-semibold text-[var(--text)] text-sm">{{ solution.client_name }}</p>
-                            <p class="text-xs text-[var(--text-secondary)]">{{ solution.completion_date|date:"M Y" }}</p>
-                        </div>
+                        <h3 class="text-xl font-semibold text-[var(--text-secondary)] mb-2">No Solutions Available</h3>
+                        <p class="text-[var(--text-secondary)]">We're gathering our success stories. Check back soon!</p>
                     </div>
-                    
-                    <!-- Action Buttons -->
-                    <div class="flex gap-3">
-                        <a href="{% url 'ai_solution_app:solution_detail' solution.id %}" class="flex-1 bg-gradient-to-r from-green-500 to-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:from-green-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 text-center">
-                            Learn More
-                        </a>
-                        <a href="{% url 'ai_solution_app:contact_us' %}" class="flex-1 border-2 border-green-500 text-green-600 dark:text-green-400 px-6 py-3 rounded-full font-semibold hover:bg-green-500 hover:text-white transition-all duration-300 transform hover:scale-105 text-center">
-                            Get Similar Solution
-                        </a>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
-            {% empty %}
-            <div class="col-span-full text-center py-12">
-                <div class="w-24 h-24 bg-[var(--hover)] rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-trophy text-3xl text-[var(--text-secondary)]"></i>
-                </div>
-                <h3 class="text-xl font-semibold text-[var(--text-secondary)] mb-2">No Solutions Available</h3>
-                <p class="text-[var(--text-secondary)]">We're gathering our success stories. Check back soon!</p>
-            </div>
-            {% endfor %}
-        </div>
-        
-        <!-- Load More Button -->
-        {% if solutions|length > 6 %}
-        <div class="text-center mt-12">
-            <button class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-green-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                Load More Solutions
-                <i class="fas fa-chevron-down ml-2"></i>
+            <button class="all-solutions-right-btn absolute right-0 top-1/2 z-10 transform -translate-y-1/2 w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white hover:from-purple-600 hover:to-pink-600 transition-all duration-200 border-0 shadow-lg hover:shadow-xl">
+                <i class="fas fa-chevron-right"></i>
             </button>
         </div>
-        {% endif %}
     </div>
 </section>
 
@@ -267,7 +314,7 @@
     </div>
 </section>
 
-<!-- JavaScript for Industry Filter -->
+<!-- JavaScript for Industry Filter and Case Studies Scroll -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Industry filter button styling (theme-safe)
@@ -290,6 +337,129 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => { solutionsGrid.style.opacity = '1'; }, 200);
         });
     });
+
+    // Case Studies Horizontal Scroll Functionality
+    const scrollContainer = document.querySelector('.overflow-x-auto');
+    const scrollLeftBtn = document.querySelector('.scroll-left-btn');
+    const scrollRightBtn = document.querySelector('.scroll-right-btn');
+    
+    if (scrollContainer && scrollLeftBtn && scrollRightBtn) {
+        const scrollAmount = 350; // Adjust scroll distance for smaller cards
+        
+        scrollLeftBtn.addEventListener('click', function() {
+            scrollContainer.scrollBy({
+                left: -scrollAmount,
+                behavior: 'smooth'
+            });
+        });
+        
+        scrollRightBtn.addEventListener('click', function() {
+            scrollContainer.scrollBy({
+                left: scrollAmount,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Update button visibility and styling based on scroll position
+        function updateScrollButtons() {
+            const { scrollLeft, scrollWidth, clientWidth } = scrollContainer;
+            
+            // Left button
+            if (scrollLeft > 0) {
+                scrollLeftBtn.style.opacity = '1';
+                scrollLeftBtn.style.transform = 'scale(1)';
+            } else {
+                scrollLeftBtn.style.opacity = '0.6';
+                scrollLeftBtn.style.transform = 'scale(0.95)';
+            }
+            
+            // Right button
+            if (scrollLeft < scrollWidth - clientWidth - 10) {
+                scrollRightBtn.style.opacity = '1';
+                scrollRightBtn.style.transform = 'scale(1)';
+            } else {
+                scrollRightBtn.style.opacity = '0.6';
+                scrollRightBtn.style.transform = 'scale(0.95)';
+            }
+        }
+        
+        scrollContainer.addEventListener('scroll', updateScrollButtons);
+        updateScrollButtons(); // Initial check
+        
+        // Add keyboard support
+        scrollContainer.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                scrollContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            } else if (e.key === 'ArrowRight') {
+                scrollContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+        });
+        
+        // Make scroll container focusable
+        scrollContainer.setAttribute('tabindex', '0');
+    }
+
+    // All Solutions Carousel Functionality
+    const allSolutionsCarousel = document.querySelector('.all-solutions-carousel');
+    const allSolutionsLeftBtn = document.querySelector('.all-solutions-left-btn');
+    const allSolutionsRightBtn = document.querySelector('.all-solutions-right-btn');
+    
+    if (allSolutionsCarousel && allSolutionsLeftBtn && allSolutionsRightBtn) {
+        const scrollAmount = 380; // Adjust scroll distance for card width + gap
+        
+        allSolutionsLeftBtn.addEventListener('click', function() {
+            allSolutionsCarousel.scrollBy({
+                left: -scrollAmount,
+                behavior: 'smooth'
+            });
+        });
+        
+        allSolutionsRightBtn.addEventListener('click', function() {
+            allSolutionsCarousel.scrollBy({
+                left: scrollAmount,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Update button visibility and styling based on scroll position
+        function updateAllSolutionsButtons() {
+            const { scrollLeft, scrollWidth, clientWidth } = allSolutionsCarousel;
+            
+            // Left button
+            if (scrollLeft > 0) {
+                allSolutionsLeftBtn.style.opacity = '1';
+                allSolutionsLeftBtn.style.transform = 'translateY(-50%) scale(1)';
+            } else {
+                allSolutionsLeftBtn.style.opacity = '0.6';
+                allSolutionsLeftBtn.style.transform = 'translateY(-50%) scale(0.95)';
+            }
+            
+            // Right button
+            if (scrollLeft < scrollWidth - clientWidth - 10) {
+                allSolutionsRightBtn.style.opacity = '1';
+                allSolutionsRightBtn.style.transform = 'translateY(-50%) scale(1)';
+            } else {
+                allSolutionsRightBtn.style.opacity = '0.6';
+                allSolutionsRightBtn.style.transform = 'translateY(-50%) scale(0.95)';
+            }
+        }
+        
+        allSolutionsCarousel.addEventListener('scroll', updateAllSolutionsButtons);
+        updateAllSolutionsButtons(); // Initial check
+        
+        // Add keyboard support
+        allSolutionsCarousel.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                allSolutionsCarousel.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            } else if (e.key === 'ArrowRight') {
+                allSolutionsCarousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+        });
+        
+        // Make scroll container focusable
+        allSolutionsCarousel.setAttribute('tabindex', '0');
+    }
 });
 </script>
 {% endblock %}
+

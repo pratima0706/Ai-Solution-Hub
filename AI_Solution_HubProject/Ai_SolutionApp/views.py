@@ -80,8 +80,13 @@ def past_solutions(request):
     # Get unique industries for filter
     industries = PastSolution.objects.values_list('industry', flat=True).distinct()
     
+    # Get featured solutions for case studies section
+    featured_solutions = PastSolution.objects.filter(is_featured=True).order_by('-completion_date')[:3]
+    
     context = {
         'page_obj': page_obj,
+        'solutions': solutions_list,
+        'featured_solutions': featured_solutions,
         'industries': industries,
         'selected_industry': industry,
         'site_settings': SiteSettings.get_settings(),
@@ -175,7 +180,7 @@ def customer_feedback(request):
                     review=review,
                     is_verified=False  # New testimonials need admin approval
                 )
-                messages.success(request, 'Thank you for your feedback! Your testimonial has been submitted and will be reviewed by our team.')
+                messages.success(request, 'Thank you! Your testimonial has been submitted and will appear on our website after a short review by our team.')
             except Exception as e:
                 messages.error(request, 'There was an error submitting your testimonial. Please try again.')
         else:
@@ -654,3 +659,4 @@ def event_registration_success(request, event_id):
         'site_settings': SiteSettings.get_settings(),
     }
     return render(request, 'ai_solution_app/event_registration_success.html', context)
+

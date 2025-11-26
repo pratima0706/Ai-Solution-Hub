@@ -3,6 +3,27 @@
 {% block title %}Customer Feedback & Testimonials - AI Solution Hub{% endblock %}
 
 {% block content %}
+{% if messages %}
+<div id="flash-messages" class="mx-auto mb-6 max-w-2xl">
+  {% for message in messages %}
+    <div class="flash-message rounded-xl shadow-lg p-5 mb-2 text-white text-center {% if message.tags == 'success' %}bg-green-500{% elif message.tags == 'error' %}bg-red-500{% else %}bg-yellow-500{% endif %}">
+      {{ message }}
+    </div>
+  {% endfor %}
+</div>
+<script>
+  setTimeout(function() {
+    var flash = document.getElementById('flash-messages');
+    if (flash) {
+      flash.style.transition = 'opacity 0.8s';
+      flash.style.opacity = 0;
+      setTimeout(function() {
+        flash.remove();
+      }, 900);
+    }
+  }, 3000); // show for 3 seconds before fading out
+</script>
+{% endif %}
 <!-- Hero Section -->
 <section class="relative min-h-[50vh] md:min-h-[60vh] flex items-center justify-center hero-landing hero-landing-overlay text-white py-12 md:py-14">
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -31,11 +52,11 @@
         {% for testimonial in featured_testimonials|slice:":1" %}
         <div class="bg-white dark:bg-gray-700 rounded-3xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-600">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-0">
-                <div class="bg-gradient-to-br from-yellow-500 to-orange-600 p-12 flex items-center justify-center">
+                <div class="bg-gradient-to-br from-amber-500 to-orange-500 p-12 flex items-center justify-center">
                     <div class="text-center text-white">
                         <i class="fas fa-star text-6xl mb-6 opacity-80"></i>
                         <h3 class="text-2xl font-bold mb-4">Featured Review</h3>
-                        <p class="text-yellow-100">Exceptional client satisfaction</p>
+                        <p class="text-amber-100">Exceptional client satisfaction</p>
                     </div>
                 </div>
                 <div class="p-12">
@@ -51,7 +72,7 @@
                     </blockquote>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
-                            <div class="w-16 h-16 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-full flex items-center justify-center mr-4">
+                            <div class="w-16 h-16 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center mr-4">
                                 <i class="fas fa-user text-white text-xl"></i>
                             </div>
                             <div>
@@ -97,11 +118,12 @@
             </button>
         </div>
         
-        <!-- Testimonials Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {% for testimonial in testimonials %}
-            <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-200 dark:border-gray-600 overflow-hidden">
-                <div class="p-8">
+        <!-- Testimonials Carousel -->
+        <div class="testimonial-carousel-wrap relative">
+            <button class="testimonial-carousel-btn left absolute left-0 top-1/2 z-10 transform -translate-y-1/2 px-3 py-2 bg-amber-500 text-white rounded-full shadow-md">&#8592;</button>
+            <div class="testimonial-carousel flex gap-2 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-6">
+                {% for testimonial in page_obj %}
+                <div class="testimonial-card min-w-[340px] max-w-[420px] snap-center bg-white dark:bg-gray-700 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-600 p-8 flex-shrink-0">
                     <!-- Rating Stars -->
                     <div class="flex items-center mb-6">
                         <div class="flex text-yellow-400 mb-4">
@@ -140,33 +162,30 @@
                     <!-- Industry Tag -->
                     {% if testimonial.industry %}
                     <div class="mt-4">
-                        <span class="inline-block bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs px-3 py-1 rounded-full">
+                        <span class="inline-block bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 text-xs px-3 py-1 rounded-full">
                             {{ testimonial.industry }}
                         </span>
                     </div>
                     {% endif %}
                 </div>
+                {% empty %}
+                <div class="col-span-full text-center py-12">No Reviews Available</div>
+                {% endfor %}
             </div>
-            {% empty %}
-            <div class="col-span-full text-center py-12">
-                <div class="w-24 h-24 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-comments text-3xl text-gray-400 dark:text-gray-500"></i>
-                </div>
-                <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">No Reviews Available</h3>
-                <p class="text-gray-500 dark:text-gray-500">We're collecting client feedback. Check back soon!</p>
-            </div>
-            {% endfor %}
+            <button class="testimonial-carousel-btn right absolute right-0 top-1/2 z-10 transform -translate-y-1/2 px-3 py-2 bg-amber-500 text-white rounded-full shadow-md">&#8594;</button>
         </div>
-        
-        <!-- Load More Button -->
-        {% if testimonials|length > 6 %}
-        <div class="text-center mt-12">
-            <button class="bg-gradient-to-r from-yellow-500 to-orange-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-yellow-600 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                Load More Reviews
-                <i class="fas fa-chevron-down ml-2"></i>
-            </button>
-        </div>
-        {% endif %}
+        <!-- Carousel JS -->
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const carousel = document.querySelector('.testimonial-carousel');
+            const leftBtn = document.querySelector('.testimonial-carousel-btn.left');
+            const rightBtn = document.querySelector('.testimonial-carousel-btn.right');
+            if (carousel && leftBtn && rightBtn) {
+                leftBtn.onclick = () => { carousel.scrollBy({left: -carousel.offsetWidth, behavior: 'smooth'}); };
+                rightBtn.onclick = () => { carousel.scrollBy({left: carousel.offsetWidth, behavior: 'smooth'}); };
+            }
+        });
+        </script>
     </div>
 </section>
 

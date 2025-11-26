@@ -915,6 +915,25 @@ def testimonials(request):
             'total_count': 0,
         })
 
+@csrf_exempt
+@login_required
+@user_passes_test(is_content_manager)
+def toggle_testimonial_verification(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=400)
+    testimonial_id = request.POST.get('testimonial_id')
+    if not testimonial_id:
+        return JsonResponse({'success': False, 'error': 'Missing testimonial ID.'}, status=400)
+    try:
+        testimonial = Testimonial.objects.get(id=testimonial_id)
+        testimonial.is_verified = not testimonial.is_verified
+        testimonial.save()
+        return JsonResponse({'success': True, 'is_verified': testimonial.is_verified})
+    except Testimonial.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Testimonial not found.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
 @login_required
 @user_passes_test(is_content_manager)
 def articles(request):

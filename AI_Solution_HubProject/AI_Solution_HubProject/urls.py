@@ -25,6 +25,7 @@ from django.contrib.sitemaps.views import sitemap
 from Ai_SolutionApp.admin import custom_admin_site
 from Ai_SolutionApp import views
 from Ai_SolutionApp.sitemap import StaticViewSitemap, ServiceSitemap, PastSolutionSitemap, EventSitemap, ArticleSitemap
+from Ai_SolutionApp import admin_views
 
 def robots_txt(request):
     """Serve robots.txt to fix 404 error"""
@@ -77,6 +78,7 @@ urlpatterns = [
     path('accounts/password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
     path('accounts/reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('accounts/reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    path('admin/toggle_verification/', admin_views.toggle_testimonial_verification, name='admin_toggle_testimonial_verification'),
 ]
 
 # Serve media files during development

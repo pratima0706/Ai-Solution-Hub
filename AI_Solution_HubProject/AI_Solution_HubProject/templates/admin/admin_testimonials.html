@@ -529,9 +529,49 @@ function toggleFeatured(testimonialId) {
 }
 
 function toggleVerified(testimonialId) {
-    // This would typically make an AJAX request
-    showNotification('Testimonial verification status updated!', 'success');
-    location.reload();
+    fetch("/admin/toggle_verification/", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': (getCookie('csrftoken') || ''),
+        },
+        body: new URLSearchParams({testimonial_id: testimonialId})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // Instantly update UI
+            const card = document.querySelector(`[onclick="toggleVerified('${testimonialId}')"]`).closest('.testimonial-card');
+            let badge = card.querySelector('.badge.bg-success');
+            if (data.is_verified) {
+                if (!badge) {
+                    let newBadge = document.createElement('span');
+                    newBadge.className = 'badge bg-success';
+                    newBadge.innerText = 'Verified';
+                    card.querySelector('.testimonial-badges').appendChild(newBadge);
+                }
+            } else if (badge) {
+                badge.remove();
+            }
+            showNotification('Verification status updated!', 'success');
+        } else {
+            alert(data.error || 'Error updating status');
+        }
+    })
+    .catch(()=>alert('Error updating status'));
+}
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 
 function deleteTestimonial(testimonialId, customerName) {
