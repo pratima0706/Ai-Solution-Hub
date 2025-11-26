@@ -57,7 +57,7 @@ or academic projects requiring scalable content, data integrity, and advanced bu
 ## Quick Start
 ```bash
 # Clone and enter the project
-$ git clone https://github.com/pratimaneupane/ai-solution-hub.git
+$ git clone https://github.com/pratima0706/ai-solution-hub.git
 $ cd AI-Solution\ Hub/AI_Solution_HubProject
 
 # Setup virtual environment and install dependencies
@@ -110,9 +110,7 @@ python manage.py test
 
 ## Contact & Links
 **Project by:** Pratima Neupane  
-**LinkedIn:** www.linkedin.com/in/pratima-neupane-3aa307365
 **Email:** pratimaneupane0706@gmail.com  
-**GitHub:** https://github.com/pratima0706
 
 ---
 
