@@ -111,7 +111,7 @@ python manage.py test
 ## Contact & Links
 **Project by:** Pratima Neupane  
 **LinkedIn:** www.linkedin.com/in/pratima-neupane-3aa307365
-**Email:** pratimaneupane0706@email.com  
+**Email:** pratimaneupane0706@gmail.com  
 **GitHub:** https://github.com/pratima0706
 
 ---
